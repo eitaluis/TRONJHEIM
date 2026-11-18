@@ -68,8 +68,8 @@
 <body>
 <div id="hud">
   <div id="topbar">
-    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 02 — PORTÃO E GRANDE CORREDOR</p></div>
-    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Exploração rápida · portão e interior em construção<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 03 — CÂMARA CENTRAL E CORREDORES</p></div>
+    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Exploração rápida · câmara central em construção<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
   <div id="right" class="plate">
     <span class="tag">Base documental</span>
@@ -174,7 +174,7 @@
   </div>
   <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
 </div>
-<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore Farthen Dûr e entre pelo portão monumental no grande corredor de quatro pavimentos de Tronjheim. Esta etapa acrescenta a arquitetura interna da entrada.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
+<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore Farthen Dûr, atravesse o portão monumental e descubra a câmara central de Tronjheim, com piso de cornalina, emblema de Korgan, galerias e corredores laterais.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
@@ -654,6 +654,133 @@ function buildOuterLanterns(){
 }
 buildCity();
 
+// ============================================================================
+// FASE 3 — CÂMARA CENTRAL E TRÊS CORREDORES PRINCIPAIS
+// [LIVRO] Câmara com cerca de 1.000 pés (304,8 m) de diâmetro; piso de
+// cornalina com emblema de Korgan; galerias e circulação em quatro direções.
+// [INTERPRETAÇÃO] alturas, desenho exato das arcadas, modulação e ornamentação.
+// O grande corredor oriental construído na Fase 2 conecta-se pelo lado leste.
+// ============================================================================
+function buildCentralChamber(){
+  const floorY=ENTRY_HALL_FLOOR;
+  const radius=152.4, wallRadius=146.5, chamberHeight=116;
+  const stone=new THREE.MeshStandardMaterial({color:0xc9c9c5,roughness:.38,metalness:.035});
+  const pale=new THREE.MeshStandardMaterial({color:0xe0ded6,roughness:.34});
+  const redJasper=new THREE.MeshStandardMaterial({color:0x702b34,roughness:.34,metalness:.08});
+  const darkJasper=new THREE.MeshStandardMaterial({color:0x3e2027,roughness:.42});
+  const bronze=new THREE.MeshStandardMaterial({color:0x9c7942,metalness:.76,roughness:.28});
+  const carnelian=new THREE.MeshStandardMaterial({color:0x8e3528,roughness:.3,metalness:.08});
+  const darkRed=new THREE.MeshStandardMaterial({color:0x542027,roughness:.38});
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(radius,160),carnelian);
+  floor.rotation.x=-Math.PI/2;floor.position.y=floorY+.12;floor.receiveShadow=true;scene.add(floor);
+
+  // Large polished floor medallion and concentric stone/brass inlay.
+  for(const [r,tube,mat] of [[146,1.1,pale],[132,.55,bronze],[108,.42,darkRed],[82,.42,bronze],[57,.35,pale]]){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,tube,8,192),mat);
+    ring.rotation.x=Math.PI/2;ring.position.y=floorY+.28;scene.add(ring);
+  }
+  // Radial joints in the carnelian pavement: subtle, broad stone sectors.
+  const seamMat=new THREE.MeshStandardMaterial({color:0x55252a,roughness:.62});
+  for(let i=0;i<32;i++){
+    const a=i*Math.PI/16;
+    const seam=new THREE.Mesh(new THREE.BoxGeometry(1.15, .12, radius*1.82),seamMat);
+    seam.position.set(0,floorY+.22,0);seam.rotation.y=a;scene.add(seam);
+  }
+
+  // Hammer emblem of Korgan, inlaid in pale stone and bronze at the center.
+  const emblem=new THREE.Group();emblem.position.set(0,floorY+.48,0);
+  const head=new THREE.Mesh(new THREE.BoxGeometry(31,1.15,12),pale);
+  head.position.set(0,0,-7);emblem.add(head);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(8,1.25,20),bronze);
+  cap.position.set(0,.02,-7);emblem.add(cap);
+  const haft=new THREE.Mesh(new THREE.BoxGeometry(6.5,1.1,42),pale);
+  haft.position.set(0,0,16);haft.rotation.y=-.18;emblem.add(haft);
+  const pommel=new THREE.Mesh(new THREE.OctahedronGeometry(5,0),bronze);
+  pommel.position.set(0,.2,37);emblem.add(pommel);scene.add(emblem);
+
+  // Concentric raised galleries around the chamber, open to the central void.
+  const levels=[24,49,74,99];
+  for(let i=0;i<levels.length;i++){
+    const y=floorY+levels[i];
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(wallRadius-9,2.5,10,192),pale);
+    ring.rotation.x=Math.PI/2;ring.position.y=y;scene.add(ring);
+    const innerBand=new THREE.Mesh(new THREE.TorusGeometry(104,1.4,8,160),bronze);
+    innerBand.rotation.x=Math.PI/2;innerBand.position.y=y-1.5;scene.add(innerBand);
+    // Segmented balcony walkways, leaving the four cardinal openings clear.
+    for(let seg=0;seg<32;seg++){
+      const a=seg*Math.PI/16;
+      const nearAxis=[0,Math.PI/2,Math.PI,Math.PI*1.5].some(v=>Math.abs(Math.atan2(Math.sin(a-v),Math.cos(a-v)))<.16);
+      if(nearAxis)continue;
+      const block=new THREE.Mesh(new THREE.BoxGeometry(22,2.4,13),stone);
+      block.position.set(Math.cos(a)*125,y-2.3,Math.sin(a)*125);
+      block.rotation.y=-a;block.receiveShadow=true;scene.add(block);
+    }
+  }
+
+  // Tall perimeter piers and carved capitals form the chamber's monumental rhythm.
+  const columnGeo=makeFlutedColumnGeometry(4.25,chamberHeight,20);
+  const baseGeo=new THREE.CylinderGeometry(6.1,6.8,2.2,16);
+  const capGeo=new THREE.BoxGeometry(12,3.2,12);
+  for(let i=0;i<32;i++){
+    const a=i*Math.PI/16;
+    const x=Math.cos(a)*wallRadius,z=Math.sin(a)*wallRadius;
+    const col=new THREE.Mesh(columnGeo,redJasper);
+    col.position.set(x,floorY+chamberHeight/2,z);col.castShadow=true;scene.add(col);
+    const base=new THREE.Mesh(baseGeo,darkJasper);base.position.set(x,floorY+1.1,z);scene.add(base);
+    const cap=new THREE.Mesh(capGeo,pale);cap.position.set(x,floorY+chamberHeight-1.5,z);scene.add(cap);
+    const inset=new THREE.Mesh(new THREE.BoxGeometry(2.3,17,.7),bronze);
+    inset.position.set(x-Math.cos(a)*4,floorY+chamberHeight*.68,z-Math.sin(a)*4);
+    inset.rotation.y=-a;scene.add(inset);
+  }
+
+  // Four cardinal portals. The eastern opening is occupied by the already-built
+  // one-mile entrance hall; the other three continue as navigable side corridors.
+  const directions=[
+    {id:"north",x:0,z:-1,angle:0},
+    {id:"south",x:0,z:1,angle:Math.PI},
+    {id:"west",x:-1,z:0,angle:Math.PI/2}
+  ];
+  const corridorLength=390,width=38,height=34,start=132,end=radius+corridorLength;
+  for(const d of directions){
+    const cx=d.x*(start+corridorLength/2),cz=d.z*(start+corridorLength/2);
+    const floor=new THREE.Mesh(new THREE.BoxGeometry(d.x?corridorLength:width,2.1,d.z?corridorLength:width),stone);
+    floor.position.set(cx,floorY-1.05,cz);scene.add(floor);
+    const roof=new THREE.Mesh(new THREE.BoxGeometry(d.x?corridorLength:width,2.4,d.z?corridorLength:width),stone);
+    roof.position.set(cx,floorY+height+1.2,cz);scene.add(roof);
+    for(const side of [-1,1]){
+      const wx=d.x?cx+side*width/2:cx+side*corridorLength/2;
+      const wz=d.z?cz+side*width/2:cz+side*corridorLength/2;
+      const wall=new THREE.Mesh(new THREE.BoxGeometry(d.x?corridorLength:2.4,height,d.z?2.4:width),stone);
+      wall.position.set(wx,floorY+height/2,wz);scene.add(wall);
+    }
+    // Repeated jasper piers, arch ribs, and warm lanterns along each branch.
+    for(let p=0;p<=5;p++){
+      const dist=start+18+p*76;
+      for(const side of [-1,1]){
+        const x=d.x*dist+(d.z?side*width*.39:0);
+        const z=d.z*dist+(d.x?side*width*.39:0);
+        const pier=new THREE.Mesh(new THREE.BoxGeometry(3.1,height,3.1),redJasper);
+        pier.position.set(x,floorY+height/2,z);scene.add(pier);
+        const capital=new THREE.Mesh(new THREE.BoxGeometry(6,2.2,6),pale);
+        capital.position.set(x,floorY+height-1,z);scene.add(capital);
+        const lamp=new THREE.Mesh(new THREE.SphereGeometry(1.7,10,8),MAT.lantern);
+        lamp.position.set(x,floorY+height-5,z);scene.add(lamp);
+      }
+      const rib=new THREE.Mesh(new THREE.BoxGeometry(d.x?3.2:width,2.4,d.z?3.2:width),pale);
+      rib.position.set(d.x*dist,floorY+height-1.2,d.z*dist);scene.add(rib);
+    }
+  }
+
+  // Low perimeter lighting gives the chamber depth without washing out the stone.
+  const lightGeo=new THREE.SphereGeometry(1.8,10,8);
+  for(let i=0;i<24;i++){
+    const a=i*Math.PI/12,x=Math.cos(a)*116,z=Math.sin(a)*116;
+    const lamp=new THREE.Mesh(lightGeo,MAT.lantern);lamp.position.set(x,floorY+7,z);scene.add(lamp);
+    const glow=new THREE.PointLight(0xd99a54,22,48,2);glow.position.set(x,floorY+8,z);scene.add(glow);
+  }
+}
+buildCentralChamber();
+
 // EASTERN TUNNEL THROUGH CRATER WALL: [LIVRO] the entry tunnel opens into the
 // crater. Its precise location and facade dimensions are treated as interpretation.
 function buildCraterTunnel(){
@@ -714,6 +841,10 @@ function alturaChao(x,z){
   return h+offsetY;
 }
 const pontosTP=[
+  {id:"central",nome:"Câmara central",x:0,z:0,yaw:0,pitch:-.03,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"northHall",nome:"Corredor norte",x:0,z:-260,yaw:0,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"southHall",nome:"Corredor sul",x:0,z:260,yaw:Math.PI,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"westHall",nome:"Corredor oeste",x:-260,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"tunnel",nome:"Entrada da montanha",x:7800,z:0,yaw:Math.PI/2,pitch:0},
   {id:"approach",nome:"Caminho central",x:4650,z:0,yaw:Math.PI/2,pitch:0},
   {id:"gate",nome:"Portão de Tronjheim",x:TRONJHEIM_GATE.facadeX+42,z:0,yaw:Math.PI/2,pitch:-.04},
@@ -791,7 +922,7 @@ function atualizarJogador(dt){
   if(teclas.KeyA||teclas.ArrowLeft)direcao.sub(direita);
   if(direcao.lengthSq()>0)direcao.normalize();
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
-  const velocidade=vooLivre?230:(correndo?145:80);
+  const velocidade=vooLivre?230:(correndo?725:400);
   jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   jogador.pos.x+=jogador.vel.x*dt;jogador.pos.z+=jogador.vel.z*dt;limitarAoInterior(jogador.pos);
