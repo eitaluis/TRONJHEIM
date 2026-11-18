@@ -82,7 +82,7 @@ buildCraterWall();
 let groundMesh=null;
 let groundGrid=null;
 function buildGround(){
-  const size=16400, seg=480, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
+  const size=16400, seg=640, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
   const p=g.attributes.position, colors=[];
   const heights=new Float32Array(p.count);
   for(let i=0;i<p.count;i++){
@@ -90,7 +90,9 @@ function buildGround(){
     const broad=fbm(x*.00065,z*.00065);
     const middle=fbm(x*.0021+17,z*.0021-9);
     const fine=fbm(x*.009+31,z*.009-23);
-    const naturalHeight=broad*14+middle*3.2+fine*.72+
+    const micro=fbm(x*.018+43,z*.018-37),grain=fbm(x*.043-71,z*.043+29);
+    const ridges=1-Math.abs(fbm(x*.0032+11,z*.0032-19));
+    const naturalHeight=broad*14+middle*3.2+fine*.72+micro*1.65+grain*.58+ridges*1.15+
       Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
     const blend=THREE.MathUtils.smoothstep(Math.hypot(x,z),1800,2300);
     const localHeight=THREE.MathUtils.lerp(0,naturalHeight,blend);
@@ -117,9 +119,11 @@ function buildGround(){
 buildGround();
 
 function terrainHeightAnalytic(x,z){
+  const micro=fbm(x*.018+43,z*.018-37),grain=fbm(x*.043-71,z*.043+29);
+  const ridges=1-Math.abs(fbm(x*.0032+11,z*.0032-19));
   const natural=fbm(x*.00065,z*.00065)*14+
     fbm(x*.0021+17,z*.0021-9)*3.2+
-    fbm(x*.009+31,z*.009-23)*.72+
+    fbm(x*.009+31,z*.009-23)*.72+micro*1.65+grain*.58+ridges*1.15+
     Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
   const blend=THREE.MathUtils.smoothstep(Math.hypot(x,z),1800,2300);
   return -8+natural*blend;
