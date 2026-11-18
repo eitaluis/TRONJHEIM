@@ -25,13 +25,16 @@ function alturaChao(x,z){
 }
 const pontosTP=[
   {id:"central",nome:"Câmara central",x:0,z:0,yaw:0,pitch:-.03,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"volTurinLower",nome:"Vol Turin — base",x:volTurinPointAtProgress(.018).x,z:volTurinPointAtProgress(.018).z,yaw:Math.PI/2-VOL_TURIN_START_ANGLE,pitch:0,levelY:VOL_TURIN_BASE_Y+Math.floor(.018*VOL_TURIN_STEP_COUNT)*VOL_TURIN_STEP_RISE+1.7},
-  {id:"volTurinUpper",nome:"Vol Turin — alto",x:volTurinPointAtProgress(.985).x,z:volTurinPointAtProgress(.985).z,yaw:Math.PI/2-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*.985),pitch:0,levelY:VOL_TURIN_BASE_Y+Math.floor(.985*VOL_TURIN_STEP_COUNT)*VOL_TURIN_STEP_RISE+1.7},
+  {id:"volTurinLower",nome:"Vol Turin — base",x:volTurinPointAtProgress(.018).x,z:volTurinPointAtProgress(.018).z,yaw:Math.PI-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*.018),pitch:0,levelY:VOL_TURIN_BASE_Y+(Math.floor(.018*VOL_TURIN_STEP_COUNT)+1)*VOL_TURIN_STEP_RISE+1.7},
+  {id:"volTurinUpper",nome:"Vol Turin — alto",x:volTurinPointAtProgress(.985).x,z:volTurinPointAtProgress(.985).z,yaw:Math.PI-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*.985),pitch:0,levelY:VOL_TURIN_BASE_Y+(Math.floor(.985*VOL_TURIN_STEP_COUNT)+1)*VOL_TURIN_STEP_RISE+1.7},
   {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
-  {id:"throneAccess",nome:"Escadarias da Sala do Trono",x:-137,z:-42,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccess",nome:"Escadaria do trono — norte",x:-137,z:-42,yaw:2.034,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-137,z:42,yaw:1.107,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
+  {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"northHall",nome:"Corredor norte",x:0,z:-260,yaw:0,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"southHall",nome:"Corredor sul",x:0,z:260,yaw:Math.PI,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"westHall",nome:"Corredor oeste",x:-260,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -45,13 +48,28 @@ const pontosTP=[
   {id:"entryHall",nome:"Grande corredor — entrada",x:TRONJHEIM_GATE.doorX-120,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"deepHall",nome:"Grande corredor — interior",x:TRONJHEIM_GATE.hallEndX+310,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7}
 ];
+// M/N navigation starts from the location where the player is actually spawned.
+indiceTP=Math.max(0,pontosTP.findIndex(p=>p.id==="approach"));
 function alinharCamera(){camera.position.copy(jogador.pos);camera.rotation.order="YXZ";camera.rotation.set(pitch,yaw,0,"YXZ");}
-function teleportarIndice(i){
-  indiceTP=(i+pontosTP.length)%pontosTP.length;const p=pontosTP[indiceTP];
-  jogador.pos.set(p.x,p.levelY!==undefined?p.levelY:alturaChao(p.x,p.z)+jogador.alturaOlhos,p.z);
-  jogador.vel.set(0,0,0);jogador.noChao=true;vooLivre=false;yaw=p.yaw;pitch=p.pitch;alinharCamera();
+let locationToastTimer=null;
+function mostrarLocalAtual(p,index){
+  const label=document.getElementById("locationToast");
+  if(label){
+    label.textContent="ÁREA "+String(index+1).padStart(2,"0")+" · "+p.nome;
+    label.classList.add("show");
+    if(locationToastTimer)clearTimeout(locationToastTimer);
+    locationToastTimer=setTimeout(()=>label.classList.remove("show"),2800);
+  }
   document.getElementById("modeLabel").textContent="Local: "+p.nome;
   document.getElementById("tpAtual").textContent=p.nome;
+}
+function resetarTeclasJogador(){for(const code of Object.keys(teclas))teclas[code]=false;}
+function teleportarIndice(i){
+  indiceTP=(i+pontosTP.length)%pontosTP.length;const p=pontosTP[indiceTP];
+  resetarTeclasJogador();
+  jogador.pos.set(p.x,p.levelY!==undefined?p.levelY:alturaChao(p.x,p.z)+jogador.alturaOlhos,p.z);
+  jogador.vel.set(0,0,0);jogador.noChao=true;vooLivre=false;yaw=p.yaw;pitch=p.pitch;alinharCamera();
+  mostrarLocalAtual(p,indiceTP);
 }
 function teleportarPorId(id){const i=pontosTP.findIndex(p=>p.id===id);if(i>=0)teleportarIndice(i);}
 function inspecionarPortao(){
@@ -83,8 +101,9 @@ document.addEventListener("mousemove",e=>{
 document.addEventListener("keydown",e=>{
   if(["Space","Tab","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
   teclas[e.code]=true;
-  if(e.code==="KeyM"&&!e.repeat)teleportarIndice(indiceTP+1);
-  if(e.code==="KeyN"&&!e.repeat)teleportarIndice(indiceTP-1);
+  const plainShortcut=!e.repeat&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey;
+  if(plainShortcut&&e.code==="KeyM")teleportarIndice(indiceTP+1);
+  if(plainShortcut&&e.code==="KeyN")teleportarIndice(indiceTP-1);
   if(e.code==="KeyG"&&!e.repeat)inspecionarPortao();
   if(e.code==="KeyF"&&!e.repeat){
     vooLivre=!vooLivre;
@@ -121,7 +140,8 @@ function dentroDaArquitetura(x,z){
   const inWest=x<=-branchStart && x>=-branchEnd && Math.abs(z)<=half;
   const inUpperRoom=dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z);
   const inThroneRoom=throneRoomWalkableContains(x,z);
-  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom;
+  const inCouncilRoom=councilRoomWalkableContains(x,z);
+  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom;
 }
 function podeOcuparXZ(x,z){
   const r=Math.hypot(x,z);
@@ -155,6 +175,8 @@ function podeOcuparXZ(x,z){
   return true;
 }
 function alturaPisoNaPosicao(x,z){
+  const councilFloor=councilRoomFloorAtXZ(x,z);
+  if(councilFloor!==null)return councilFloor;
   const throneFloor=throneRoomFloorAtXZ(x,z);
   if(throneFloor!==null)return throneFloor;
   const volFloor=volTurinFloorAtXZ(x,z);
@@ -183,12 +205,12 @@ function atualizarJogador(dt){
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
   // Slightly quicker exploration speeds, while preserving controllable movement.
   // Free-flight is also restrained so inspection of vertical spaces stays controllable.
-  const velocidade=vooLivre?18:(correndo?17.5:6.0);
+  const velocidade=correndo?52.5:18.0;
   jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   // Swept substeps prevent the high requested speed from tunnelling through walls.
   const dx=jogador.vel.x*dt,dz=jogador.vel.z*dt;
-  const distance=Math.hypot(dx,dz),steps=Math.max(1,Math.ceil(distance/1.1));
+  const distance=Math.hypot(dx,dz),steps=Math.max(1,Math.ceil(distance/.9));
   for(let step=0;step<steps;step++){
     const sx=dx/steps,sz=dz/steps;
     const nx=jogador.pos.x+sx,nz=jogador.pos.z+sz;
