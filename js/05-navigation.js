@@ -245,7 +245,7 @@ document.querySelectorAll("#checklist input[data-check]").forEach(input=>{
 
 // Initial spawn on the central approach, close enough to read the complete city silhouette.
 jogador.pos.set(4650,alturaChao(4650,0)+jogador.alturaOlhos,0);
-jogador.vel.set(0,0,0);yaw=Math.PI/2;pitch=0;alinharCamera();
+jogador.vel.set(0,0,0);yaw=Math.PI/2;pitch=.08;alinharCamera();
 document.getElementById("tpAtual").textContent="Caminho central — vista de Tronjheim";
 
 // simple starless cavern atmosphere: fine floating dust, deliberately subtle
