@@ -190,10 +190,11 @@ function podeOcuparXZ(x,z){
   return true;
 }
 function alturaPisoNaPosicao(x,z){
-  const libraryFloor=libraryFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
-  if(libraryFloor!==null)return libraryFloor;
+  // Stair treads take precedence over the base-library floor underneath them.
   const libraryStair=libraryStairFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
   if(libraryStair!==null)return libraryStair;
+  const libraryFloor=libraryFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
+  if(libraryFloor!==null)return libraryFloor;
   const councilFloor=councilRoomFloorAtXZ(x,z);
   if(councilFloor!==null)return councilFloor;
   const throneFloor=throneRoomFloorAtXZ(x,z);
