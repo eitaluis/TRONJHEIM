@@ -28,8 +28,11 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
   const treadDepth = Math.max(.42,length/steps*.94);
   const stone = new THREE.MeshStandardMaterial({color:0xd4d1c8,roughness:.48,metalness:.025});
   const edge = new THREE.MeshStandardMaterial({color:0xa78a57,roughness:.32,metalness:.58});
-  const treads = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.32,1),stone,steps);
-  const nosings = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.10,.13),edge,steps);
+  // The final tread of the broad stair is replaced by a flat granite landing
+  // immediately before the doors, avoiding a coplanar overlap.
+  const renderedSteps=name==="escadaria-ampla"?steps-1:steps;
+  const treads = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.32,1),stone,renderedSteps);
+  const nosings = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.10,.13),edge,renderedSteps);
   const dummy = new THREE.Object3D();
   const sampleCount = Math.max(220,steps*2);
   const samples = [];
@@ -38,6 +41,7 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
     samples.push({t,x:p.x,z:p.z});
   }
   for(let i=0;i<steps;i++){
+    if(i>=renderedSteps)continue;
     const t=(i+.5)/steps;
     const p=curve.getPointAt(t);
     p.y=topY-(i+1)*rise-.16;
@@ -52,6 +56,8 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
     dummy.scale.set(1,1,treadDepth);
     dummy.updateMatrix();nosings.setMatrixAt(i,dummy.matrix);
   }
+  treads.count=renderedSteps;
+  nosings.count=renderedSteps;
   treads.instanceMatrix.needsUpdate=true;
   nosings.instanceMatrix.needsUpdate=true;
   scene.add(treads,nosings);
@@ -129,6 +135,10 @@ function buildThroneAccess() {
   buildThroneStairPath("escadaria-ampla",[
     [-170,branchBottom,0],[-193,top-13,0],[-220,top-22,0],[-249,THRONE_ROOM_FLOOR,0]
   ],15.8,branchBottom,THRONE_ROOM_FLOOR,.18);
+  const doorLanding=new THREE.Mesh(new THREE.BoxGeometry(9,.72,36),
+    new THREE.MeshStandardMaterial({color:0xc4c1b8,roughness:.5}));
+  doorLanding.position.set(-253.5,THRONE_ROOM_FLOOR-.36,0);
+  doorLanding.receiveShadow=true;scene.add(doorLanding);
 
   // Tall freestanding portals mark the two openings at the upper landing.
   const jasper=new THREE.MeshStandardMaterial({color:0x712a34,roughness:.4,metalness:.04});
@@ -223,8 +233,9 @@ function buildDwarfGuard(x,z,side,index) {
 function buildPortalGuards() {
   for(const side of [-1,1]){
     for(let i=0;i<7;i++){
-      const z=side*(10.0+i*1.35);
-      scene.add(buildDwarfGuard(-244.0,z,side,i));
+      const z=side*(9.5+i*.95);
+      // Guards stand just inside the cave portal, on the actual lower hall floor.
+      scene.add(buildDwarfGuard(-260.5,z,side,i));
     }
   }
 }
