@@ -64,7 +64,26 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
   nosings.instanceMatrix.needsUpdate=true;
   scene.add(treads,nosings);
 
-  // Low stone parapets and a restrained bronze handrail keep the long descent legible.
+  // Continuous low granite parapets make the stair edges read as architecture
+  // and protect the long descent; bronze rails sit above the stone coping.
+  const parapetMaterial=new THREE.MeshStandardMaterial({color:0xb8b5ad,roughness:.56,metalness:.025});
+  const parapets=new THREE.InstancedMesh(new THREE.BoxGeometry(.82,.92,1),parapetMaterial,renderedSteps*2);
+  let parapetIndex=0;
+  for(let i=0;i<renderedSteps;i++){
+    const t=(i+.5)/steps,point=curve.getPointAt(t),tangent=curve.getTangentAt(t);
+    const perp=new THREE.Vector3(-tangent.z,0,tangent.x).normalize();
+    const rotation=Math.atan2(tangent.x,tangent.z);
+    const floorY=topY-(i+1)*rise;
+    for(const side of [-1,1]){
+      dummy.position.set(point.x+perp.x*side*(width/2-.36),floorY+.46,
+        point.z+perp.z*side*(width/2-.36));
+      dummy.rotation.set(0,rotation,0);
+      dummy.scale.set(1,1,treadDepth*1.08);dummy.updateMatrix();
+      parapets.setMatrixAt(parapetIndex++,dummy.matrix);
+    }
+  }
+  parapets.count=parapetIndex;parapets.instanceMatrix.needsUpdate=true;scene.add(parapets);
+
   const railMaterial=new THREE.MeshStandardMaterial({color:0x91764b,metalness:.72,roughness:.3});
   for(const side of [-1,1]){
     const railPoints=[],postCount=Math.ceil(steps/8)+1;
