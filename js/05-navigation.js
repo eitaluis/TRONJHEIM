@@ -377,9 +377,9 @@ function detectarAreaAtual(){
   if(throneRoomStairFloorAtXZ(x,z,null)!==null)return ["throne-stairs","Escadarias da Sala do Trono"];
   if(throneAccessVestibuleContains(x,z))return ["throne-portal","Portal da Sala do Trono"];
   if(depthsWalkableContains(x,z)){
-    if(Math.hypot(x+900,z-DEPTHS_ROUTE_Z)<=79.5)return ["deep-lake","Lago subterrâneo"];
-    if(Math.hypot(x+700,z-DEPTHS_ROUTE_Z)<=52.5)return ["catacombs","Catacumbas dos Anões"];
-    if(Math.hypot(x-DEPTHS_TERMINAL_X,z-DEPTHS_ROUTE_Z)<=46.5)return ["deep-terminal","Câmara de Saída Subterrânea"];
+    if(Math.hypot(x+900,z-DEPTHS_ROUTE_Z)<=80)return ["deep-lake","Lago subterrâneo"];
+    if(Math.hypot(x+700,z-DEPTHS_ROUTE_Z)<=53)return ["catacombs","Catacumbas dos Anões"];
+    if(Math.hypot(x-DEPTHS_TERMINAL_X,z-DEPTHS_ROUTE_Z)<=46)return ["deep-terminal","Câmara de Saída Subterrânea"];
     if(x<=-982&&x>=DEPTHS_LAKE_EXIT_END_X)return ["deep-exit","Túnel de Saída do Lago"];
     return ["deep-tunnel","Túneis subterrâneos"];
   }
