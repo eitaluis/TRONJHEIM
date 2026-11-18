@@ -16,14 +16,17 @@ const COUNCIL_ROOM_WALL_HEIGHT = 14;
 const COUNCIL_ROOM_PASSAGE_END_X = -566;
 
 function councilRoomWalkableContains(x,z) {
-  const passage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=8.2;
+  const elderPassage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=8.2;
+  const libraryPassage = x<=-613.5 && x>=-630.2 && Math.abs(z)<=7.2;
   const r = Math.hypot(x-COUNCIL_ROOM_CENTER_X,z-COUNCIL_ROOM_CENTER_Z);
   const currentR = Math.hypot(jogador.pos.x-COUNCIL_ROOM_CENTER_X,jogador.pos.z-COUNCIL_ROOM_CENTER_Z);
   const alreadyInside = currentR<=COUNCIL_ROOM_RADIUS-.35;
-  const enteringThroughDoor = jogador.pos.x<=-540 && jogador.pos.x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 &&
+  const enteringThroughEastDoor = jogador.pos.x<=-540 && jogador.pos.x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 &&
     Math.abs(jogador.pos.z)<=8.2 && jogador.pos.x>COUNCIL_ROOM_CENTER_X;
-  const chamber = r<=COUNCIL_ROOM_RADIUS-.35 && (alreadyInside||enteringThroughDoor);
-  return passage||chamber;
+  const enteringThroughWestDoor = jogador.pos.x<=-613.5 && jogador.pos.x>=-630.2 &&
+    Math.abs(jogador.pos.z)<=7.2 && jogador.pos.x<COUNCIL_ROOM_CENTER_X;
+  const chamber = r<=COUNCIL_ROOM_RADIUS-.35 && (alreadyInside||enteringThroughEastDoor||enteringThroughWestDoor);
+  return elderPassage||libraryPassage||chamber;
 }
 function councilRoomFloorAtXZ(x,z) {
   return councilRoomWalkableContains(x,z)?COUNCIL_ROOM_FLOOR:null;
@@ -83,15 +86,24 @@ function buildCouncilRoomShell() {
   floor.rotation.x=-Math.PI/2;floor.position.set(cx,y+.018,cz);
   floor.receiveShadow=true;scene.add(floor);
 
-  // The circular wall leaves a real, wide opening on its eastern side.
-  const openingAngle=.88;
-  const wallGeo=new THREE.CylinderGeometry(
-    COUNCIL_ROOM_RADIUS,COUNCIL_ROOM_RADIUS,COUNCIL_ROOM_WALL_HEIGHT,
-    112,1,true,openingAngle/2,Math.PI*2-openingAngle
-  );
-  const wall=new THREE.Mesh(wallGeo,blueWall);
-  wall.position.set(cx,y+COUNCIL_ROOM_WALL_HEIGHT/2,cz);
-  wall.receiveShadow=true;scene.add(wall);
+  // The cylindrical wall has two genuine openings: east to the western
+  // hall, and west to the Great Library. CylinderGeometry's XZ angle starts
+  // on +Z, so the east/west openings are centered at PI/2 and 3PI/2.
+  const halfDoorAngle=.44;
+  const wallArcs=[
+    [0,Math.PI/2-halfDoorAngle],
+    [Math.PI/2+halfDoorAngle,Math.PI-2*halfDoorAngle],
+    [3*Math.PI/2+halfDoorAngle,Math.PI/2-halfDoorAngle]
+  ];
+  for(const [startAngle,arcLength] of wallArcs){
+    const wallGeo=new THREE.CylinderGeometry(
+      COUNCIL_ROOM_RADIUS,COUNCIL_ROOM_RADIUS,COUNCIL_ROOM_WALL_HEIGHT,
+      112,1,true,startAngle,arcLength
+    );
+    const wall=new THREE.Mesh(wallGeo,blueWall);
+    wall.position.set(cx,y+COUNCIL_ROOM_WALL_HEIGHT/2,cz);
+    wall.receiveShadow=true;scene.add(wall);
+  }
 
   // Carved marble belt and cornice bands define the room's round geometry.
   for(const [yy,r,tube,mat] of [
@@ -140,6 +152,27 @@ function buildCouncilRoomShell() {
   }
   const arch=new THREE.Mesh(new THREE.TorusGeometry(10.2,.55,10,48,Math.PI),paleMarble);
   arch.rotation.y=Math.PI/2;arch.position.set(cx+COUNCIL_ROOM_RADIUS-.15,y+10.1,0);scene.add(arch);
+
+  // Matching west portal and double leaves held open against the inner wall.
+  for(const side of [-1,1]){
+    const jamb=new THREE.Mesh(new THREE.BoxGeometry(1.6,15.5,1.7),paleMarble);
+    jamb.position.set(cx-COUNCIL_ROOM_RADIUS+.45,y+7.75,side*7.2);scene.add(jamb);
+    const capital=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.0,2.4),doorFrameMat);
+    capital.position.set(cx-COUNCIL_ROOM_RADIUS+.45,y+15.1,side*7.2);scene.add(capital);
+    const door=new THREE.Group();
+    door.position.set(cx-COUNCIL_ROOM_RADIUS+.8,y,side*7.0);
+    door.rotation.y=-side*1.2;
+    const leaf=new THREE.Mesh(new THREE.BoxGeometry(.7,13.8,7.0),
+      new THREE.MeshStandardMaterial({color:0x3c2c21,roughness:.78}));
+    leaf.position.set(0,6.9,-side*3.5);door.add(leaf);
+    for(const yy of [2.1,6.9,11.7]){
+      const band=new THREE.Mesh(new THREE.BoxGeometry(.86,.34,6.8),doorFrameMat);
+      band.position.set(.42,yy,-side*3.5);door.add(band);
+    }
+    scene.add(door);
+  }
+  const westArch=new THREE.Mesh(new THREE.TorusGeometry(7.2,.55,10,48,Math.PI),paleMarble);
+  westArch.rotation.y=-Math.PI/2;westArch.position.set(cx-COUNCIL_ROOM_RADIUS+.15,y+7.2,0);scene.add(westArch);
 
   // Sky-blue hemispherical dome — the canonical identifying feature of the room.
   const domeGeo=new THREE.SphereGeometry(COUNCIL_ROOM_RADIUS,72,36,0,Math.PI*2,0,Math.PI/2);
