@@ -4,21 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tronjheim — Cidade de Mármore de Farthen Dûr</title>
-<link rel="stylesheet" href="./css/main.css?v=trj-throne-20261118-8">
+<link rel="stylesheet" href="./css/main.css?v=trj-nav-council-20261118-9">
 </head>
 <body>
 <div id="hud">
   <div id="topbar">
-    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 05–07 — VOL TURIN, DRAGONHOLD E SALA DO TRONO</p></div>
-    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Vol Turin · Isidar Mithrim · Dragonhold · Sala do Trono<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 05–07 — VOL TURIN, DRAGONHOLD, TRONO E CONSELHO</p></div>
+    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Vol Turin · Isidar Mithrim · Dragonhold · Sala do Trono · Conselho<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
+  <div id="locationToast" aria-live="polite"></div>
   <div id="right" class="plate">
     <span class="tag">Base documental</span>
     <h2>Farthen Dûr</h2>
-    <p>Uma enorme cavidade de origem vulcânica. O interior de Tronjheim sobe até o pico: Vol Turin acompanha as arcadas, Isidar Mithrim coroa a câmara, Dragonhold permanece aberto ao céu e a Sala do Trono desce sob a cidade.</p>
+    <p>Uma enorme cavidade de origem vulcânica. O interior de Tronjheim sobe até o pico: Vol Turin acompanha as arcadas, Isidar Mithrim coroa a câmara, Dragonhold permanece aberto ao céu e a Sala do Trono desce sob a cidade, e a Sala do Conselho reúne os anciãos da Varden.</p>
     <div class="fact"><span>Tronjheim</span><br>Mais de 1 milha de altura; cidade-montanha de mármore puro. A largura da base nesta versão é provisória.</div>
     <div class="fact"><span>Farthen Dûr</span><br>O lado oposto da cavidade é descrito a quase 10 milhas de distância. A abertura superior parece estar a mais de 12 milhas de altura.</div>
-    <div class="fact"><span>Estado desta fase</span><br>Vol Turin, Isidar Mithrim, Dragonhold e primeira construção da Sala do Trono subterrânea.</div>
+    <div class="fact"><span>Estado desta fase</span><br>Vol Turin, Isidar Mithrim, Dragonhold, Sala do Trono e Sala do Conselho.</div>
     <div id="legend"><span><i class="dot" style="background:#d9dbe0"></i>mármore</span><span><i class="dot" style="background:#53606a"></i>rocha</span><span><i class="dot" style="background:#b99b60"></i>lanternas</span></div>
     <button id="overviewBtn">Vista de inspeção (V)</button>
     <button id="lockBtn">Explorar (clique)</button>
@@ -34,19 +35,22 @@
       <button data-teleport="isidar">4 · Isidar Mithrim</button>
       <button data-teleport="dragonhold">5 · Dragonhold</button>
       <button data-teleport="saphiraCave">6 · Caverna de Saphira</button>
-      <button data-teleport="throneAccess">7 · Escadarias do trono</button>
-      <button data-teleport="throneRoom">8 · Sala do Trono</button>
-      <button data-teleport="northHall">9 · Corredor norte</button>
-      <button data-teleport="southHall">10 · Corredor sul</button>
-      <button data-teleport="westHall">11 · Corredor oeste</button>
-      <button data-teleport="tunnel">12 · Entrada da montanha</button>
-      <button data-teleport="approach">13 · Caminho central</button>
-      <button data-teleport="gate">14 · Portão de Tronjheim</button>
-      <button data-teleport="overlook">15 · Vista externa</button>
-      <button data-teleport="training">16 · Campo de treino</button>
-      <button data-teleport="west">17 · Lado oeste</button>
-      <button data-teleport="entryHall">18 · Corredor — entrada</button>
-      <button data-teleport="deepHall">19 · Corredor — interior</button>
+      <button data-teleport="throneAccess">7 · Escadaria do trono — norte</button>
+      <button data-teleport="throneAccessSouth">8 · Escadaria do trono — sul</button>
+      <button data-teleport="throneRoom">9 · Sala do Trono</button>
+      <button data-teleport="councilEntrance">10 · Conselho — acesso</button>
+      <button data-teleport="councilRoom">11 · Sala do Conselho</button>
+      <button data-teleport="northHall">12 · Corredor norte</button>
+      <button data-teleport="southHall">13 · Corredor sul</button>
+      <button data-teleport="westHall">14 · Corredor oeste</button>
+      <button data-teleport="tunnel">15 · Entrada da montanha</button>
+      <button data-teleport="approach">16 · Caminho central</button>
+      <button data-teleport="gate">17 · Portão de Tronjheim</button>
+      <button data-teleport="overlook">18 · Vista externa</button>
+      <button data-teleport="training">19 · Campo de treino</button>
+      <button data-teleport="west">20 · Lado oeste</button>
+      <button data-teleport="entryHall">21 · Corredor — entrada</button>
+      <button data-teleport="deepHall">22 · Corredor — interior</button>
     </div>
     <div id="mapNote">Deslocamento rápido para explorar a escala monumental. Clique nos pontos para teleportar; roda do mouse alterna visão geral e zoom local.</div>
   </div>
@@ -92,7 +96,7 @@
       <label><input type="checkbox" data-check="dragonRungs"><span>Rungs metálicos brilhantes na parede</span></label>
       <label><input type="checkbox" data-check="saphiraCave"><span>Caverna de Saphira com cama embutida, almofada e lanterna vermelha com obturador</span></label>
     </div>
-    <div class="phase"><div class="phaseTitle">Fase 6 · Sala do Trono — primeira construção</div>
+    <div class="phase"><div class="phaseTitle">Fase 6 · Governo e espaços cerimoniais</div>
       <label><input type="checkbox" data-check="throneAccess"><span>Escadarias gêmeas que se unem em uma descida ampla de 100 pés</span></label>
       <label><input type="checkbox" data-check="throneDoors"><span>Portas duplas de granito com coroa de sete pontas</span></label>
       <label><input type="checkbox" data-check="throneGuards"><span>Quatorze posições de guardas junto ao portal</span></label>
@@ -100,7 +104,10 @@
       <label><input type="checkbox" data-check="stalactites"><span>Estalactites e estalagmites maciças ao longo das paredes</span></label>
       <label><input type="checkbox" data-check="kings"><span>41 estátuas de reis anteriores em nichos laterais</span></label>
       <label><input type="checkbox" data-check="blackThrone"><span>Trono angular de mármore negro em bloco único</span></label>
-      <label><input type="checkbox" data-check="council"><span>Sala do Conselho e mesa com constelações</span></label>
+      <label><input type="checkbox" data-check="councilPassage"><span>Passagem com porta definida no corredor oeste</span></label>
+      <label><input type="checkbox" data-check="councilDome"><span>Sala circular com cúpula azul e constelações</span></label>
+      <label><input type="checkbox" data-check="councilTable"><span>Mesa redonda de mármore com o brasão de Ingeitum</span></label>
+      <label><input type="checkbox" data-check="councilChairs"><span>Cadeiras e espaço para os anciãos da Varden</span></label>
       <label><input type="checkbox" data-check="procession"><span>Corredor cerimonial e procissões da Varden</span></label>
     </div>
     <div class="phase"><div class="phaseTitle">Fase 7 · Vida cotidiana e serviços</div>
@@ -129,12 +136,12 @@
   </div>
 
   <div id="bottom">
-    <div id="controls" class="plate"><b>W A S D</b> deslocar · <b>mouse</b> olhar · <b>Shift</b> correr · <b>Espaço</b> pular<br><b>M/N</b> próximo/anterior teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo livre (<b>Espaço</b> sobe · <b>Ctrl</b> desce) · <b>TAB</b> mapa</div>
+    <div id="controls" class="plate"><b>W A S D</b> deslocar · <b>mouse</b> olhar · <b>Shift</b> correr (52,5 m/s) · <b>Espaço</b> pular (18 m/s)<br><b>M/N</b> próximo/anterior teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo livre (<b>Espaço</b> sobe · <b>Ctrl</b> desce) · <b>TAB</b> mapa</div>
     <div id="coords" class="plate">X <span id="cx">—</span><br>Y <span id="cy">—</span><br>Z <span id="cz">—</span></div>
   </div>
   <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
 </div>
-<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore Farthen Dûr, suba Vol Turin, atravesse a câmara coroada pela Isidar Mithrim, entre no Dragonhold e desça até a Sala do Trono dos reis anões.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
+<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore Farthen Dûr, suba Vol Turin, entre no Dragonhold, desça à Sala do Trono e visite a Sala do Conselho dos anciãos.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
@@ -154,13 +161,14 @@ async function loadProjectScript(src) {
 }
 
 try {
-  await loadProjectScript('./js/00-engine.js?v=trj-throne-20261118-8');
-  await loadProjectScript('./js/01-world.js?v=trj-throne-20261118-8');
-  await loadProjectScript('./js/02-exterior.js?v=trj-throne-20261118-8');
-  await loadProjectScript('./js/03-interiors.js?v=trj-throne-20261118-8');
-  await loadProjectScript('./js/04-upper-structures.js?v=trj-throne-20261118-8');
-  await loadProjectScript('./js/06-throne-room.js?v=trj-throne-20261118-8');
-  await loadProjectScript('./js/05-navigation.js?v=trj-throne-20261118-8');
+  await loadProjectScript('./js/00-engine.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/01-world.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/02-exterior.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/03-interiors.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/04-upper-structures.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/06-throne-room.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/07-council-room.js?v=trj-nav-council-20261118-9');
+  await loadProjectScript('./js/05-navigation.js?v=trj-nav-council-20261118-9');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
