@@ -116,9 +116,6 @@ function buildLibraryPassage() {
   const length=start-end,mid=(start+end)/2;
   const pale=new THREE.MeshStandardMaterial({color:0xd5d2ca,roughness:.42});
   const blue=new THREE.MeshStandardMaterial({color:0x45586d,roughness:.55});
-  const bronze=new THREE.MeshStandardMaterial({color:0xa48b59,metalness:.72,roughness:.3});
-  const darkWood=new THREE.MeshStandardMaterial({color:0x37271d,roughness:.76});
-
   const floor=new THREE.Mesh(new THREE.BoxGeometry(length,1.7,14.2),pale);
   floor.position.set(mid,LIBRARY_FLOOR-.85,0);floor.receiveShadow=true;scene.add(floor);
   const roof=new THREE.Mesh(new THREE.BoxGeometry(length,1.3,14.8),pale);
@@ -134,29 +131,9 @@ function buildLibraryPassage() {
       lamp.position.set(start-3-i*5,LIBRARY_FLOOR+8.2,side*6.2);scene.add(lamp);
     }
   }
-  // The two portals are framed separately; both door leaves rest against the jambs.
-  for(const [doorX,halfWidth,rotation] of [[start,6.7,1], [end,6.8,-1]]){
-    for(const side of [-1,1]){
-      const jamb=new THREE.Mesh(new THREE.BoxGeometry(1.5,12,1.6),pale);
-      jamb.position.set(doorX,LIBRARY_FLOOR+6,side*halfWidth);scene.add(jamb);
-      const capital=new THREE.Mesh(new THREE.BoxGeometry(2.1,.8,2.1),bronze);
-      capital.position.set(doorX,LIBRARY_FLOOR+12.1,side*halfWidth);scene.add(capital);
-      const door=new THREE.Group();
-      door.position.set(doorX,LIBRARY_FLOOR,side*halfWidth);
-      door.rotation.y=side*rotation*1.14;
-      const panel=new THREE.Mesh(new THREE.BoxGeometry(.62,10.7,6.5),darkWood);
-      panel.position.set(0,5.35,-side*3.25);door.add(panel);
-      for(const yy of [2,5.35,8.7]){
-        const band=new THREE.Mesh(new THREE.BoxGeometry(.78,.27,6.3),bronze);
-        band.position.set(.34,yy,-side*3.25);door.add(band);
-      }
-      scene.add(door);
-    }
-  }
-  const entryArch=new THREE.Mesh(new THREE.TorusGeometry(6.8,.42,9,44,Math.PI),pale);
-  entryArch.rotation.y=Math.PI/2;entryArch.position.set(start-.12,LIBRARY_FLOOR+6.9,0);scene.add(entryArch);
-  const libraryArch=new THREE.Mesh(new THREE.TorusGeometry(6.8,.42,9,44,Math.PI),pale);
-  libraryArch.rotation.y=Math.PI/2;libraryArch.position.set(end+.12,LIBRARY_FLOOR+6.9,0);scene.add(libraryArch);
+  // The connecting passage stays clear. Its real portals belong to the
+  // Council Room west wall and the Library east wall, preventing duplicate
+  // door leaves from occupying the same threshold.
 }
 
 function buildLibraryShell() {
