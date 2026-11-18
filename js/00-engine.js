@@ -38,7 +38,7 @@ apertureLight.shadow.camera.bottom = -2200;
 apertureLight.shadow.camera.near = 1;
 apertureLight.shadow.camera.far = 26000;
 apertureLight.shadow.bias = -0.00004;
-apertureLight.shadow.normalBias = 0.75;
+apertureLight.shadow.normalBias = 0.04;
 apertureLight.shadow.radius = 3;
 apertureLight.shadow.camera.updateProjectionMatrix();
 scene.add(apertureLight);
