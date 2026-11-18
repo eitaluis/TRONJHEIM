@@ -181,7 +181,7 @@ function podeOcuparXZ(x,z){
   // Above the chamber floor, the only walkable route is the actual spiral stair,
   // its top landing, or the Dragonhold/caves. The open shaft is not an invisible floor.
   if(r<160 && feetY>ENTRY_HALL_FLOOR+5 && feetY<VOL_TURIN_TOP_Y-2){
-    if(onVolTurin===null || Math.abs(onVolTurin-feetY)>2.2)return false;
+    if(onVolTurin===null || Math.abs(onVolTurin-feetY)>Math.max(.62,VOL_TURIN_STEP_RISE*3))return false;
     const t=THREE.MathUtils.clamp((feetY-(VOL_TURIN_BASE_Y+110))/(CENTRAL_CHAMBER_TOP_Y-(VOL_TURIN_BASE_Y+110)),0,1);
     const wallR=THREE.MathUtils.lerp(VOL_TURIN_WALL_BASE_RADIUS,VOL_TURIN_WALL_TOP_RADIUS,t);
     if(r>wallR-1.7)return false;
@@ -252,7 +252,12 @@ function atualizarJogador(dt){
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   // Swept substeps prevent the high requested speed from tunnelling through walls.
   const dx=jogador.vel.x*dt,dz=jogador.vel.z*dt;
-  const distance=Math.hypot(dx,dz),steps=Math.max(1,Math.ceil(distance/.9));
+  const distance=Math.hypot(dx,dz);
+  const feetBeforeMove=jogador.pos.y-jogador.alturaOlhos;
+  const nearVolTurin=Math.hypot(jogador.pos.x,jogador.pos.z)<230 &&
+    feetBeforeMove>ENTRY_HALL_FLOOR+.2 && feetBeforeMove<VOL_TURIN_TOP_Y+1;
+  const maxSubstep=nearVolTurin?.32:.9;
+  const steps=Math.max(1,Math.ceil(distance/maxSubstep));
   for(let step=0;step<steps;step++){
     const sx=dx/steps,sz=dz/steps;
     const nx=jogador.pos.x+sx,nz=jogador.pos.z+sz;
@@ -288,8 +293,11 @@ function atualizarJogador(dt){
       const stairFloor=volTurinFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
       const libraryStairFloor=libraryStairFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
       const activeStairFloor=libraryStairFloor!==null?libraryStairFloor:stairFloor;
-      if(activeStairFloor!==null && Math.abs(activeStairFloor-currentFeet)<2.35)
+      if(activeStairFloor!==null && Math.abs(activeStairFloor-currentFeet)<Math.max(.68,VOL_TURIN_STEP_RISE*3.2)){
         jogador.pos.y=activeStairFloor+jogador.alturaOlhos;
+        jogador.vel.y=0;
+        jogador.noChao=true;
+      }
     }
   }
   limitarAoInterior(jogador.pos);
