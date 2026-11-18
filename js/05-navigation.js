@@ -49,7 +49,7 @@ const pontosTP=[
   {id:"training",nome:"Campo de treinamento",x:-2600,z:350,yaw:-Math.PI/2,pitch:0},
   {id:"west",nome:"Lado oeste",x:-5000,z:-300,yaw:-Math.PI/2,pitch:0},
   {id:"entryHall",nome:"Grande corredor — entrada",x:TRONJHEIM_GATE.doorX-120,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"deepHall",nome:"Grande corredor — interior",x:TRONJHEIM_GATE.hallEndX+10,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7}
+  {id:"deepHall",nome:"Grande corredor — interior",x:TRONJHEIM_GATE.hallEndX+28,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7}
 ];
 // M/N navigation starts from the location where the player is actually spawned.
 indiceTP=Math.max(0,pontosTP.findIndex(p=>p.id==="approach"));
@@ -137,7 +137,8 @@ document.getElementById("overviewBtn").addEventListener("click",alternarInspecao
 function dentroDaArquitetura(x,z){
   const r=Math.hypot(x,z);
   const inChamber=r<=CENTRAL_WALL_RADIUS-2.2;
-  const inEastHall=x>=TRONJHEIM_GATE.hallEndX-2 && x<=TRONJHEIM_GATE.doorX-4 && Math.abs(z)<=38.2;
+  const inEastHall=x>=TRONJHEIM_GATE.hallEndX-3 && x<=TRONJHEIM_GATE.doorX-3 && Math.abs(z)<=38.8;
+  const inHallSideRoom=entryHallSideRoomContains(x,z);
   const inGateThroat=x>=TRONJHEIM_GATE.doorX-6 && x<=CITY.radius+3 && Math.abs(z)<=11.5;
   const branchStart=SIDE_CORRIDOR_START,branchEnd=SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH-2;
   const half=SIDE_CORRIDOR_HALF_WIDTH;
@@ -148,7 +149,7 @@ function dentroDaArquitetura(x,z){
   const inThroneRoom=throneRoomWalkableContains(x,z);
   const inCouncilRoom=councilRoomWalkableContains(x,z);
   const inLibrary=libraryWalkableContains(x,z);
-  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom||inLibrary;
+  return inChamber||inEastHall||inHallSideRoom||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom||inLibrary;
 }
 function podeOcuparXZ(x,z){
   const r=Math.hypot(x,z);
@@ -277,8 +278,9 @@ function atualizarJogador(dt){
   }
   limitarAoInterior(jogador.pos);
   if(vooLivre){
-    if(teclas.Space)jogador.pos.y+=velocidade*dt;
-    if(teclas.ControlLeft||teclas.ControlRight)jogador.pos.y-=velocidade*dt;
+    const subir=teclas.Space||teclas.KeyE;
+    const descer=teclas.ControlLeft||teclas.ControlRight||teclas.KeyQ;
+    if(subir!==descer)jogador.pos.y+=(subir?1:-1)*velocidade*dt;
     jogador.pos.y=THREE.MathUtils.clamp(jogador.pos.y,1.7,19500);
   }else{
     const piso=alturaPisoNaPosicao(jogador.pos.x,jogador.pos.z);
