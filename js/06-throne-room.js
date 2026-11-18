@@ -118,13 +118,20 @@ function throneRoomWalkableContains(x,z) {
 }
 function throneRoomFloorAtXZ(x,z,referenceFeetY=null) {
   const inJunction=x>=-180 && x<=-160 && Math.abs(z)<=8.2;
-  if(inJunction)return ENTRY_HALL_FLOOR-7.2;
+  const junctionFloor=ENTRY_HALL_FLOOR-7.2;
+  if(inJunction){
+    if(referenceFeetY===null || Math.abs(referenceFeetY-junctionFloor)<=2.25)return junctionFloor;
+    return null;
+  }
   const stair=throneRoomStairFloorAtXZ(x,z,referenceFeetY);
   if(stair!==null)return stair;
   const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+7.0 && Math.abs(z)<=17.2;
   if(inLanding)return THRONE_ROOM_FLOOR;
   if(x>=THRONE_ROOM_MIN_X && x<=THRONE_ROOM_MAX_X &&
-     Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8)return THRONE_ROOM_FLOOR;
+     Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8){
+    if(referenceFeetY===null || Math.abs(referenceFeetY-THRONE_ROOM_FLOOR)<=2.25)return THRONE_ROOM_FLOOR;
+    return null;
+  }
   return null;
 }
 
