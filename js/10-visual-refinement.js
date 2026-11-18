@@ -176,7 +176,7 @@
     }
     rockGeometry.computeVertexNormals();
     const rockMaterial=new THREE.MeshStandardMaterial({
-      color:0xffffff,roughness:.96,metalness:.015,vertexColors:true
+      color:0xffffff,roughness:.96,metalness:.015
     });
     const dummy=new THREE.Object3D();
     const stoneColors=[0x777b7d,0x696f73,0x85827b,0x60686c,0x8a8881].map(c=>new THREE.Color(c));
