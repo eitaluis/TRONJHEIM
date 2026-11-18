@@ -29,12 +29,12 @@ const pontosTP=[
   {id:"volTurinUpper",nome:"Vol Turin — alto",x:volTurinPointAtProgress(.985).x,z:volTurinPointAtProgress(.985).z,yaw:Math.PI-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*.985),pitch:0,levelY:VOL_TURIN_BASE_Y+(Math.floor(.985*VOL_TURIN_STEP_COUNT)+1)*VOL_TURIN_STEP_RISE+1.7},
   {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
-  {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
-  {id:"throneAccess",nome:"Escadaria do trono — norte",x:-137,z:-42,yaw:2.41,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-137,z:42,yaw:.73,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+DRAGONHOLD_CAVES.find(c=>c.id==="saphira").bottom+1.7},
+  {id:"throneAccess",nome:"Escadaria do trono — norte",x:Math.cos(Math.PI+.31)*(CENTRAL_WALL_RADIUS-1.8),z:Math.sin(Math.PI+.31)*(CENTRAL_WALL_RADIUS-1.8),yaw:Math.PI+.31+Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:Math.cos(Math.PI-.31)*(CENTRAL_WALL_RADIUS-1.8),z:Math.sin(Math.PI-.31)*(CENTRAL_WALL_RADIUS-1.8),yaw:Math.PI-.31+Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
-  {id:"catacombs",nome:"Catacumbas dos anões",x:-700,z:0,yaw:Math.PI/2,pitch:0,levelY:depthsFloorAtXZ(-700,0)+1.7},
-  {id:"deepLake",nome:"Lago subterrâneo",x:-900,z:0,yaw:Math.PI/2,pitch:-.04,levelY:depthsFloorAtXZ(-900,0)+1.7},
+  {id:"catacombs",nome:"Catacumbas dos anões",x:-700,z:DEPTHS_ROUTE_Z,yaw:Math.PI/2,pitch:0,levelY:depthsFloorAtXZ(-700,DEPTHS_ROUTE_Z)+1.7},
+  {id:"deepLake",nome:"Lago subterrâneo",x:-900,z:DEPTHS_ROUTE_Z,yaw:Math.PI/2,pitch:-.04,levelY:depthsFloorAtXZ(-900,DEPTHS_ROUTE_Z)+1.7},
   {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"libraryEntrance",nome:"Biblioteca — entrada",x:-621.5,z:0,yaw:Math.PI/2,pitch:0,levelY:LIBRARY_FLOOR+1.7},
@@ -109,6 +109,8 @@ document.addEventListener("keydown",e=>{
   if(["Space","Tab","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
   teclas[e.code]=true;
   const plainShortcut=travado&&!e.repeat&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey;
+  if(travado&&["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code))
+    e.preventDefault();
   if(plainShortcut&&(e.code==="KeyM"||e.code==="KeyN"))e.preventDefault();
   if(plainShortcut&&e.code==="KeyM")teleportarIndice(indiceTP+1);
   if(plainShortcut&&e.code==="KeyN")teleportarIndice(indiceTP-1);
@@ -175,6 +177,7 @@ function podeOcuparXZ(x,z){
   const exteriorLimit=cityRadius(cityT)-jogador.raio;
   if(r<exteriorLimit && !dentroDaArquitetura(x,z))return false;
   const onVolTurin=volTurinFloorAtXZ(x,z,feetY);
+  const dragonFloor=dragonholdFloorAtXZ(x,z,feetY);
   const inDragonhold=feetY>=VOL_TURIN_TOP_Y-2 && dragonholdWalkableContains(x,z);
   const onExitBridge=feetY>=VOL_TURIN_TOP_Y-2 && isDragonholdExitBridge(x,z);
 
@@ -199,34 +202,65 @@ function podeOcuparXZ(x,z){
 
   // Deep tunnels and chambers have their own continuous floor profile.
   const deepFloor=depthsFloorAtXZ(x,z);
-  if(deepFloor!==null && Math.abs(deepFloor-feetY)<=2.25)return true;
+  if(deepFloor!==null && Math.abs(deepFloor-feetY)<=2.65)return true;
   // Below the central chamber, walking is permitted only on modeled stairs,
   // the throne-room floor, or the newly connected deep route.
   if(feetY<ENTRY_HALL_FLOOR-2.5){
     const throneFloor=throneRoomFloorAtXZ(x,z,feetY);
-    if(throneFloor===null || Math.abs(throneFloor-feetY)>2.25)return false;
+    const stairFloor=throneRoomStairFloorAtXZ(x,z,null);
+    const supported=throneFloor!==null&&Math.abs(throneFloor-feetY)<=2.65 ||
+      stairFloor!==null&&Math.abs(stairFloor-feetY)<=2.65 ||
+      deepFloor!==null&&Math.abs(deepFloor-feetY)<=2.65 ||
+      dragonFloor!==null&&Math.abs(dragonFloor-feetY)<=2.65;
+    if(!supported)return false;
   }
   return true;
 }
 function alturaPisoNaPosicao(x,z){
   const feetY=jogador.pos.y-jogador.alturaOlhos;
-  // Stair treads take precedence only when they are at the player's current
-  // level; nearby turns of the helix must not become invisible elevators.
+
+  // Resolve vertically separated architecture by its own physical support.
+  // A missing local tread must never fall back to the central floor, which
+  // previously snapped the player into a different room/level.
+  const dragonFloor=dragonholdFloorAtXZ(x,z,feetY);
+  if(dragonFloor!==null)return dragonFloor;
+
   const libraryStair=libraryStairFloorAtXZ(x,z,feetY);
   if(libraryStair!==null)return libraryStair;
   const libraryFloor=libraryFloorAtXZ(x,z,feetY);
   if(libraryFloor!==null)return libraryFloor;
+
   const councilFloor=councilRoomFloorAtXZ(x,z);
   if(councilFloor!==null)return councilFloor;
+
   const deepFloor=depthsFloorAtXZ(x,z);
   if(deepFloor!==null)return deepFloor;
+
   const throneFloor=throneRoomFloorAtXZ(x,z,feetY);
   if(throneFloor!==null)return throneFloor;
+  // If the player is inside the geometric footprint of a tread, resolve that
+  // tread directly rather than snapping to the upper chamber when vertical
+  // error temporarily exceeds the contact tolerance.
+  const nearbyThroneTread=throneRoomStairFloorAtXZ(x,z,null);
+  if(nearbyThroneTread!==null)return nearbyThroneTread;
+
   const volFloor=volTurinFloorAtXZ(x,z,feetY);
   if(volFloor!==null)return volFloor;
-  if((dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z)) &&
-     feetY>=VOL_TURIN_TOP_Y-3)return VOL_TURIN_TOP_Y;
-  return dentroDaArquitetura(x,z)?ENTRY_HALL_FLOOR:alturaChao(x,z);
+
+  const inCentralChamber=Math.hypot(x,z)<=CENTRAL_WALL_RADIUS-2.2;
+  const inEastHall=x>=TRONJHEIM_GATE.hallEndX-3 && x<=TRONJHEIM_GATE.doorX-3 && Math.abs(z)<=38.8;
+  const inGateThroat=x>=TRONJHEIM_GATE.doorX-6 && x<=CITY.radius+3 && Math.abs(z)<=11.5;
+  const inSideCorridor=(Math.abs(x)<=SIDE_CORRIDOR_HALF_WIDTH &&
+    Math.abs(z)>=SIDE_CORRIDOR_START && Math.abs(z)<=SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH-2) ||
+    (x<=-SIDE_CORRIDOR_START && x>=-(SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH-2) && Math.abs(z)<=SIDE_CORRIDOR_HALF_WIDTH);
+  const inThroneLanding=x>=-180 && x<=-160 && Math.abs(z)<=8.2;
+  const inThroneCave=x>=THRONE_ROOM_MIN_X && x<=THRONE_ROOM_MAX_X &&
+    Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8;
+  const inThronePortal=throneAccessVestibuleContains(x,z);
+  if(inCentralChamber||inEastHall||inGateThroat||inSideCorridor||inThroneLanding||inThroneCave||inThronePortal)
+    return ENTRY_HALL_FLOOR;
+
+  return alturaChao(x,z);
 }
 function limitarAoInterior(pos){
   const r=Math.hypot(pos.x,pos.z),limite=8075-jogador.raio;
@@ -325,6 +359,64 @@ function atualizarJogador(dt){
   document.getElementById("cz").textContent=jogador.pos.z.toFixed(1)+" m";
 }
 
+// Localização contextual: o nome acompanha o espaço físico em que o jogador
+// está, sem provocar teleporte ou alterar suas coordenadas.
+let areaCandidata=null,areaTempoEstavel=0,areaAtualId="approach";
+function detectarAreaAtual(){
+  const x=jogador.pos.x,z=jogador.pos.z,feetY=jogador.pos.y-jogador.alturaOlhos,r=Math.hypot(x,z);
+  const saphira=DRAGONHOLD_CAVES.find(c=>c.id==="saphira");
+  if(dragonholdCaveContains(x,z,saphira))return ["saphira","Caverna de Saphira"];
+  const otherCave=DRAGONHOLD_CAVES.find(c=>c.id!=="saphira"&&dragonholdCaveContains(x,z,c));
+  if(otherCave)return ["dragon-caves","Cavernas do Dragonhold"];
+  if(dragonholdSaphiraApproachContains(x,z))return ["saphira-access","Acesso à Caverna de Saphira"];
+  if(feetY>=VOL_TURIN_TOP_Y-2 && dragonholdWalkableContains(x,z))return ["dragonhold","Dragonhold · Isidar Mithrim"];
+  if(volTurinFloorAtXZ(x,z,feetY)!==null)return ["vol-turin","Vol Turin"];
+  if(x>=THRONE_ROOM_MIN_X&&x<=THRONE_ROOM_MAX_X&&Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8)
+    return ["throne-room","Sala do Trono"];
+  if(throneRoomStairFloorAtXZ(x,z,null)!==null)return ["throne-stairs","Escadarias da Sala do Trono"];
+  if(throneAccessVestibuleContains(x,z))return ["throne-portal","Portal da Sala do Trono"];
+  if(depthsWalkableContains(x,z)){
+    if(Math.hypot(x+900,z-DEPTHS_ROUTE_Z)<=79.5)return ["deep-lake","Lago subterrâneo"];
+    if(Math.hypot(x+700,z-DEPTHS_ROUTE_Z)<=52.5)return ["catacombs","Catacumbas dos Anões"];
+    if(x<=-982&&x>=DEPTHS_LAKE_EXIT_END_X)return ["deep-exit","Túnel das Profundezas"];
+    return ["deep-tunnel","Túneis subterrâneos"];
+  }
+  if(councilRoomWalkableContains(x,z)){
+    if(Math.hypot(x-COUNCIL_ROOM_CENTER_X,z-COUNCIL_ROOM_CENTER_Z)<=COUNCIL_ROOM_RADIUS+.8)
+      return ["council","Sala do Conselho"];
+    return ["council-passage","Passagem do Conselho"];
+  }
+  if(libraryWalkableContains(x,z)){
+    if(Math.hypot(x-LIBRARY_CENTER_X,z-LIBRARY_CENTER_Z)<=LIBRARY_RADIUS+1)
+      return ["library","Grande Biblioteca"];
+    return ["library-passage","Passagem da Biblioteca"];
+  }
+  if(x>=-180&&x<=-160&&Math.abs(z)<=8.2)return ["throne-landing","Patamar das Escadarias do Trono"];
+  if(r<=CENTRAL_WALL_RADIUS-2.2)return ["central-chamber","Câmara Central"];
+  if(x>=TRONJHEIM_GATE.hallEndX-3&&x<=TRONJHEIM_GATE.doorX-3&&Math.abs(z)<=38.8)
+    return ["entry-hall","Grande Corredor de Entrada"];
+  if(Math.abs(x)<=SIDE_CORRIDOR_HALF_WIDTH&&Math.abs(z)>=SIDE_CORRIDOR_START&&Math.abs(z)<=SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH)
+    return [z<0?"north-hall":"south-hall",z<0?"Corredor Norte":"Corredor Sul"];
+  if(x<=-SIDE_CORRIDOR_START&&x>=-(SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH)&&Math.abs(z)<=SIDE_CORRIDOR_HALF_WIDTH)
+    return ["west-hall","Corredor Oeste"];
+  if(x>=-2750&&x<=-2450&&Math.abs(z-350)<=180)return ["training-ground","Campo de Treinamento"];
+  if(x>=TRONJHEIM_GATE.doorX-75&&x<=TRONJHEIM_GATE.doorX+40&&Math.abs(z)<=32)
+    return ["gate","Portão de Tronjheim"];
+  if(Math.hypot(x,z)>CITY.radius)return ["farthen-dur","Cavidade de Farthen Dûr"];
+  return ["approach","Caminho de Aproximação"];
+}
+function atualizarRotuloDeArea(dt){
+  if(vooLivre||vistaInspecao)return;
+  const detected=detectarAreaAtual();
+  if(detected[0]===areaCandidata)areaTempoEstavel+=dt;
+  else{areaCandidata=detected[0];areaTempoEstavel=0;}
+  if(areaTempoEstavel<.24||detected[0]===areaAtualId)return;
+  areaAtualId=detected[0];
+  const label=document.getElementById("tpAtual");
+  if(label)label.textContent=detected[1];
+  const mode=document.getElementById("modeLabel");
+  if(mode)mode.textContent="Modo: exploração · "+detected[1];
+}
 // MINIMAPA: geral/local, zoom pela roda, TAB para esconder e clique para teleportar.
 const mapCanvas=document.getElementById("miniMap"),mapCtx=mapCanvas.getContext("2d");
 const MAP_SIZE=mapCanvas.width,MAP_LIMIT=8400;
@@ -394,8 +486,16 @@ function buildDust(){
 }
 buildDust();
 
-let mapaTimer=0;
-function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);atualizarJogador(dt);mapaTimer+=dt;if(mapaTimer>.08){desenharMinimapa();mapaTimer=0;}renderer.render(scene,camera);}
+let mapaTimer=0,areaTimer=0;
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+  atualizarJogador(dt);
+  mapaTimer+=dt;areaTimer+=dt;
+  if(mapaTimer>.08){desenharMinimapa();mapaTimer=0;}
+  if(areaTimer>.12){atualizarRotuloDeArea(areaTimer);areaTimer=0;}
+  renderer.render(scene,camera);
+}
 animate();
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 window.addEventListener('contextmenu',e=>e.preventDefault());
