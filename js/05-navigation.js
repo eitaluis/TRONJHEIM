@@ -293,10 +293,10 @@ function atualizarJogador(dt){
       const stairFloor=volTurinFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
       const libraryStairFloor=libraryStairFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
       const activeStairFloor=libraryStairFloor!==null?libraryStairFloor:stairFloor;
-      if(activeStairFloor!==null && Math.abs(activeStairFloor-currentFeet)<Math.max(.68,VOL_TURIN_STEP_RISE*3.2)){
+      if(jogador.noChao && activeStairFloor!==null &&
+         Math.abs(activeStairFloor-currentFeet)<Math.max(.68,VOL_TURIN_STEP_RISE*3.2)){
         jogador.pos.y=activeStairFloor+jogador.alturaOlhos;
         jogador.vel.y=0;
-        jogador.noChao=true;
       }
     }
   }
