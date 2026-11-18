@@ -174,7 +174,7 @@ function podeOcuparXZ(x,z){
   const cityT=THREE.MathUtils.clamp((feetY+8)/CITY.height,0,1);
   const exteriorLimit=cityRadius(cityT)-jogador.raio;
   if(r<exteriorLimit && !dentroDaArquitetura(x,z))return false;
-  const onVolTurin=volTurinFloorAtXZ(x,z);
+  const onVolTurin=volTurinFloorAtXZ(x,z,feetY);
   const inDragonhold=feetY>=VOL_TURIN_TOP_Y-2 && dragonholdWalkableContains(x,z);
   const onExitBridge=feetY>=VOL_TURIN_TOP_Y-2 && isDragonholdExitBridge(x,z);
 
@@ -209,20 +209,21 @@ function podeOcuparXZ(x,z){
   return true;
 }
 function alturaPisoNaPosicao(x,z){
-  // Stair treads take precedence over the base-library floor underneath them.
-  const libraryStair=libraryStairFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
+  const feetY=jogador.pos.y-jogador.alturaOlhos;
+  // Stair treads take precedence only when they are at the player's current
+  // level; nearby turns of the helix must not become invisible elevators.
+  const libraryStair=libraryStairFloorAtXZ(x,z,feetY);
   if(libraryStair!==null)return libraryStair;
-  const libraryFloor=libraryFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
+  const libraryFloor=libraryFloorAtXZ(x,z,feetY);
   if(libraryFloor!==null)return libraryFloor;
   const councilFloor=councilRoomFloorAtXZ(x,z);
   if(councilFloor!==null)return councilFloor;
   const deepFloor=depthsFloorAtXZ(x,z);
   if(deepFloor!==null)return deepFloor;
-  const throneFloor=throneRoomFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
+  const throneFloor=throneRoomFloorAtXZ(x,z,feetY);
   if(throneFloor!==null)return throneFloor;
-  const volFloor=volTurinFloorAtXZ(x,z);
+  const volFloor=volTurinFloorAtXZ(x,z,feetY);
   if(volFloor!==null)return volFloor;
-  const feetY=jogador.pos.y-jogador.alturaOlhos;
   if((dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z)) &&
      feetY>=VOL_TURIN_TOP_Y-3)return VOL_TURIN_TOP_Y;
   return dentroDaArquitetura(x,z)?ENTRY_HALL_FLOOR:alturaChao(x,z);
@@ -284,7 +285,7 @@ function atualizarJogador(dt){
     // only after the whole frame. This prevents the player from skipping levels.
     if(!vooLivre){
       const currentFeet=jogador.pos.y-jogador.alturaOlhos;
-      const stairFloor=volTurinFloorAtXZ(jogador.pos.x,jogador.pos.z);
+      const stairFloor=volTurinFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
       const libraryStairFloor=libraryStairFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
       const activeStairFloor=libraryStairFloor!==null?libraryStairFloor:stairFloor;
       if(activeStairFloor!==null && Math.abs(activeStairFloor-currentFeet)<2.35)
