@@ -100,7 +100,7 @@ function throneRoomStairFloorAtXZ(x,z) {
   return p.topY-(index+1)*p.rise;
 }
 function throneRoomWalkableContains(x,z) {
-  const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+5.5 && Math.abs(z)<=9.2;
+  const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+7.0 && Math.abs(z)<=17.2;
   if(inLanding)return true;
   if(x>=THRONE_ROOM_MIN_X && x<=THRONE_ROOM_MAX_X &&
      Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8)return true;
@@ -109,7 +109,7 @@ function throneRoomWalkableContains(x,z) {
 function throneRoomFloorAtXZ(x,z) {
   const stair=throneRoomStairFloorAtXZ(x,z);
   if(stair!==null)return stair;
-  const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+5.5 && Math.abs(z)<=9.2;
+  const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+7.0 && Math.abs(z)<=17.2;
   if(inLanding)return THRONE_ROOM_FLOOR;
   if(x>=THRONE_ROOM_MIN_X && x<=THRONE_ROOM_MAX_X &&
      Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8)return THRONE_ROOM_FLOOR;
