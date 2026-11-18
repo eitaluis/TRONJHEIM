@@ -173,6 +173,21 @@ function buildCouncilRoomShell() {
   }
   const westArch=new THREE.Mesh(new THREE.TorusGeometry(7.2,.55,10,48,Math.PI),paleMarble);
   westArch.rotation.y=-Math.PI/2;westArch.position.set(cx-COUNCIL_ROOM_RADIUS+.15,y+7.2,0);scene.add(westArch);
+  const westThreshold=new THREE.Mesh(new THREE.BoxGeometry(2.0,.28,14.6),marbleTrim);
+  westThreshold.position.set(cx-COUNCIL_ROOM_RADIUS,y+.04,0);scene.add(westThreshold);
+  for(const side of [-1,1]){
+    const door=new THREE.Group();
+    door.position.set(cx-COUNCIL_ROOM_RADIUS+.5,y,side*7.1);
+    door.rotation.y=-side*1.12;
+    const leaf=new THREE.Mesh(new THREE.BoxGeometry(.64,13.6,6.8),
+      new THREE.MeshStandardMaterial({color:0x3c2c21,roughness:.78}));
+    leaf.position.set(0,6.8,-side*3.4);door.add(leaf);
+    for(const yy of [2.2,6.8,11.4]){
+      const band=new THREE.Mesh(new THREE.BoxGeometry(.82,.32,6.6),doorFrameMat);
+      band.position.set(.34,yy,-side*3.4);door.add(band);
+    }
+    scene.add(door);
+  }
 
   // Sky-blue hemispherical dome — the canonical identifying feature of the room.
   const domeGeo=new THREE.SphereGeometry(COUNCIL_ROOM_RADIUS,72,36,0,Math.PI*2,0,Math.PI/2);
