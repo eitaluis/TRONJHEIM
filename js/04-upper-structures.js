@@ -108,9 +108,10 @@ function volTurinTopLandingContains(x,z) {
 function dragonholdCaveContains(x,z,cave) {
   const r=Math.hypot(x,z),a=Math.atan2(z,x);
   const d=Math.abs(Math.atan2(Math.sin(a-cave.angle),Math.cos(a-cave.angle)));
-  const radialStart=DRAGONHOLD_OUTER_RADIUS-0.5;
-  const radialEnd=DRAGONHOLD_OUTER_RADIUS+cave.depth;
-  return r>=radialStart && r<=radialEnd && d*r<=cave.width/2+0.8;
+  // Leave a safety margin before the actual side and back rock faces.
+  const radialStart=DRAGONHOLD_OUTER_RADIUS-0.35;
+  const radialEnd=DRAGONHOLD_OUTER_RADIUS+cave.depth-1.15;
+  return r>=radialStart && r<=radialEnd && d*r<=cave.width/2-.48;
 }
 const DRAGONHOLD_CAVES = [
   {id:"saphira",angle:4.72,width:7.4,height:6.0,bottom:2.2,depth:15.5,kind:"dragon"},
@@ -121,8 +122,32 @@ const DRAGONHOLD_CAVES = [
   {id:"niche3",angle:5.95,width:2.4,height:2.9,bottom:3.1,depth:4.4,kind:"small"},
   {id:"exit",angle:VOL_TURIN_START_ANGLE,width:6.6,height:14.5,bottom:1.8,depth:8.0,kind:"exit"}
 ];
+function dragonholdSaphiraApproachContains(x,z) {
+  const cave=DRAGONHOLD_CAVES.find(c=>c.id==="saphira");
+  const r=Math.hypot(x,z),a=Math.atan2(z,x);
+  const delta=Math.abs(Math.atan2(Math.sin(a-cave.angle),Math.cos(a-cave.angle)));
+  return r>=DRAGONHOLD_RADIUS-.35 && r<=DRAGONHOLD_OUTER_RADIUS+.45 &&
+    delta*r<=cave.width/2+.35;
+}
+function dragonholdSaphiraStepFloorAtXZ(x,z) {
+  if(!dragonholdSaphiraApproachContains(x,z))return null;
+  const r=Math.hypot(x,z),startR=DRAGONHOLD_RADIUS-.35,endR=DRAGONHOLD_OUTER_RADIUS+.1;
+  const rise=DRAGONHOLD_CAVES.find(c=>c.id==="saphira").bottom/12;
+  const index=THREE.MathUtils.clamp(Math.floor((r-startR)/(endR-startR)*12),0,11);
+  return VOL_TURIN_TOP_Y+(index+1)*rise;
+}
+function dragonholdFloorAtXZ(x,z,referenceFeetY=null) {
+  const stair=dragonholdSaphiraStepFloorAtXZ(x,z);
+  if(stair!==null)return stair;
+  for(const cave of DRAGONHOLD_CAVES){
+    if(dragonholdCaveContains(x,z,cave))return VOL_TURIN_TOP_Y+cave.bottom;
+  }
+  if(Math.hypot(x,z)<=DRAGONHOLD_RADIUS-.5)return VOL_TURIN_TOP_Y;
+  return null;
+}
 function dragonholdWalkableContains(x,z) {
-  if(Math.hypot(x,z)<=DRAGONHOLD_RADIUS-0.5)return true;
+  if(Math.hypot(x,z)<=DRAGONHOLD_RADIUS-.5)return true;
+  if(dragonholdSaphiraApproachContains(x,z))return true;
   return DRAGONHOLD_CAVES.some(c=>dragonholdCaveContains(x,z,c));
 }
 function isDragonholdExitBridge(x,z) {
