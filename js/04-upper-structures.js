@@ -530,13 +530,29 @@ function buildDragonhold(gemTopY) {
   mattress.position.set(-1.0,1.72,4.0);caveGroup.add(mattress);
   const cushion=new THREE.Mesh(new THREE.CapsuleGeometry(1.45,.7,6,10),new THREE.MeshStandardMaterial({color:0x4b342b,roughness:.98}));
   cushion.rotation.z=Math.PI/2;cushion.scale.set(1.15,.62,2.0);cushion.position.set(1.1,.6,3.7);caveGroup.add(cushion);
-  const lantern=new THREE.Mesh(new THREE.BoxGeometry(.45,.9,.42),new THREE.MeshStandardMaterial({color:0x9f271d,emissive:0xb42a1c,emissiveIntensity:1.2,roughness:.35}));
-  lantern.position.set(-2.5,4.2,-5.8);caveGroup.add(lantern);
+  const lanternMount=new THREE.Mesh(new THREE.BoxGeometry(.72,1.15,.62),
+    new THREE.MeshStandardMaterial({color:0x352923,roughness:.86}));
+  lanternMount.position.set(-2.5,4.0,-5.95);caveGroup.add(lanternMount);
+  const lantern=new THREE.Mesh(new THREE.BoxGeometry(.45,.9,.42),
+    new THREE.MeshStandardMaterial({color:0x9f271d,emissive:0xb42a1c,emissiveIntensity:1.2,roughness:.35}));
+  lantern.position.set(-2.5,4.2,-5.55);caveGroup.add(lantern);
   const shutter=new THREE.Mesh(new THREE.BoxGeometry(.55,.7,.12),bronze);
-  shutter.position.set(-2.5,4.2,-5.5);caveGroup.add(shutter);
+  shutter.position.set(-2.5,4.2,-5.28);caveGroup.add(shutter);
+  // The red lamp is attached to the cave itself, so it cannot float outside
+  // the wall when the cave group is rotated or repositioned.
+  const redGlow=new THREE.PointLight(0xb93627,8,18,2);
+  redGlow.position.set(-2.5,4.2,-4.9);caveGroup.add(redGlow);
+  // Irregular natural rock shoulders frame the bed and soften the cut-stone shell.
+  const caveRock=new THREE.MeshStandardMaterial({color:0x514237,roughness:1});
+  for(const [x,y,z,sx,sy,sz] of [
+    [-4.7,2.1,1.5,1.8,2.0,2.6],[3.8,1.5,2.8,2.1,1.5,2.2],
+    [-4.1,5.0,5.4,2.0,1.2,2.4],[3.4,5.3,-1.5,2.4,1.3,2.0],
+    [0.8,6.1,7.2,2.6,1.0,1.7]
+  ]){
+    const rock=new THREE.Mesh(new THREE.IcosahedronGeometry(1,2),caveRock);
+    rock.position.set(x,y,z);rock.scale.set(sx,sy,sz);caveGroup.add(rock);
+  }
   scene.add(caveGroup);
-  const redGlow=new THREE.PointLight(0xb93627,4.5,13,2);
-  redGlow.position.set(Math.cos(sa)*(outerR+5),floorY+7,Math.sin(sa)*(outerR+5));scene.add(redGlow);
 
   // Polished metal rungs rise up the inner wall toward the upper caves.
   const rungCount=30,railGeo=new THREE.CylinderGeometry(.11,.11,11.5,8),rungGeo=new THREE.CylinderGeometry(.09,.09,1.35,8);
