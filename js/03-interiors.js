@@ -100,7 +100,7 @@ function buildCentralChamber(){
     {id:"south",x:0,z:1,angle:Math.PI},
     {id:"west",x:-1,z:0,angle:Math.PI/2}
   ];
-  const corridorLength=390,width=38,height=34,start=132,end=radius+corridorLength;
+  const corridorLength=390,width=38,height=34,start=132,end=start+corridorLength;
   for(const d of directions){
     const cx=d.x*(start+corridorLength/2),cz=d.z*(start+corridorLength/2);
     const floor=new THREE.Mesh(new THREE.BoxGeometry(d.x?corridorLength:width,2.1,d.z?corridorLength:width),stone);
