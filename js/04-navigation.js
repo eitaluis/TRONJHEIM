@@ -25,6 +25,10 @@ function alturaChao(x,z){
 }
 const pontosTP=[
   {id:"central",nome:"Câmara central",x:0,z:0,yaw:0,pitch:-.03,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"gallery1",nome:"Galeria — nível 1",x:130*Math.cos(28.125*Math.PI/180),z:130*Math.sin(28.125*Math.PI/180),yaw:Math.PI/2-28.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[0]+1.7},
+  {id:"gallery2",nome:"Galeria — nível 2",x:130*Math.cos(118.125*Math.PI/180),z:130*Math.sin(118.125*Math.PI/180),yaw:Math.PI/2-118.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[1]+1.7},
+  {id:"gallery3",nome:"Galeria — nível 3",x:130*Math.cos(208.125*Math.PI/180),z:130*Math.sin(208.125*Math.PI/180),yaw:Math.PI/2-208.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[2]+1.7},
+  {id:"gallery4",nome:"Galeria — nível 4",x:130*Math.cos(298.125*Math.PI/180),z:130*Math.sin(298.125*Math.PI/180),yaw:Math.PI/2-298.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[3]+1.7},
   {id:"northHall",nome:"Corredor norte",x:0,z:-260,yaw:0,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"southHall",nome:"Corredor sul",x:0,z:260,yaw:Math.PI,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"westHall",nome:"Corredor oeste",x:-260,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -106,6 +110,15 @@ function podeOcuparXZ(x,z){
   if(r>8075-jogador.raio)return false;
   // Tronjheim is a solid mountain shell except at the actual eastern gate.
   if(r<CITY.radius-jogador.raio && !dentroDaArquitetura(x,z))return false;
+
+  // On upper galleries, inner and outer balustrades prevent walking off the deck.
+  const feetY=jogador.pos.y-jogador.alturaOlhos;
+  const elevated=feetY>ENTRY_HALL_FLOOR+3;
+  if(elevated && r<CENTRAL_WALL_RADIUS+1){
+    const onStair=centralStairFloorOffset(x,z)!==null;
+    if(!onStair && (r<107 || r>144))return false;
+  }
+
   // The 32 red-jasper columns are solid obstacles, not walk-through decoration.
   if(r<CENTRAL_WALL_RADIUS-4){
     for(let i=0;i<32;i++){
@@ -116,7 +129,25 @@ function podeOcuparXZ(x,z){
   return true;
 }
 function alturaPisoNaPosicao(x,z){
-  return dentroDaArquitetura(x,z)?ENTRY_HALL_FLOOR:alturaChao(x,z);
+  if(!dentroDaArquitetura(x,z))return alturaChao(x,z);
+  const r=Math.hypot(x,z);
+  // Stair treads are discrete, physically modelled steps; resolve their height
+  // from the same angular progression used to place the tread meshes.
+  const stairOffset=centralStairFloorOffset(x,z);
+  if(stairOffset!==null)return ENTRY_HALL_FLOOR+stairOffset;
+  // The annular galleries are separate walkable floors. Choose the closest
+  // level to the current feet height so the player remains on the deck being used.
+  if(r>=107 && r<=144){
+    const feetY=jogador.pos.y-jogador.alturaOlhos;
+    const options=[0,...CENTRAL_GALLERY_LEVELS];
+    let nearest=options[0],best=Math.abs(feetY-(ENTRY_HALL_FLOOR+nearest));
+    for(const level of options.slice(1)){
+      const delta=Math.abs(feetY-(ENTRY_HALL_FLOOR+level));
+      if(delta<best){best=delta;nearest=level;}
+    }
+    return ENTRY_HALL_FLOOR+nearest;
+  }
+  return ENTRY_HALL_FLOOR;
 }
 function limitarAoInterior(pos){
   const r=Math.hypot(pos.x,pos.z),limite=8075-jogador.raio;
