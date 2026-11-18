@@ -57,24 +57,47 @@ function volTurinPointAtProgress(t, offsetRadius=0) {
 // Resolve a Vol Turin tread only when the player is already at that tread's
 // elevation. The old X/Z-only lookup confused the central chamber floor with
 // the spiral stair because the stair winds through many overlapping radii.
+function volTurinStepDepthAtProgress(t) {
+  const radius=volTurinStairRadiusAtProgress(t);
+  const run=radius*VOL_TURIN_TOTAL_ANGLE/VOL_TURIN_STEP_COUNT;
+  // The tread reaches almost to the next tread: no long unsupported gaps.
+  return Math.max(.62,run*.97);
+}
 function volTurinFloorAtXZ(x,z,referenceFeetY=null) {
   if(referenceFeetY===null || !Number.isFinite(referenceFeetY))return null;
-  const r=Math.hypot(x,z);
-  const baseR=volTurinStairRadiusAtProgress(0);
-  const topR=volTurinStairRadiusAtProgress(1);
-  const t=(baseR-r)/(baseR-topR);
-  if(t<0 || t>1)return null;
-  const expected=VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*t;
-  const actual=Math.atan2(z,x);
-  const delta=Math.abs(Math.atan2(Math.sin(actual-expected),Math.cos(actual-expected)));
-  if(delta*r>VOL_TURIN_STEP_HALF_WIDTH)return null;
-  const index=THREE.MathUtils.clamp(Math.floor(t*VOL_TURIN_STEP_COUNT),0,VOL_TURIN_STEP_COUNT-1);
-  const treadY=VOL_TURIN_BASE_Y+(index+1)*VOL_TURIN_STEP_RISE;
-  // A player may climb one physical riser, never be snapped several metres
-  // or hundreds of metres onto a different turn of the spiral.
-  const maxStepSnap=Math.max(.28,VOL_TURIN_STEP_RISE*1.35);
-  if(Math.abs(treadY-referenceFeetY)>maxStepSnap)return null;
-  return treadY;
+  const radius=Math.hypot(x,z);
+  const angle=Math.atan2(z,x);
+  const phase=((angle-VOL_TURIN_START_ANGLE)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+  const radialHalf=2.6;
+  const maxVerticalSnap=Math.max(.55,VOL_TURIN_STEP_RISE*2.6);
+  let bestFloor=null,bestScore=Infinity;
+
+  // Each revolution has the same angle, but a different radius and elevation.
+  // Test the possible windings, then confirm against the real rectangular tread.
+  for(let turn=0;turn<=VOL_TURIN_TURNS;turn++){
+    const progress=(phase+turn*Math.PI*2)/VOL_TURIN_TOTAL_ANGLE;
+    if(progress<0||progress>1)continue;
+    const approxIndex=Math.round(progress*VOL_TURIN_STEP_COUNT-.5);
+    for(let index=Math.max(0,approxIndex-1);index<=Math.min(VOL_TURIN_STEP_COUNT-1,approxIndex+1);index++){
+      const t=(index+.5)/VOL_TURIN_STEP_COUNT;
+      const centerAngle=VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*t;
+      const angularOffset=Math.atan2(Math.sin(angle-centerAngle),Math.cos(angle-centerAngle));
+      const centerRadius=volTurinStairRadiusAtProgress(t);
+      const radialOffset=Math.abs(radius-centerRadius);
+      const tangentOffset=Math.abs(angularOffset)*centerRadius;
+      const depth=volTurinStepDepthAtProgress(t);
+      if(radialOffset>radialHalf+.22 || tangentOffset>depth/2+.22)continue;
+
+      // The mesh top is the tread center height minus 1 cm (its 34 cm slab).
+      const treadTop=VOL_TURIN_BASE_Y+(index+.5)*VOL_TURIN_STEP_RISE-.01;
+      const verticalOffset=Math.abs(treadTop-referenceFeetY);
+      if(verticalOffset>maxVerticalSnap)continue;
+      const score=(radialOffset/radialHalf)**2+(tangentOffset/(depth/2+.22))**2+
+        (verticalOffset/maxVerticalSnap)**2*1.6;
+      if(score<bestScore){bestScore=score;bestFloor=treadTop;}
+    }
+  }
+  return bestFloor;
 }
 function volTurinTopLandingContains(x,z) {
   const r=Math.hypot(x,z),a=Math.atan2(z,x);
@@ -229,7 +252,7 @@ function buildVolTurinStaircase() {
     const t=(i+.5)/VOL_TURIN_STEP_COUNT;
     const point=volTurinPointAtProgress(t);
     const radius=volTurinStairRadiusAtProgress(t);
-    const depth=THREE.MathUtils.clamp(radius*VOL_TURIN_TOTAL_ANGLE/VOL_TURIN_STEP_COUNT*.88,.62,3.35);
+    const depth=volTurinStepDepthAtProgress(t);
     dummy.position.set(point.x,point.y-.18,point.z);
     dummy.rotation.set(0,-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*t),0);
     dummy.scale.set(1,1,depth);dummy.updateMatrix();steps.setMatrixAt(i,dummy.matrix);
@@ -263,10 +286,16 @@ function buildVolTurinStaircase() {
     scene.add(rail);
   }
 
-  // Small landing at the bottom of the staircase.
-  const landing=new THREE.Mesh(new THREE.CylinderGeometry(6.5,7.2,.65,32),new THREE.MeshStandardMaterial({color:0xc8c5bc,roughness:.42}));
-  landing.position.set(Math.cos(VOL_TURIN_START_ANGLE)*volTurinStairRadiusAtProgress(0),VOL_TURIN_BASE_Y+.15,Math.sin(VOL_TURIN_START_ANGLE)*volTurinStairRadiusAtProgress(0));
-  scene.add(landing);
+  // Lower landing meets the exact top surface of tread 0.
+  const firstT=.5/VOL_TURIN_STEP_COUNT;
+  const firstPoint=volTurinPointAtProgress(firstT);
+  const firstTop=VOL_TURIN_BASE_Y+.5*VOL_TURIN_STEP_RISE-.01;
+  const landing=new THREE.Mesh(
+    new THREE.CylinderGeometry(7.7,8.0,.34,64),
+    new THREE.MeshStandardMaterial({color:0xc8c5bc,roughness:.38,metalness:.025})
+  );
+  landing.position.set(firstPoint.x,firstTop-.17,firstPoint.z);
+  landing.receiveShadow=true;landing.castShadow=true;scene.add(landing);
 }
 
 // Open-topped U-shaped polished trough. This is a channel, not a closed pipe.
@@ -627,10 +656,14 @@ function buildVolTurinAndDragonhold() {
   buildDragonhold(isidar.topY);
   buildFarthenDurSkyAperture();
   const exitAngle=VOL_TURIN_START_ANGLE;
-  const bridgeRadius=(DRAGONHOLD_OUTER_RADIUS+volTurinStairRadiusAtProgress(1))/2;
-  const bridge=new THREE.Mesh(new THREE.BoxGeometry(13.5,.55,4.2),
-    new THREE.MeshStandardMaterial({color:0xc9c7be,roughness:.4}));
-  bridge.position.set(Math.cos(exitAngle)*bridgeRadius,isidar.topY+.1,Math.sin(exitAngle)*bridgeRadius);
-  bridge.rotation.y=-exitAngle;scene.add(bridge);
+  const lastT=1-.5/VOL_TURIN_STEP_COUNT;
+  const lastPoint=volTurinPointAtProgress(lastT);
+  const bridgeRadius=(DRAGONHOLD_OUTER_RADIUS+lastPoint.length())/2;
+  const bridge=new THREE.Mesh(new THREE.BoxGeometry(13.5,.32,5.2),
+    new THREE.MeshStandardMaterial({color:0xc9c7be,roughness:.36,metalness:.025}));
+  // The bridge top is flush with the Dragonhold floor; the final riser is only
+  // the natural half-step transition from the last Vol Turin tread.
+  bridge.position.set(Math.cos(exitAngle)*bridgeRadius,isidar.topY-.16,Math.sin(exitAngle)*bridgeRadius);
+  bridge.rotation.y=-exitAngle;bridge.receiveShadow=true;bridge.castShadow=true;scene.add(bridge);
 }
 buildVolTurinAndDragonhold();
