@@ -116,7 +116,10 @@ function podeOcuparXZ(x,z){
   const elevated=feetY>ENTRY_HALL_FLOOR+3;
   if(elevated && r<CENTRAL_WALL_RADIUS+1){
     const onStair=centralStairFloorOffset(x,z)!==null;
-    if(!onStair && (r<107 || r>144))return false;
+    // Keep the player inside the handrails: stair flights are narrower than
+    // the galleries, whose inner and outer edges are also guarded.
+    if(onStair && (r<109 || r>127))return false;
+    if(!onStair && (r<109 || r>141))return false;
   }
 
   // The 32 red-jasper columns are solid obstacles, not walk-through decoration.
