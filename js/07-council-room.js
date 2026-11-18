@@ -18,7 +18,11 @@ const COUNCIL_ROOM_PASSAGE_END_X = -566;
 function councilRoomWalkableContains(x,z) {
   const passage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=8.2;
   const r = Math.hypot(x-COUNCIL_ROOM_CENTER_X,z-COUNCIL_ROOM_CENTER_Z);
-  const chamber = r<=COUNCIL_ROOM_RADIUS-.35;
+  const currentR = Math.hypot(jogador.pos.x-COUNCIL_ROOM_CENTER_X,jogador.pos.z-COUNCIL_ROOM_CENTER_Z);
+  const alreadyInside = currentR<=COUNCIL_ROOM_RADIUS-.35;
+  const enteringThroughDoor = jogador.pos.x<=-540 && jogador.pos.x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 &&
+    Math.abs(jogador.pos.z)<=8.2 && jogador.pos.x>COUNCIL_ROOM_CENTER_X;
+  const chamber = r<=COUNCIL_ROOM_RADIUS-.35 && (alreadyInside||enteringThroughDoor);
   return passage||chamber;
 }
 function councilRoomFloorAtXZ(x,z) {
