@@ -171,7 +171,7 @@ function buildCentralChamber(){
       curvedRail(radius,levelY+1.35,gapCenter+gap,gapCenter-gap+Math.PI*2,handrailMat,.48);
     }
     const count=144,geo=new THREE.CylinderGeometry(.32,.38,1.35,8);
-    const posts=new THREE.InstancedMesh(geo,balusterMat,count,new THREE.MeshStandardMaterial());
+    const posts=new THREE.InstancedMesh(geo,balusterMat,count);
     const dummy=new THREE.Object3D();let used=0;
     for(let i=0;i<count;i++){
       const a=i/count*Math.PI*2;
@@ -184,9 +184,9 @@ function buildCentralChamber(){
   for(let i=0;i<CENTRAL_GALLERY_LEVELS.length;i++){
     const level=CENTRAL_GALLERY_LEVELS[i],y=floorY+level;
     const outgoing=i<CENTRAL_STAIRWAYS.length-1?CENTRAL_STAIRWAYS[i+1].center:null;
-    const deck=new THREE.Mesh(annularDeckGeometry(y-.35,outgoing),galleryFloorMat);
+    const deck=new THREE.Mesh(annularDeckGeometry(y,outgoing),galleryFloorMat);
     deck.receiveShadow=true;deck.castShadow=true;scene.add(deck);
-    const underside=new THREE.Mesh(annularDeckGeometry(y-1.15,outgoing),galleryUndersideMat);
+    const underside=new THREE.Mesh(annularDeckGeometry(y-1.2,outgoing),galleryUndersideMat);
     scene.add(underside);
     buildGalleryRail(y,outgoing,true);
     buildGalleryRail(y,outgoing,false);
