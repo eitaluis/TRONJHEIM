@@ -90,7 +90,7 @@ function libraryGallerySectorContains(x,z) {
 function libraryFloorAtXZ(x,z,referenceFeetY=(jogador.pos.y-jogador.alturaOlhos)) {
   if(libraryPassageContains(x,z) && Math.abs(referenceFeetY-LIBRARY_FLOOR)<2.25)return LIBRARY_FLOOR;
   const r=Math.hypot(x-LIBRARY_CENTER_X,z-LIBRARY_CENTER_Z);
-  if(r<=LIBRARY_RADIUS-.65 && Math.abs(referenceFeetY-LIBRARY_FLOOR)<2.25 &&
+  if(r<=LIBRARY_RADIUS-.35 && Math.abs(referenceFeetY-LIBRARY_FLOOR)<2.25 &&
      !libraryFurnitureBlocks(x,z,LIBRARY_FLOOR))return LIBRARY_FLOOR;
 
   for(let level=1;level<=LIBRARY_LEVELS;level++){
@@ -404,7 +404,8 @@ function buildLibraryReadingFurniture() {
   const dark=new THREE.MeshStandardMaterial({color:0x62686c,roughness:.72});
   const brass=new THREE.MeshStandardMaterial({color:0x9c8255,metalness:.66,roughness:.34});
   for(let i=0;i<6;i++){
-    const a=i/6*Math.PI*2+.22,r=11.7;
+    const a=i/6*Math.PI*2+.22,r=12.4;
+    if(LIBRARY_STAIRS.some(stair=>libraryAngleDistance(a,stair.startAngle)<.36))continue;
     const x=LIBRARY_CENTER_X+Math.cos(a)*r,z=LIBRARY_CENTER_Z+Math.sin(a)*r;
     const tableBase=new THREE.Mesh(new THREE.CylinderGeometry(.38,.95,1.0,12),stone);
     tableBase.position.set(x,LIBRARY_FLOOR+.5,z);scene.add(tableBase);
