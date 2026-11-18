@@ -69,7 +69,7 @@
 <div id="hud">
   <div id="topbar">
     <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 02 — PORTÃO E GRANDE CORREDOR</p></div>
-    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Exterior revisto · portão e interior em construção<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
+    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Exploração rápida · portão e interior em construção<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
   <div id="right" class="plate">
     <span class="tag">Base documental</span>
@@ -96,7 +96,7 @@
       <button data-teleport="entryHall">7 · Corredor — entrada</button>
       <button data-teleport="deepHall">8 · Corredor — interior</button>
     </div>
-    <div id="mapNote">Clique nos pontos para teleportar. Roda do mouse sobre o mapa: visão geral ↔ zoom local. M/N percorrem os locais.</div>
+    <div id="mapNote">Deslocamento rápido para explorar a escala monumental. Clique nos pontos para teleportar; roda do mouse alterna visão geral e zoom local.</div>
   </div>
 
   <div id="checklist" class="plate">
@@ -169,7 +169,7 @@
   </div>
 
   <div id="bottom">
-    <div id="controls" class="plate"><b>W A S D</b> andar · <b>mouse</b> olhar · <b>Shift</b> correr · <b>Espaço</b> pular<br><b>M/N</b> próximo/anterior teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo · <b>TAB</b> mapa</div>
+    <div id="controls" class="plate"><b>W A S D</b> deslocar · <b>mouse</b> olhar · <b>Shift</b> turbo · <b>Espaço</b> pular<br><b>M/N</b> próximo/anterior teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo · <b>TAB</b> mapa</div>
     <div id="coords" class="plate">X <span id="cx">—</span><br>Y <span id="cy">—</span><br>Z <span id="cz">—</span></div>
   </div>
   <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
@@ -791,9 +791,9 @@ function atualizarJogador(dt){
   if(teclas.KeyA||teclas.ArrowLeft)direcao.sub(direita);
   if(direcao.lengthSq()>0)direcao.normalize();
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
-  const velocidade=vooLivre?14:(correndo?7.6:4.1);
-  jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?8:18,dt);
-  jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?8:18,dt);
+  const velocidade=vooLivre?230:(correndo?145:80);
+  jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
+  jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   jogador.pos.x+=jogador.vel.x*dt;jogador.pos.z+=jogador.vel.z*dt;limitarAoInterior(jogador.pos);
   if(vooLivre){
     if(teclas.Space)jogador.pos.y+=velocidade*dt;
