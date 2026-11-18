@@ -32,24 +32,60 @@ function depthsFloorAtXZ(x,z){
 function buildDepthTunnel(xStart,xEnd,yStart,yEnd,width=25,height=15){
   const length=xStart-xEnd,midX=(xStart+xEnd)/2,midY=(yStart+yEnd)/2;
   const angle=Math.atan2(yEnd-yStart,xEnd-xStart);
-  const stone=new THREE.MeshStandardMaterial({color:0x62594e,roughness:.98});
+  const stone=new THREE.MeshStandardMaterial({color:0x62594e,roughness:.98,side:THREE.DoubleSide});
   const floor=new THREE.Mesh(new THREE.BoxGeometry(length+1,.9,width),stone);
   floor.position.set(midX,midY-.45,0);floor.rotation.z=angle;floor.receiveShadow=true;scene.add(floor);
-  const roof=new THREE.Mesh(new THREE.BoxGeometry(length+1,1.2,width),stone);
-  roof.position.set(midX,midY+height,width*0);roof.rotation.z=angle;scene.add(roof);
-  for(const side of [-1,1]){
-    const wall=new THREE.Mesh(new THREE.BoxGeometry(length+1,height,1.8),stone);
-    wall.position.set(midX,midY+height/2,side*width/2);wall.rotation.z=angle;wall.receiveShadow=true;scene.add(wall);
+
+  // Vault cross-section: vertical spring walls transition into a continuous
+  // elliptical stone arch. This replaces the box-shaped roof and wall slabs.
+  const halfWidth=width/2,spring=Math.min(height*.43,halfWidth*.82),archRise=height-spring;
+  const profile=[];
+  for(let i=0;i<=8;i++)profile.push({z:halfWidth,y:spring*i/8});
+  for(let i=1;i<=32;i++){
+    const a=Math.PI*i/32;
+    profile.push({z:halfWidth*Math.cos(a),y:spring+archRise*Math.sin(a)});
   }
-  for(let x=xStart-14;x>xEnd+8;x-=28){
-    const rib=new THREE.Mesh(new THREE.BoxGeometry(1.3,height+1,width+2),
-      new THREE.MeshStandardMaterial({color:0x8a7c69,roughness:.95}));
-    const t=(xStart-x)/length;
-    rib.position.set(x,THREE.MathUtils.lerp(yStart,yEnd,t)+height/2,0);
-    rib.rotation.z=angle;scene.add(rib);
-    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.58,10,8),MAT.lantern);
-    lamp.position.set(x,THREE.MathUtils.lerp(yStart,yEnd,t)+height-2.2,0); // centered ceiling marker
-    scene.add(lamp);
+  for(let i=1;i<=8;i++)profile.push({z:-halfWidth,y:spring*(1-i/8)});
+  const axialSegments=Math.max(24,Math.ceil(length/10));
+  const vertices=[],uvs=[],indices=[];
+  for(let i=0;i<=axialSegments;i++){
+    const t=i/axialSegments,x=THREE.MathUtils.lerp(xStart,xEnd,t);
+    const baseY=THREE.MathUtils.lerp(yStart,yEnd,t);
+    for(let j=0;j<profile.length;j++){
+      vertices.push(x,baseY+profile[j].y,profile[j].z);
+      uvs.push(t*length/12,j/(profile.length-1)*2.4);
+    }
+  }
+  for(let i=0;i<axialSegments;i++)for(let j=0;j<profile.length-1;j++){
+    const a=i*profile.length+j,b=a+profile.length;
+    indices.push(a,b,a+1,b,b+1,a+1);
+  }
+  const vaultGeometry=new THREE.BufferGeometry();
+  vaultGeometry.setAttribute("position",new THREE.Float32BufferAttribute(vertices,3));
+  vaultGeometry.setAttribute("uv",new THREE.Float32BufferAttribute(uvs,2));
+  vaultGeometry.setIndex(indices);vaultGeometry.computeVertexNormals();
+  const vault=new THREE.Mesh(vaultGeometry,stone);
+  vault.receiveShadow=true;vault.castShadow=true;scene.add(vault);
+
+  // Raised stone ribs follow the arch profile, rather than reading as square beams.
+  const ribMaterial=new THREE.MeshStandardMaterial({color:0x8a7c69,roughness:.92});
+  const archProfile=profile.slice(0,profile.length-1).map(p=>
+    new THREE.Vector3(midX,midY+p.y,p.z)
+  );
+  for(let x=xStart-18;x>xEnd+8;x-=32){
+    const t=(xStart-x)/length,baseY=THREE.MathUtils.lerp(yStart,yEnd,t);
+    const points=profile.map(p=>new THREE.Vector3(x,baseY+p.y,p.z));
+    const curve=new THREE.CatmullRomCurve3(points,false,"centripetal");
+    const rib=new THREE.Mesh(new THREE.TubeGeometry(curve,72,.42,8,false),ribMaterial);
+    rib.castShadow=true;rib.receiveShadow=true;scene.add(rib);
+
+    const glass=new THREE.MeshStandardMaterial({
+      color:0xf0d8a9,emissive:0xd49c53,emissiveIntensity:.72,roughness:.3
+    });
+    const lantern=new THREE.Mesh(new THREE.CylinderGeometry(.32,.48,1.25,20,2,true),glass);
+    lantern.position.set(x,baseY+height-1.6,0);scene.add(lantern);
+    const glow=new THREE.PointLight(0xffc77e,8,46,2);
+    glow.position.copy(lantern.position);scene.add(glow);
   }
 }
 function buildDepthChamber(cx,cy,radius,kind){
@@ -86,7 +122,7 @@ function buildDwarfCatacombs(){
     col.position.set(-700,DEPTHS_CATACOMB_Y+7.5,side*47);scene.add(col);
     const lamp=new THREE.Mesh(new THREE.SphereGeometry(.8,10,8),MAT.lantern);
     lamp.position.set(-700,DEPTHS_CATACOMB_Y+11,side*43);scene.add(lamp);
-    const light=new THREE.PointLight(0xffc77e,18,34,2);
+    const light=new THREE.PointLight(0xffc77e,10,52,2);
     light.position.copy(lamp.position);scene.add(light);
   }
 }
