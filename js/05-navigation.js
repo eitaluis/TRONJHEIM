@@ -217,10 +217,30 @@ function atualizarJogador(dt){
   for(let step=0;step<steps;step++){
     const sx=dx/steps,sz=dz/steps;
     const nx=jogador.pos.x+sx,nz=jogador.pos.z+sz;
-    if(podeOcuparXZ(nx,nz)){jogador.pos.x=nx;jogador.pos.z=nz;}
-    else{
-      if(podeOcuparXZ(nx,jogador.pos.z))jogador.pos.x=nx;
-      if(podeOcuparXZ(jogador.pos.x,nz))jogador.pos.z=nz;
+    if(podeOcuparXZ(nx,nz)){
+      jogador.pos.x=nx;jogador.pos.z=nz;
+    }else{
+      // When walking along the outside face of the marble mountain, project
+      // the attempted movement onto the tangent of the wall. This preserves
+      // lateral exploration without allowing the player to enter the stone.
+      const currentR=Math.hypot(jogador.pos.x,jogador.pos.z);
+      const feetY=jogador.pos.y-jogador.alturaOlhos;
+      const cityT=THREE.MathUtils.clamp((feetY+8)/CITY.height,0,1);
+      const wallR=cityRadius(cityT)-jogador.raio;
+      let slid=false;
+      if(currentR>0 && currentR>=wallR-.75 && Math.hypot(nx,nz)<wallR){
+        const normalX=jogador.pos.x/currentR,normalZ=jogador.pos.z/currentR;
+        const inward=Math.min(0,sx*normalX+sz*normalZ);
+        const slideX=sx-inward*normalX,slideZ=sz-inward*normalZ;
+        const slideTargetX=jogador.pos.x+slideX,slideTargetZ=jogador.pos.z+slideZ;
+        if(Math.hypot(slideX,slideZ)>.015 && podeOcuparXZ(slideTargetX,slideTargetZ)){
+          jogador.pos.x=slideTargetX;jogador.pos.z=slideTargetZ;slid=true;
+        }
+      }
+      if(!slid){
+        if(podeOcuparXZ(nx,jogador.pos.z))jogador.pos.x=nx;
+        if(podeOcuparXZ(jogador.pos.x,nz))jogador.pos.z=nz;
+      }
     }
     // Follow each physical tread during fast movement instead of updating height
     // only after the whole frame. This prevents the player from skipping levels.
