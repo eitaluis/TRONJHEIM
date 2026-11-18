@@ -29,7 +29,7 @@ const pontosTP=[
   {id:"volTurinUpper",nome:"Vol Turin — alto",x:volTurinPointAtProgress(.985).x,z:volTurinPointAtProgress(.985).z,yaw:Math.PI-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*.985),pitch:0,levelY:VOL_TURIN_BASE_Y+(Math.floor(.985*VOL_TURIN_STEP_COUNT)+1)*VOL_TURIN_STEP_RISE+1.7},
   {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
-  {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+DRAGONHOLD_CAVES.find(c=>c.id==="saphira").bottom+1.7},
+  {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+2.9),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+2.9),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+DRAGONHOLD_CAVES.find(c=>c.id==="saphira").bottom+1.8},
   {id:"throneAccess",nome:"Escadaria do trono — norte",x:Math.cos(Math.PI+.31)*(CENTRAL_WALL_RADIUS-1.8),z:Math.sin(Math.PI+.31)*(CENTRAL_WALL_RADIUS-1.8),yaw:Math.PI+.31+Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:Math.cos(Math.PI-.31)*(CENTRAL_WALL_RADIUS-1.8),z:Math.sin(Math.PI-.31)*(CENTRAL_WALL_RADIUS-1.8),yaw:Math.PI-.31+Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
