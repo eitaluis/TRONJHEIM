@@ -1,17 +1,22 @@
 function buildFacadeWindows(){
-  const windowGeo=new THREE.SphereGeometry(1,8,6);
-  const windowMat=new THREE.MeshStandardMaterial({color:0x343b43,roughness:.48,emissive:0x4a3824,emissiveIntensity:.26});
-  const frameMat=new THREE.MeshStandardMaterial({color:0xb39b73,metalness:.55,roughness:.42});
-  const windows=new THREE.InstancedMesh(windowGeo,windowMat,900);const frames=new THREE.InstancedMesh(new THREE.TorusGeometry(1,0.11,5,12),frameMat,900);
+  // Deeper, warmer windows now remain visible all the way toward the summit.
+  const windowGeo=new THREE.SphereGeometry(1,10,8);
+  const windowMat=new THREE.MeshStandardMaterial({
+    color:0x8b8273,roughness:.5,emissive:0xb77a3e,emissiveIntensity:.62
+  });
+  const frameMat=new THREE.MeshStandardMaterial({color:0xd0b989,metalness:.48,roughness:.38});
+  const capacity=1500;
+  const windows=new THREE.InstancedMesh(windowGeo,windowMat,capacity);
+  const frames=new THREE.InstancedMesh(new THREE.TorusGeometry(1,0.12,6,16),frameMat,capacity);
   const dummy=new THREE.Object3D();let n=0;
-  for(let row=0;row<13;row++){
-    const t=.08+row*.061, y=-8+t*CITY.height, r=cityRadius(t)+2;
-    const count=Math.max(12,Math.floor(2*Math.PI*r/125));
-    for(let i=0;i<count && n<900;i++){
+  for(let row=0;row<18;row++){
+    const t=.045+row*.0505, y=-8+t*CITY.height, r=cityRadius(t)+3.5;
+    const count=Math.max(10,Math.floor(2*Math.PI*r/112));
+    for(let i=0;i<count && n<capacity;i++){
       const a=i/count*Math.PI*2+(row%2)*.035;
       const x=Math.cos(a)*r,z=Math.sin(a)*r;
-      dummy.position.set(x,y,z);dummy.rotation.set(0,-a,0);dummy.scale.set(5.2,9.5,1.6);dummy.updateMatrix();windows.setMatrixAt(n,dummy.matrix);
-      dummy.position.set(x,y,z);dummy.rotation.set(0,Math.PI/2-a,0);dummy.scale.set(6.8,10.8,1);dummy.updateMatrix();frames.setMatrixAt(n,dummy.matrix);n++;
+      dummy.position.set(x,y,z);dummy.rotation.set(0,-a,0);dummy.scale.set(7.4,13.2,2.2);dummy.updateMatrix();windows.setMatrixAt(n,dummy.matrix);
+      dummy.position.set(x,y,z);dummy.rotation.set(0,Math.PI/2-a,0);dummy.scale.set(9.1,15.2,1.3);dummy.updateMatrix();frames.setMatrixAt(n,dummy.matrix);n++;
     }
   }
   windows.count=n;frames.count=n;windows.instanceMatrix.needsUpdate=true;frames.instanceMatrix.needsUpdate=true;scene.add(windows,frames);
@@ -234,6 +239,18 @@ function buildEntryHall(){
     rod.rotation.z=Math.PI/2;rod.position.set(x,floorY+level+10.8,side*29.1);scene.add(rod);
     const weight=new THREE.Mesh(new THREE.BoxGeometry(12.5,.5,.35),gold);
     weight.position.set(x,floorY+level-.2,side*29.1);scene.add(weight);
+  }
+
+  // Warm wall lanterns illuminate the four-storey hall; emissive meshes alone
+  // do not cast light, so each fixture receives a real non-shadow-casting light.
+  const hallLampGeo=new THREE.SphereGeometry(1.55,10,8);
+  const hallLampMat=new THREE.MeshStandardMaterial({color:0xffd9a5,emissive:0xffb85f,emissiveIntensity:2.1,roughness:.24});
+  for(let i=0,x=startX-55;x>endX+35;x-=125,i++){
+    const side=i%2===0?-1:1;
+    const lamp=new THREE.Mesh(hallLampGeo,hallLampMat);
+    lamp.position.set(x,floorY+21,side*34.6);scene.add(lamp);
+    const glow=new THREE.PointLight(0xffc986,82,155,2);
+    glow.position.set(x,floorY+22,side*31.5);scene.add(glow);
   }
 
   // [INTERPRETAÇÃO] generalized creature silhouettes; the text does not identify species.
