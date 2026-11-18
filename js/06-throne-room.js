@@ -135,9 +135,9 @@ function buildThroneAccess() {
   buildThroneStairPath("escadaria-ampla",[
     [-170,branchBottom,0],[-193,top-13,0],[-220,top-22,0],[-249,THRONE_ROOM_FLOOR,0]
   ],15.8,branchBottom,THRONE_ROOM_FLOOR,.18);
-  const doorLanding=new THREE.Mesh(new THREE.BoxGeometry(9,.72,36),
+  const doorLanding=new THREE.Mesh(new THREE.BoxGeometry(10.3,.72,36),
     new THREE.MeshStandardMaterial({color:0xc4c1b8,roughness:.5}));
-  doorLanding.position.set(-253.5,THRONE_ROOM_FLOOR-.36,0);
+  doorLanding.position.set(-252.85,THRONE_ROOM_FLOOR-.36,0);
   doorLanding.receiveShadow=true;scene.add(doorLanding);
 
   // Tall freestanding portals mark the two openings at the upper landing.
