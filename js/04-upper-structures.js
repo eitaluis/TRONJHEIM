@@ -80,12 +80,11 @@ function dragonholdCaveContains(x,z,cave) {
   return r>=radialStart && r<=radialEnd && d*r<=cave.width/2+0.8;
 }
 const DRAGONHOLD_CAVES = [
-  {id:"saphira",angle:VOL_TURIN_START_ANGLE,width:7.4,height:6.0,bottom:2.2,depth:15.5,kind:"dragon"},
+  {id:"saphira",angle:4.72,width:7.4,height:6.0,bottom:2.2,depth:15.5,kind:"dragon"},
   {id:"great",angle:2.45,width:9.0,height:9.4,bottom:1.2,depth:20.0,kind:"great"},
   {id:"mediumA",angle:4.05,width:5.8,height:5.5,bottom:2.0,depth:11.5,kind:"medium"},
-  {id:"mediumB",angle:5.35,width:5.0,height:4.8,bottom:2.5,depth:9.5,kind:"medium"},
-  {id:"niche1",angle:0.95,width:2.3,height:2.8,bottom:3.0,depth:4.0,kind:"small"},
-  {id:"niche2",angle:3.28,width:2.0,height:2.6,bottom:3.2,depth:3.8,kind:"small"},
+  {id:"niche1",angle:1.55,width:2.3,height:2.8,bottom:3.0,depth:4.0,kind:"small"},
+  {id:"niche2",angle:3.58,width:2.0,height:2.6,bottom:3.2,depth:3.8,kind:"small"},
   {id:"niche3",angle:5.95,width:2.4,height:2.9,bottom:3.1,depth:4.4,kind:"small"},
   {id:"exit",angle:VOL_TURIN_START_ANGLE,width:6.6,height:14.5,bottom:1.8,depth:8.0,kind:"exit"}
 ];
@@ -199,7 +198,7 @@ function buildVolTurinArcadeShaft() {
     const y=startY+level*levelHeight+1.4;
     const v=(y-startY)/(endY-startY);
     const radius=THREE.MathUtils.lerp(startRadius,endRadius,v);
-    dummy.position.set(0,y,0);dummy.rotation.set(Math.PI/2,0,0);dummy.scale.set(radius,1,1);dummy.updateMatrix();
+    dummy.position.set(0,y,0);dummy.rotation.set(Math.PI/2,0,0);dummy.scale.set(radius,radius,1);dummy.updateMatrix();
     ribs.setMatrixAt(level,dummy.matrix);
   }
   ribs.instanceMatrix.needsUpdate=true;scene.add(ribs);
@@ -536,17 +535,18 @@ function buildDragonhold(gemTopY) {
   const rungCount=30,railGeo=new THREE.CylinderGeometry(.11,.11,11.5,8),rungGeo=new THREE.CylinderGeometry(.09,.09,1.35,8);
   const ladderRails=new THREE.InstancedMesh(railGeo,bronze,2);
   const ladderRungs=new THREE.InstancedMesh(rungGeo,bronze,rungCount);
+  const ladderDummy=new THREE.Object3D();
   const ladderAngle=5.05,ladderR=innerR-.2;
   for(let side=0;side<2;side++){
     const offset=(side?1:-1)*.68;
-    dummy.position.set(Math.cos(ladderAngle)*(ladderR),floorY+9.1,Math.sin(ladderAngle)*(ladderR));
-    dummy.position.x+=-Math.sin(ladderAngle)*offset;dummy.position.z+=Math.cos(ladderAngle)*offset;
-    dummy.rotation.set(0,0,0);dummy.updateMatrix();ladderRails.setMatrixAt(side,dummy.matrix);
+    ladderDummy.position.set(Math.cos(ladderAngle)*(ladderR),floorY+9.1,Math.sin(ladderAngle)*(ladderR));
+    ladderDummy.position.x+=-Math.sin(ladderAngle)*offset;ladderDummy.position.z+=Math.cos(ladderAngle)*offset;
+    ladderDummy.rotation.set(0,0,0);ladderDummy.updateMatrix();ladderRails.setMatrixAt(side,ladderDummy.matrix);
   }
   for(let i=0;i<rungCount;i++){
     const y=floorY+3.4+i*.43;
-    dummy.position.set(Math.cos(ladderAngle)*ladderR,y,Math.sin(ladderAngle)*ladderR);
-    dummy.rotation.set(0,0,Math.PI/2);dummy.updateMatrix();ladderRungs.setMatrixAt(i,dummy.matrix);
+    ladderDummy.position.set(Math.cos(ladderAngle)*ladderR,y,Math.sin(ladderAngle)*ladderR);
+    ladderDummy.rotation.set(0,0,Math.PI/2);ladderDummy.updateMatrix();ladderRungs.setMatrixAt(i,ladderDummy.matrix);
   }
   ladderRails.instanceMatrix.needsUpdate=true;ladderRungs.instanceMatrix.needsUpdate=true;scene.add(ladderRails,ladderRungs);
 
@@ -599,7 +599,7 @@ function buildVolTurinAndDragonhold() {
   const bridge=new THREE.Mesh(new THREE.BoxGeometry(13.5,.55,4.2),
     new THREE.MeshStandardMaterial({color:0xc9c7be,roughness:.4}));
   bridge.position.set(Math.cos(exitAngle)*bridgeRadius,isidar.topY+.1,Math.sin(exitAngle)*bridgeRadius);
-  bridge.rotation.y=Math.PI/2-exitAngle;scene.add(bridge);
+  bridge.rotation.y=-exitAngle;scene.add(bridge);
   const bridgeArch=new THREE.Mesh(makeDragonholdArchGeometry(6.6,14.5),
     new THREE.MeshStandardMaterial({color:0xbfbcb3,roughness:.38,side:THREE.DoubleSide}));
   bridgeArch.position.set(Math.cos(exitAngle)*(DRAGONHOLD_OUTER_RADIUS-.1),isidar.topY,Math.sin(exitAngle)*(DRAGONHOLD_OUTER_RADIUS-.1));
