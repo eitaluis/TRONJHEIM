@@ -289,12 +289,13 @@ function buildVolTurinStaircase() {
   // Lower landing meets the exact top surface of tread 0.
   const firstT=.5/VOL_TURIN_STEP_COUNT;
   const firstPoint=volTurinPointAtProgress(firstT);
-  const firstTop=VOL_TURIN_BASE_Y+.5*VOL_TURIN_STEP_RISE-.01;
   const landing=new THREE.Mesh(
     new THREE.CylinderGeometry(7.7,8.0,.34,64),
     new THREE.MeshStandardMaterial({color:0xc8c5bc,roughness:.38,metalness:.025})
   );
-  landing.position.set(firstPoint.x,firstTop-.17,firstPoint.z);
+  // Its upper face stays level with the chamber floor; the first tread rises
+  // by only half a normal riser, creating a clear and walkable threshold.
+  landing.position.set(firstPoint.x,VOL_TURIN_BASE_Y-.17,firstPoint.z);
   landing.receiveShadow=true;landing.castShadow=true;scene.add(landing);
 }
 
