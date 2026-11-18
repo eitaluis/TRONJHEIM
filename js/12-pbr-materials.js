@@ -179,9 +179,11 @@
     const hsl=color.getHSL({});
     const rough=material.roughness??.8,metal=material.metalness??0;
     if(metal>.5)return "metal";
-    if(hsl.h<.025||hsl.h>.965)return "jasper";
+    if(rough>.97&&hsl.l<.42)return "darkRock";
+    if(hsl.s>.22&&(hsl.h<.025||hsl.h>.965))return "jasper";
     if(hsl.h>.54&&hsl.h<.73&&hsl.s>.08)return "slate";
-    if(hsl.h>.035&&hsl.h<.14&&hsl.s>.13)return hsl.l<.36?"leather":"wood";
+    if(hsl.h>.035&&hsl.h<.14&&hsl.s>.13)
+      return rough>.93&&hsl.l<.38?"leather":"wood";
     if(rough>.92&&hsl.l<.30)return "darkRock";
     if(rough>.91&&hsl.s<.18&&hsl.l<.64)return "granite";
     if(rough>.88&&hsl.l<.45)return "darkRock";
@@ -254,6 +256,9 @@
     const materials=Array.isArray(object.material)?object.material:[object.material];
     for(const material of materials){
       if(!material||!material.isMeshStandardMaterial||seen.has(material))continue;
+      // Keep glass, water and emissive lamps clean; their transparency and
+      // glow should not be dirtied by opaque stone surface maps.
+      if(material.transparent||(material.opacity??1)<.96||(material.emissiveIntensity??0)>.75)continue;
       seen.add(material);
       const family=materialFamily(material),set=textures[family];
       if(!material.map||material.map.userData?.tronjheimGenericDetail)material.map=set.color;
