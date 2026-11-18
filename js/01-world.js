@@ -12,8 +12,8 @@ function buildCraterWall(){
       const rr=r+n*(45+v*120)+Math.sin(a*13+v*8)*32;
       const yy=y+n*18;
       positions.push(Math.cos(a)*rr,yy,Math.sin(a)*rr); uvs.push(i/radial*8,v*5);
-      const shade=THREE.MathUtils.clamp(.48+n*.12-v*.18,0.12,.72);
-      colors.push(shade*.77,shade*.84,shade*.91);
+      const shade=THREE.MathUtils.clamp(.28+n*.15-v*.07,.22,.82);
+      colors.push(shade*.80,shade*.87,shade*.94);
     }
   }
   for(let j=0;j<vertical;j++)for(let i=0;i<radial;i++){const a=j*(radial+1)+i,b=a+radial+1;indices.push(a,b,a+1,b,b+1,a+1);}
@@ -44,9 +44,19 @@ function buildGround(){
     const blend=THREE.MathUtils.smoothstep(Math.hypot(x,z),1800,2300);
     const localHeight=THREE.MathUtils.lerp(0,naturalHeight,blend);
     p.setY(i,localHeight); heights[i]=localHeight;
-    const patch=fbm(x*.0015+8,z*.0015-4);const base=.43+patch*.07;
-    colors.push(base*.96,base,base*1.04);
+    const patch=fbm(x*.0015+8,z*.0015-4);const base=.53+patch*.08;
+    colors.push(base*.94,base*.97,Math.min(1,base*1.02));
   }
+  // Remove every terrain triangle that touches the city footprint. The old
+  // ground plane sat coplanar with the entrance and corridor floors at y=-8,
+  // causing visible z-fighting as the player moved through the architecture.
+  const source=g.index.array,kept=[];
+  for(let i=0;i<source.length;i+=3){
+    const ia=source[i],ib=source[i+1],ic=source[i+2];
+    const minR=Math.min(Math.hypot(p.getX(ia),p.getZ(ia)),Math.hypot(p.getX(ib),p.getZ(ib)),Math.hypot(p.getX(ic),p.getZ(ic)));
+    if(minR>=1760)kept.push(ia,ib,ic);
+  }
+  g.setIndex(kept);
   g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();
   groundMesh=new THREE.Mesh(g,MAT.floor);groundMesh.position.y=-8;groundMesh.receiveShadow=true;scene.add(groundMesh);
   groundGrid={size,segments:seg,heights,offsetY:groundMesh.position.y,cell:size/seg};
@@ -74,7 +84,7 @@ buildHumanScaleReference();
 // [DERIVADO] height = 1,609 m (1 mile). Outer footprint is shown as an
 // approximate 3.5 km diameter envelope for this first-stage spatial model.
 // [INTERPRETAÇÃO] exact cone profile, subtle fluting, detailed window layout and footprint diameter. The book gives the height as slightly over a mile, but this version does not treat the base diameter as a confirmed measurement (3.52 km is only a provisional scene scale).
-const CITY={height:1660, radius:1760, topRadius:155};
+const CITY={height:1660, radius:1760, topRadius:72};
 const CENTRAL_CHAMBER_RADIUS=152.4;
 const CENTRAL_WALL_RADIUS=146.5;
 const CENTRAL_COLUMN_RADIUS=135.5;
@@ -91,8 +101,8 @@ function buildCity(){
     for(let i=0;i<=radial;i++){
       const a=i/radial*Math.PI*2;
       // very subtle sculpted surface, not a sharp polygonal cone
-      const flute=Math.sin(a*24+Math.sin(t*8))*7 + Math.sin(a*48+t*2)*2.2;
-      const swell=Math.sin(t*Math.PI*7)*8;
+      const flute=Math.sin(a*16+Math.sin(t*8))*15 + Math.sin(a*33+t*2)*5.5;
+      const swell=Math.sin(t*Math.PI*6)*20 + Math.sin(t*Math.PI*2.4)*7;
       const rr=r+flute+swell;
       positions.push(Math.cos(a)*rr,y,Math.sin(a)*rr);uvs.push(i/radial*3,j/vertical*2.5);
     }
@@ -111,9 +121,9 @@ function buildCity(){
   // Base ring: restrained architectural footing rather than stacked blocks.
   const base=new THREE.Mesh(new THREE.TorusGeometry(CITY.radius*.985,13,8,240),MAT.marbleLight);base.rotation.x=Math.PI/2;base.position.y=-4;scene.add(base);
   // Fine horizontal carved bands; subtle to preserve the single mountain mass.
-  for(let n=1;n<=8;n++){
-    const t=n/10, y=-8+t*CITY.height, r=cityRadius(t)+3;
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,2.3,5,192),MAT.marbleLight);ring.rotation.x=Math.PI/2;ring.position.y=y;scene.add(ring);
+  for(let n=1;n<=11;n++){
+    const t=n/12, y=-8+t*CITY.height, r=cityRadius(t)+4;
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,5.2,8,256),MAT.marbleLight);ring.rotation.x=Math.PI/2;ring.position.y=y;scene.add(ring);
   }
   buildFacadeWindows(); buildMainGate(); buildEntryHall(); buildPath(); buildOuterLanterns();
 }
