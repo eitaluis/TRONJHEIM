@@ -16,7 +16,7 @@ const COUNCIL_ROOM_WALL_HEIGHT = 14;
 const COUNCIL_ROOM_PASSAGE_END_X = -566;
 
 function councilRoomWalkableContains(x,z) {
-  const passage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=9.7;
+  const passage = x<=-540.0 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=9.7;
   const r = Math.hypot(x-COUNCIL_ROOM_CENTER_X,z-COUNCIL_ROOM_CENTER_Z);
   const chamber = r<=COUNCIL_ROOM_RADIUS-.35;
   return passage||chamber;
@@ -33,7 +33,7 @@ function councilBox(w,h,d,material,x,y,z,rotationY=0) {
 }
 
 function buildCouncilPassage() {
-  const start=-520.5,end=COUNCIL_ROOM_PASSAGE_END_X,length=start-end,mid=(start+end)/2;
+  const start=-540.5,end=COUNCIL_ROOM_PASSAGE_END_X,length=start-end,mid=(start+end)/2;
   const floorMat=new THREE.MeshStandardMaterial({color:0xd7d3c9,roughness:.42});
   const wallMat=new THREE.MeshStandardMaterial({color:0xc6c4bb,roughness:.56});
   const blueStone=new THREE.MeshStandardMaterial({color:0x304a67,roughness:.46,metalness:.08});
