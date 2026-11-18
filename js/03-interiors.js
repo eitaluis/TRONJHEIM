@@ -154,7 +154,7 @@ function buildCentralChamber(){
   for(let i=0;i<24;i++){
     const a=i*Math.PI/12,x=Math.cos(a)*116,z=Math.sin(a)*116;
     const lamp=new THREE.Mesh(lightGeo,MAT.lantern);lamp.position.set(x,floorY+7,z);scene.add(lamp);
-    const glow=new THREE.PointLight(0xd99a54,22,48,2);glow.position.set(x,floorY+8,z);scene.add(glow);
+    const glow=new THREE.PointLight(0xe6b36c,38,82,2);glow.position.set(x,floorY+8,z);scene.add(glow);
   }
 }
 buildCentralChamber();
