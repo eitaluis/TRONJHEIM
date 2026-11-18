@@ -658,7 +658,7 @@ function buildVolTurinAndDragonhold() {
   const exitAngle=VOL_TURIN_START_ANGLE;
   const lastT=1-.5/VOL_TURIN_STEP_COUNT;
   const lastPoint=volTurinPointAtProgress(lastT);
-  const bridgeRadius=(DRAGONHOLD_OUTER_RADIUS+lastPoint.length())/2;
+  const bridgeRadius=(DRAGONHOLD_OUTER_RADIUS+Math.hypot(lastPoint.x,lastPoint.z))/2;
   const bridge=new THREE.Mesh(new THREE.BoxGeometry(13.5,.32,5.2),
     new THREE.MeshStandardMaterial({color:0xc9c7be,roughness:.36,metalness:.025}));
   // The bridge top is flush with the Dragonhold floor; the final riser is only
