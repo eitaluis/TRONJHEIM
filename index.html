@@ -9,16 +9,16 @@
 <body>
 <div id="hud">
   <div id="topbar">
-    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 03 — CÂMARA CENTRAL E CORREDORES</p></div>
-    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Exploração rápida · câmara central em construção<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 05–06 — VOL TURIN, ISIDAR MITHRIM E DRAGONHOLD</p></div>
+    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Escadaria contínua · Star Rose · Dragonhold<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
   <div id="right" class="plate">
     <span class="tag">Base documental</span>
     <h2>Farthen Dûr</h2>
-    <p>Uma enorme cavidade de origem vulcânica. A entrada oriental de Tronjheim agora revela o portão recuado e o grande corredor de quatro pavimentos.</p>
+    <p>Uma enorme cavidade de origem vulcânica. O interior de Tronjheim sobe até o pico: Vol Turin acompanha as arcadas, Isidar Mithrim coroa a câmara e Dragonhold permanece aberto ao céu.</p>
     <div class="fact"><span>Tronjheim</span><br>Mais de 1 milha de altura; cidade-montanha de mármore puro. A largura da base nesta versão é provisória.</div>
     <div class="fact"><span>Farthen Dûr</span><br>O lado oposto da cavidade é descrito a quase 10 milhas de distância. A abertura superior parece estar a mais de 12 milhas de altura.</div>
-    <div class="fact"><span>Estado desta fase</span><br>Exterior, portão monumental, grifos dourados, corredor de quatro andares, arcadas e tapeçarias.</div>
+    <div class="fact"><span>Estado desta fase</span><br>Vol Turin, calha deslizante, safira em forma de rosa, cinturão de lanternas e cavernas do Dragonhold.</div>
     <div id="legend"><span><i class="dot" style="background:#d9dbe0"></i>mármore</span><span><i class="dot" style="background:#53606a"></i>rocha</span><span><i class="dot" style="background:#b99b60"></i>lanternas</span></div>
     <button id="overviewBtn">Vista de inspeção (V)</button>
     <button id="lockBtn">Explorar (clique)</button>
@@ -29,21 +29,22 @@
     <canvas id="miniMap" width="386" height="386" aria-label="Minimapa de Farthen Dûr e Tronjheim"></canvas>
     <div id="teleports">
       <button data-teleport="central">1 · Câmara central</button>
-      <button data-teleport="gallery1">2 · Galeria nível 1</button>
-      <button data-teleport="gallery2">3 · Galeria nível 2</button>
-      <button data-teleport="gallery3">4 · Galeria nível 3</button>
-      <button data-teleport="gallery4">5 · Galeria nível 4</button>
-      <button data-teleport="northHall">6 · Corredor norte</button>
-      <button data-teleport="southHall">7 · Corredor sul</button>
-      <button data-teleport="westHall">8 · Corredor oeste</button>
-      <button data-teleport="tunnel">9 · Entrada da montanha</button>
-      <button data-teleport="approach">10 · Caminho central</button>
-      <button data-teleport="gate">11 · Portão de Tronjheim</button>
-      <button data-teleport="overlook">12 · Vista externa</button>
-      <button data-teleport="training">13 · Campo de treino</button>
-      <button data-teleport="west">14 · Lado oeste</button>
-      <button data-teleport="entryHall">15 · Corredor — entrada</button>
-      <button data-teleport="deepHall">16 · Corredor — interior</button>
+      <button data-teleport="volTurinLower">2 · Vol Turin — base</button>
+      <button data-teleport="volTurinUpper">3 · Vol Turin — alto</button>
+      <button data-teleport="isidar">4 · Isidar Mithrim</button>
+      <button data-teleport="dragonhold">5 · Dragonhold</button>
+      <button data-teleport="saphiraCave">6 · Caverna de Saphira</button>
+      <button data-teleport="northHall">7 · Corredor norte</button>
+      <button data-teleport="southHall">8 · Corredor sul</button>
+      <button data-teleport="westHall">9 · Corredor oeste</button>
+      <button data-teleport="tunnel">10 · Entrada da montanha</button>
+      <button data-teleport="approach">11 · Caminho central</button>
+      <button data-teleport="gate">12 · Portão de Tronjheim</button>
+      <button data-teleport="overlook">13 · Vista externa</button>
+      <button data-teleport="training">14 · Campo de treino</button>
+      <button data-teleport="west">15 · Lado oeste</button>
+      <button data-teleport="entryHall">16 · Corredor — entrada</button>
+      <button data-teleport="deepHall">17 · Corredor — interior</button>
     </div>
     <div id="mapNote">Deslocamento rápido para explorar a escala monumental. Clique nos pontos para teleportar; roda do mouse alterna visão geral e zoom local.</div>
   </div>
@@ -70,10 +71,6 @@
       <label><input type="checkbox" data-check="hallStatues"><span>Estátuas de criaturas e tapeçarias entre os pavimentos</span></label>
     </div>
     <div class="phase"><div class="phaseTitle">Fase 3 · Câmara central e circulação</div>
-      <label><input type="checkbox" data-check="galleryFloors"><span>Quatro pisos anulares contínuos e navegáveis</span></label>
-      <label><input type="checkbox" data-check="galleryRails"><span>Guarda-corpos internos e externos das galerias</span></label>
-      <label><input type="checkbox" data-check="galleryStairs"><span>Quatro escadarias curvas conectando os níveis</span></label>
-
       <label><input type="checkbox" data-check="central"><span>Câmara circular de aproximadamente 305 m</span></label>
       <label><input type="checkbox" data-check="levels"><span>Arcadas e níveis concêntricos até o alto</span></label>
       <label><input type="checkbox" data-check="fourHalls"><span>Quatro corredores principais e quadrantes</span></label>
@@ -81,14 +78,17 @@
       <label><input type="checkbox" data-check="stairs"><span>Escadarias descendentes simétricas</span></label>
     </div>
     <div class="phase"><div class="phaseTitle">Fase 4 · Vol Turin</div>
-      <label><input type="checkbox" data-check="volTurin"><span>Escadaria contínua em espiral</span></label>
-      <label><input type="checkbox" data-check="slide"><span>Calha deslizante paralela à escadaria</span></label>
-      <label><input type="checkbox" data-check="signals"><span>Lanternas de sinalização entre níveis</span></label>
+      <label><input type="checkbox" data-check="volTurin"><span>Uma única escadaria helicoidal contínua até o Dragonhold</span></label>
+      <label><input type="checkbox" data-check="slide"><span>Calha polida e estreita paralela à escadaria, com pads de couro</span></label>
+      <label><input type="checkbox" data-check="signals"><span>Lanternas de sinalização entre dezenas de arcadas</span></label>
     </div>
     <div class="phase"><div class="phaseTitle">Fase 5 · Isidar Mithrim e Dragonhold</div>
-      <label><input type="checkbox" data-check="starRose"><span>Isidar Mithrim, safira em forma de rosa</span></label>
-      <label><input type="checkbox" data-check="lanternRing"><span>Cinturão de lanternas e luz avermelhada</span></label>
-      <label><input type="checkbox" data-check="dragonhold"><span>Dragonhold aberto ao céu e cavernas de mármore</span></label>
+      <label><input type="checkbox" data-check="starRose"><span>Isidar Mithrim intacta: safira vermelho-rosada em forma de rosa, 18,3 m</span></label>
+      <label><input type="checkbox" data-check="lanternRing"><span>Cinturão circular de lanternas e luz rosada sobre a câmara</span></label>
+      <label><input type="checkbox" data-check="dragonhold"><span>Dragonhold circular, 18,3 m de diâmetro e altura, sem teto</span></label>
+      <label><input type="checkbox" data-check="dragonCaves"><span>Cavernas de tamanhos variados e grande arcada de saída</span></label>
+      <label><input type="checkbox" data-check="dragonRungs"><span>Rungs metálicos brilhantes na parede</span></label>
+      <label><input type="checkbox" data-check="saphiraCave"><span>Caverna de Saphira com cama embutida, almofada e lanterna vermelha com obturador</span></label>
     </div>
     <div class="phase"><div class="phaseTitle">Fase 6 · Governo e espaços cerimoniais</div>
       <label><input type="checkbox" data-check="throne"><span>Sala do trono natural, portas de granito e coroa</span></label>
@@ -127,7 +127,7 @@
   </div>
   <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
 </div>
-<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore Farthen Dûr, atravesse o portão monumental e descubra a câmara central de Tronjheim, com piso de cornalina, emblema de Korgan, galerias e corredores laterais.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
+<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore Farthen Dûr, suba Vol Turin, atravesse a câmara coroada pela Isidar Mithrim e entre no Dragonhold, a sala dos dragões aberta ao céu.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
@@ -151,7 +151,8 @@ try {
   await loadProjectScript('./js/01-world.js');
   await loadProjectScript('./js/02-exterior.js');
   await loadProjectScript('./js/03-interiors.js');
-  await loadProjectScript('./js/04-navigation.js');
+  await loadProjectScript('./js/04-upper-structures.js');
+  await loadProjectScript('./js/05-navigation.js');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
