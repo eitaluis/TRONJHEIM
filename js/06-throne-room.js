@@ -181,14 +181,14 @@ function buildGraniteThroneDoors() {
   // One seven-point crown crosses both door leaves, carved as a single relief.
   const crownShape=new THREE.Shape();
   const crownPoints=[];
-  for(let i=0;i<7;i++){
-    const z=-5.4+i*1.8;
-    const y=(i%2===0?3.0:1.25);
+  for(let i=0;i<13;i++){
+    const z=-5.4+i*.9;
+    const y=(i%2===0?3.0:1.25); // Seven distinct points and six valleys.
     crownPoints.push([z,y]);
   }
   crownShape.moveTo(-5.8,.1);crownShape.lineTo(5.8,.1);
   crownShape.lineTo(5.4,1.1);
-  for(let i=6;i>=0;i--)crownShape.lineTo(crownPoints[i][0],crownPoints[i][1]);
+  for(let i=12;i>=0;i--)crownShape.lineTo(crownPoints[i][0],crownPoints[i][1]);
   crownShape.closePath();
   const crown=new THREE.Mesh(new THREE.ShapeGeometry(crownShape,16),bronze);
   crown.rotation.y=Math.PI/2;
@@ -282,7 +282,7 @@ function makeRockSpire(height,radius,up=true) {
   const shoulder=new THREE.Mesh(new THREE.IcosahedronGeometry(1,1),
     new THREE.MeshStandardMaterial({color:0x847666,roughness:1}));
   shoulder.scale.set(radius*.9,height*.18,radius*.9);
-  shoulder.position.y=up?height*.14:-height*.14;group.add(shoulder);
+  shoulder.position.y=height*.14;group.add(shoulder);
   return group;
 }
 function buildCaveFormations() {
