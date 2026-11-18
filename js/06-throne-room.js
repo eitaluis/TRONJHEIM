@@ -301,10 +301,18 @@ function buildCaveShell() {
   floor.position.set((startX+endX)/2,THRONE_ROOM_FLOOR-.36,0);
   floor.receiveShadow=true;scene.add(floor);
 
-  const endRock=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),
-    new THREE.MeshStandardMaterial({color:0x685a4a,roughness:1}));
-  endRock.scale.set(5.5,12.8,18.2);
-  endRock.position.set(THRONE_ROOM_MIN_X-2.7,THRONE_ROOM_FLOOR+12.0,0);scene.add(endRock);
+  // The former solid end boulder blocked the only onward route. The cave now
+  // terminates in an intentional arched opening connected to the deep tunnels.
+  const portalStone=new THREE.MeshStandardMaterial({color:0x776a59,roughness:.98});
+  for(const side of [-1,1]){
+    const jamb=new THREE.Mesh(new THREE.BoxGeometry(2.8,15,3.2),portalStone);
+    jamb.position.set(THRONE_ROOM_MIN_X-1.8,THRONE_ROOM_FLOOR+7.5,side*10.0);scene.add(jamb);
+    const shoulder=new THREE.Mesh(new THREE.IcosahedronGeometry(1,2),portalStone);
+    shoulder.scale.set(4.2,3.6,5.2);
+    shoulder.position.set(THRONE_ROOM_MIN_X-1.8,THRONE_ROOM_FLOOR+15.5,side*7.2);scene.add(shoulder);
+  }
+  const portalCrown=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,22),portalStone);
+  portalCrown.position.set(THRONE_ROOM_MIN_X-1.8,THRONE_ROOM_FLOOR+16.2,0);scene.add(portalCrown);
 }
 
 function makeRockSpire(height,radius,up=true) {
