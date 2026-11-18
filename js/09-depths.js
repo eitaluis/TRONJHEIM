@@ -10,7 +10,9 @@ const DEPTHS_LAKE_Y=DEPTHS_THRONE_Y-20;
 const DEPTHS_ROUTE_Z=80;
 const DEPTHS_ROUTE_START_X=THRONE_ROOM_MIN_X-1.8;
 const DEPTHS_ROUTE_TURN_X=-500;
-const DEPTHS_LAKE_EXIT_END_X=-1100;
+const DEPTHS_LAKE_EXIT_END_X=-1189;
+const DEPTHS_TERMINAL_X=-1235;
+const DEPTHS_TERMINAL_Y=DEPTHS_LAKE_Y-3.6;
 
 function depthsBentRouteProjection(x,z){
   const vx=DEPTHS_ROUTE_TURN_X-DEPTHS_ROUTE_START_X;
@@ -29,7 +31,8 @@ function depthsWalkableContains(x,z){
   const tunnelB=x<=-755 && x>=-820 && Math.abs(z-DEPTHS_ROUTE_Z)<=12.5;
   const lake=Math.hypot(x+900,z-DEPTHS_ROUTE_Z)<=79.5;
   const lakeExit=x<=-982 && x>=DEPTHS_LAKE_EXIT_END_X && Math.abs(z-DEPTHS_ROUTE_Z)<=12.5;
-  return bent||tunnelA||catacomb||tunnelB||lake||lakeExit;
+  const terminal=Math.hypot(x-DEPTHS_TERMINAL_X,z-DEPTHS_ROUTE_Z)<=46.5;
+  return bent||tunnelA||catacomb||tunnelB||lake||lakeExit||terminal;
 }
 function depthsFloorAtXZ(x,z){
   const bent=depthsBentRouteProjection(x,z);
@@ -44,8 +47,11 @@ function depthsFloorAtXZ(x,z){
     return THREE.MathUtils.lerp(DEPTHS_CATACOMB_Y,DEPTHS_LAKE_Y,t);
   }
   if(Math.hypot(x+900,z-DEPTHS_ROUTE_Z)<=79.5)return DEPTHS_LAKE_Y;
-  if(x<=-982 && x>=DEPTHS_LAKE_EXIT_END_X && Math.abs(z-DEPTHS_ROUTE_Z)<=12.5)
-    return DEPTHS_LAKE_Y;
+  if(x<=-982 && x>=DEPTHS_LAKE_EXIT_END_X && Math.abs(z-DEPTHS_ROUTE_Z)<=12.5){
+    const t=THREE.MathUtils.clamp((-982-x)/(-982-DEPTHS_LAKE_EXIT_END_X),0,1);
+    return THREE.MathUtils.lerp(DEPTHS_LAKE_Y,DEPTHS_TERMINAL_Y,t);
+  }
+  if(Math.hypot(x-DEPTHS_TERMINAL_X,z-DEPTHS_ROUTE_Z)<=46.5)return DEPTHS_TERMINAL_Y;
   return null;
 }
 
@@ -324,7 +330,10 @@ function buildDepths(){
   buildDepthChamber(-900,DEPTHS_LAKE_Y,82,"lake",DEPTHS_ROUTE_Z);
   // The west portal of the lake opens into a further vaulted passage, so the
   // chamber has a genuine exit rather than ending against a blank rock wall.
-  buildDepthTunnel(-982,DEPTHS_LAKE_EXIT_END_X,DEPTHS_LAKE_Y,DEPTHS_LAKE_Y,25,17,DEPTHS_ROUTE_Z);
+  buildDepthTunnel(-982,DEPTHS_LAKE_EXIT_END_X,DEPTHS_LAKE_Y,DEPTHS_TERMINAL_Y,25,17,DEPTHS_ROUTE_Z);
+  // The far portal leads into a separate vaulted chamber with paired open
+  // stone doors, so the route does not finish at an invisible collision edge.
+  buildDepthChamber(DEPTHS_TERMINAL_X,DEPTHS_TERMINAL_Y,48,"exit",DEPTHS_ROUTE_Z);
   buildDwarfCatacombs();
   buildUndergroundLake();
 }
