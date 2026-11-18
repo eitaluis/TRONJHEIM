@@ -1,6 +1,3 @@
-// Central chamber dimensions shared by the upper-structure module.
-const CENTRAL_CHAMBER_RADIUS=152.4;
-const CENTRAL_WALL_RADIUS=146.5;
 // ============================================================================
 // FASE 3 — CÂMARA CENTRAL E TRÊS CORREDORES PRINCIPAIS
 // [LIVRO] Câmara com cerca de 1.000 pés (304,8 m) de diâmetro; piso de
