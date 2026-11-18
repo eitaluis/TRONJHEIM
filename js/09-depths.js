@@ -33,7 +33,7 @@ function buildDepthTunnel(xStart,xEnd,yStart,yEnd,width=25,height=15){
   const length=xStart-xEnd,midX=(xStart+xEnd)/2,midY=(yStart+yEnd)/2;
   const angle=Math.atan2(yEnd-yStart,xEnd-xStart);
   const stone=new THREE.MeshStandardMaterial({color:0x62594e,roughness:.98});
-  const floor=new THREE.Mesh(new THREE.BoxGeometry(length+1,.9,width),MAT.rock);
+  const floor=new THREE.Mesh(new THREE.BoxGeometry(length+1,.9,width),stone);
   floor.position.set(midX,midY-.45,0);floor.rotation.z=angle;floor.receiveShadow=true;scene.add(floor);
   const roof=new THREE.Mesh(new THREE.BoxGeometry(length+1,1.2,width),stone);
   roof.position.set(midX,midY+height,width*0);roof.rotation.z=angle;scene.add(roof);
@@ -48,7 +48,7 @@ function buildDepthTunnel(xStart,xEnd,yStart,yEnd,width=25,height=15){
     rib.position.set(x,THREE.MathUtils.lerp(yStart,yEnd,t)+height/2,0);
     rib.rotation.z=angle;scene.add(rib);
     const lamp=new THREE.Mesh(new THREE.SphereGeometry(.58,10,8),MAT.lantern);
-    lamp.position.set(x,THREE.MathUtils.lerp(yStart,yEnd,t)+height-2.2,side=0); // centered ceiling marker
+    lamp.position.set(x,THREE.MathUtils.lerp(yStart,yEnd,t)+height-2.2,0); // centered ceiling marker
     scene.add(lamp);
   }
 }
