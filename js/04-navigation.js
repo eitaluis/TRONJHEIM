@@ -25,10 +25,11 @@ function alturaChao(x,z){
 }
 const pontosTP=[
   {id:"central",nome:"Câmara central",x:0,z:0,yaw:0,pitch:-.03,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"gallery1",nome:"Galeria — nível 1",x:130*Math.cos(28.125*Math.PI/180),z:130*Math.sin(28.125*Math.PI/180),yaw:Math.PI/2-28.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[0]+1.7},
-  {id:"gallery2",nome:"Galeria — nível 2",x:130*Math.cos(118.125*Math.PI/180),z:130*Math.sin(118.125*Math.PI/180),yaw:Math.PI/2-118.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[1]+1.7},
-  {id:"gallery3",nome:"Galeria — nível 3",x:130*Math.cos(208.125*Math.PI/180),z:130*Math.sin(208.125*Math.PI/180),yaw:Math.PI/2-208.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[2]+1.7},
-  {id:"gallery4",nome:"Galeria — nível 4",x:130*Math.cos(298.125*Math.PI/180),z:130*Math.sin(298.125*Math.PI/180),yaw:Math.PI/2-298.125*Math.PI/180,pitch:0,levelY:ENTRY_HALL_FLOOR+CENTRAL_GALLERY_LEVELS[3]+1.7},
+  {id:"volTurinLower",nome:"Vol Turin — base",x:volTurinPointAtProgress(.018).x,z:volTurinPointAtProgress(.018).z,yaw:Math.PI/2-VOL_TURIN_START_ANGLE,pitch:0,levelY:VOL_TURIN_BASE_Y+Math.floor(.018*VOL_TURIN_STEP_COUNT)*VOL_TURIN_STEP_RISE+1.7},
+  {id:"volTurinUpper",nome:"Vol Turin — alto",x:volTurinPointAtProgress(.985).x,z:volTurinPointAtProgress(.985).z,yaw:Math.PI/2-(VOL_TURIN_START_ANGLE+VOL_TURIN_TOTAL_ANGLE*.985),pitch:0,levelY:VOL_TURIN_BASE_Y+Math.floor(.985*VOL_TURIN_STEP_COUNT)*VOL_TURIN_STEP_RISE+1.7},
+  {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
+  {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
+  {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"northHall",nome:"Corredor norte",x:0,z:-260,yaw:0,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"southHall",nome:"Corredor sul",x:0,z:260,yaw:Math.PI,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"westHall",nome:"Corredor oeste",x:-260,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -103,54 +104,37 @@ function dentroDaArquitetura(x,z){
   const inNorth=z<=-branchStart && z>=-branchEnd && Math.abs(x)<=half;
   const inSouth=z>=branchStart && z<=branchEnd && Math.abs(x)<=half;
   const inWest=x<=-branchStart && x>=-branchEnd && Math.abs(z)<=half;
-  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest;
+  const inUpperRoom=dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z);
+  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom;
 }
 function podeOcuparXZ(x,z){
   const r=Math.hypot(x,z);
   if(r>8075-jogador.raio)return false;
-  // Tronjheim is a solid mountain shell except at the actual eastern gate.
   if(r<CITY.radius-jogador.raio && !dentroDaArquitetura(x,z))return false;
 
-  // On upper galleries, inner and outer balustrades prevent walking off the deck.
   const feetY=jogador.pos.y-jogador.alturaOlhos;
-  const elevated=feetY>ENTRY_HALL_FLOOR+3;
-  if(elevated && r<CENTRAL_WALL_RADIUS+1){
-    const onStair=centralStairFloorOffset(x,z)!==null;
-    // Keep the player inside the handrails: stair flights are narrower than
-    // the galleries, whose inner and outer edges are also guarded.
-    if(onStair && (r<109 || r>127))return false;
-    if(!onStair && (r<109 || r>141))return false;
-  }
+  const onVolTurin=volTurinFloorAtXZ(x,z);
+  const inDragonhold=feetY>=VOL_TURIN_TOP_Y-2 && dragonholdWalkableContains(x,z);
+  const onExitBridge=feetY>=VOL_TURIN_TOP_Y-2 && isDragonholdExitBridge(x,z);
 
-  // The 32 red-jasper columns are solid obstacles, not walk-through decoration.
-  if(r<CENTRAL_WALL_RADIUS-4){
-    for(let i=0;i<32;i++){
-      const a=i*Math.PI/16,cx=Math.cos(a)*CENTRAL_COLUMN_RADIUS,cz=Math.sin(a)*CENTRAL_COLUMN_RADIUS;
-      if(Math.hypot(x-cx,z-cz)<5.0)return false;
-    }
+  // Above the chamber floor, the only walkable route is the actual spiral stair,
+  // its top landing, or the Dragonhold/caves. The open shaft is not an invisible floor.
+  if(feetY>ENTRY_HALL_FLOOR+5 && feetY<VOL_TURIN_TOP_Y-2){
+    if(onVolTurin===null || Math.abs(onVolTurin-feetY)>2.2)return false;
+    const t=THREE.MathUtils.clamp((feetY-(VOL_TURIN_BASE_Y+110))/(CENTRAL_CHAMBER_TOP_Y-(VOL_TURIN_BASE_Y+110)),0,1);
+    const wallR=THREE.MathUtils.lerp(VOL_TURIN_WALL_BASE_RADIUS,VOL_TURIN_WALL_TOP_RADIUS,t);
+    if(r>wallR-1.7)return false;
   }
+  if(feetY>=VOL_TURIN_TOP_Y-2 && !inDragonhold && !onExitBridge && onVolTurin===null)return false;
   return true;
 }
 function alturaPisoNaPosicao(x,z){
-  if(!dentroDaArquitetura(x,z))return alturaChao(x,z);
-  const r=Math.hypot(x,z);
-  // Stair treads are discrete, physically modelled steps; resolve their height
-  // from the same angular progression used to place the tread meshes.
-  const stairOffset=centralStairFloorOffset(x,z);
-  if(stairOffset!==null)return ENTRY_HALL_FLOOR+stairOffset;
-  // The annular galleries are separate walkable floors. Choose the closest
-  // level to the current feet height so the player remains on the deck being used.
-  if(r>=107 && r<=144){
-    const feetY=jogador.pos.y-jogador.alturaOlhos;
-    const options=[0,...CENTRAL_GALLERY_LEVELS];
-    let nearest=options[0],best=Math.abs(feetY-(ENTRY_HALL_FLOOR+nearest));
-    for(const level of options.slice(1)){
-      const delta=Math.abs(feetY-(ENTRY_HALL_FLOOR+level));
-      if(delta<best){best=delta;nearest=level;}
-    }
-    return ENTRY_HALL_FLOOR+nearest;
-  }
-  return ENTRY_HALL_FLOOR;
+  const volFloor=volTurinFloorAtXZ(x,z);
+  if(volFloor!==null)return volFloor;
+  const feetY=jogador.pos.y-jogador.alturaOlhos;
+  if((dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z)) &&
+     feetY>=VOL_TURIN_TOP_Y-3)return VOL_TURIN_TOP_Y;
+  return dentroDaArquitetura(x,z)?ENTRY_HALL_FLOOR:alturaChao(x,z);
 }
 function limitarAoInterior(pos){
   const r=Math.hypot(pos.x,pos.z),limite=8075-jogador.raio;
@@ -182,6 +166,13 @@ function atualizarJogador(dt){
     else{
       if(podeOcuparXZ(nx,jogador.pos.z))jogador.pos.x=nx;
       if(podeOcuparXZ(jogador.pos.x,nz))jogador.pos.z=nz;
+    }
+    // Follow each physical tread during fast movement instead of updating height
+    // only after the whole frame. This prevents the player from skipping levels.
+    if(!vooLivre){
+      const stairFloor=volTurinFloorAtXZ(jogador.pos.x,jogador.pos.z);
+      if(stairFloor!==null && Math.abs(stairFloor-(jogador.pos.y-jogador.alturaOlhos))<2.2)
+        jogador.pos.y=stairFloor+jogador.alturaOlhos;
     }
   }
   limitarAoInterior(jogador.pos);
