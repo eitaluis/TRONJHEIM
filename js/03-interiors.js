@@ -16,7 +16,7 @@ function buildCentralChamber(){
   const carnelian=new THREE.MeshStandardMaterial({color:0x8e3528,roughness:.3,metalness:.08});
   const darkRed=new THREE.MeshStandardMaterial({color:0x542027,roughness:.38});
   const floor=new THREE.Mesh(new THREE.CircleGeometry(radius,160),carnelian);
-  floor.rotation.x=-Math.PI/2;floor.position.y=floorY+.12;floor.receiveShadow=true;scene.add(floor);
+  floor.rotation.x=-Math.PI/2;floor.position.y=floorY;floor.receiveShadow=true;scene.add(floor);
 
   // Continuous circular stone enclosure; openings are reserved for the four
   // actual passages, while every other sector is a solid wall.
@@ -66,9 +66,10 @@ function buildCentralChamber(){
   }
 
   // Large polished floor medallion and concentric stone/brass inlay.
-  for(const [r,tube,mat] of [[146,1.1,pale],[132,.55,bronze],[108,.42,darkRed],[82,.42,bronze],[57,.35,pale]]){
+  for(const [r,tube,mat] of [[146,.16,pale],[132,.15,bronze],[108,.14,darkRed],[82,.14,bronze],[57,.12,pale]]){
     const ring=new THREE.Mesh(new THREE.TorusGeometry(r,tube,8,192),mat);
-    ring.rotation.x=Math.PI/2;ring.position.y=floorY+.28;scene.add(ring);
+    // Narrow inlaid bands sit just above the floor instead of intersecting it.
+    ring.rotation.x=Math.PI/2;ring.position.y=floorY+tube+.025;scene.add(ring);
   }
   // Radial joints in the carnelian pavement: subtle, broad stone sectors.
   const seamMat=new THREE.MeshStandardMaterial({color:0x55252a,roughness:.62});
