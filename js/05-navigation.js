@@ -30,6 +30,8 @@ const pontosTP=[
   {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
+  {id:"throneAccess",nome:"Escadarias da Sala do Trono",x:-137,z:-42,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
   {id:"northHall",nome:"Corredor norte",x:0,z:-260,yaw:0,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"southHall",nome:"Corredor sul",x:0,z:260,yaw:Math.PI,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"westHall",nome:"Corredor oeste",x:-260,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -59,10 +61,18 @@ function inspecionarPortao(){
   document.getElementById("tpAtual").textContent="Inspeção do portão";
 }
 function solicitarPointerLock(){renderer.domElement.requestPointerLock?.();}
+function limparTeclas(){
+  for(const code of Object.keys(teclas))teclas[code]=false;
+  jogador.vel.x=0;jogador.vel.z=0;
+}
 document.addEventListener("pointerlockchange",()=>{
-  travado=document.pointerLockElement===renderer.domElement;if(travado)iniciou=true;
+  travado=document.pointerLockElement===renderer.domElement;
+  limparTeclas();
+  if(travado)iniciou=true;
   document.getElementById("start").style.display=(travado||iniciou)?"none":"grid";
 });
+window.addEventListener("blur",limparTeclas);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)limparTeclas();});
 renderer.domElement.addEventListener("click",()=>{if(!vistaInspecao)solicitarPointerLock();});
 document.getElementById("enter").addEventListener("click",solicitarPointerLock);
 document.getElementById("lockBtn").addEventListener("click",solicitarPointerLock);
@@ -73,12 +83,17 @@ document.addEventListener("mousemove",e=>{
 document.addEventListener("keydown",e=>{
   if(["Space","Tab","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
   teclas[e.code]=true;
-  if(e.code==="KeyM")teleportarIndice(indiceTP+1);
-  if(e.code==="KeyN")teleportarIndice(indiceTP-1);
-  if(e.code==="KeyG")inspecionarPortao();
-  if(e.code==="KeyF"){vooLivre=!vooLivre;jogador.vel.y=0;document.getElementById("modeLabel").textContent="Modo: "+(vooLivre?"voo livre":"exploração");}
-  if(e.code==="KeyV")alternarInspecao();
-  if(e.code==="Tab"){mapaVisivel=!mapaVisivel;atualizarVisibilidadeMapa();}
+  if(e.code==="KeyM"&&!e.repeat)teleportarIndice(indiceTP+1);
+  if(e.code==="KeyN"&&!e.repeat)teleportarIndice(indiceTP-1);
+  if(e.code==="KeyG"&&!e.repeat)inspecionarPortao();
+  if(e.code==="KeyF"&&!e.repeat){
+    vooLivre=!vooLivre;
+    jogador.vel.y=0;
+    if(!vooLivre)jogador.noChao=false;
+    document.getElementById("modeLabel").textContent="Modo: "+(vooLivre?"voo livre · Espaço sobe · Ctrl desce":"exploração");
+  }
+  if(e.code==="KeyV"&&!e.repeat)alternarInspecao();
+  if(e.code==="Tab"&&!e.repeat){mapaVisivel=!mapaVisivel;atualizarVisibilidadeMapa();}
 });
 document.addEventListener("keyup",e=>{teclas[e.code]=false;});
 function alternarInspecao(){
@@ -105,11 +120,15 @@ function dentroDaArquitetura(x,z){
   const inSouth=z>=branchStart && z<=branchEnd && Math.abs(x)<=half;
   const inWest=x<=-branchStart && x>=-branchEnd && Math.abs(z)<=half;
   const inUpperRoom=dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z);
-  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom;
+  const inThroneRoom=throneRoomWalkableContains(x,z);
+  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom;
 }
 function podeOcuparXZ(x,z){
   const r=Math.hypot(x,z);
   if(r>8075-jogador.raio)return false;
+  // Free flight is deliberately noclip: the player must keep horizontal
+  // movement even when above floors, stairs, rails or architectural openings.
+  if(vooLivre)return true;
   if(r<CITY.radius-jogador.raio && !dentroDaArquitetura(x,z))return false;
 
   const feetY=jogador.pos.y-jogador.alturaOlhos;
@@ -126,9 +145,18 @@ function podeOcuparXZ(x,z){
     if(r>wallR-1.7)return false;
   }
   if(feetY>=VOL_TURIN_TOP_Y-2 && !inDragonhold && !onExitBridge && onVolTurin===null)return false;
+
+  // Below the central chamber, walking is permitted only on the modeled
+  // descending stair treads, the lower landing, or the throne-room floor.
+  if(feetY<ENTRY_HALL_FLOOR-2.5){
+    const throneFloor=throneRoomFloorAtXZ(x,z);
+    if(throneFloor===null || Math.abs(throneFloor-feetY)>2.25)return false;
+  }
   return true;
 }
 function alturaPisoNaPosicao(x,z){
+  const throneFloor=throneRoomFloorAtXZ(x,z);
+  if(throneFloor!==null)return throneFloor;
   const volFloor=volTurinFloorAtXZ(x,z);
   if(volFloor!==null)return volFloor;
   const feetY=jogador.pos.y-jogador.alturaOlhos;
@@ -155,7 +183,7 @@ function atualizarJogador(dt){
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
   // Slightly quicker exploration speeds, while preserving controllable movement.
   // Free-flight is also restrained so inspection of vertical spaces stays controllable.
-  const velocidade=vooLivre?18:(correndo?15.5:6.0);
+  const velocidade=vooLivre?18:(correndo?17.5:6.0);
   jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   // Swept substeps prevent the high requested speed from tunnelling through walls.
