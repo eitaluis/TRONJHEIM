@@ -206,11 +206,51 @@
     return true;
   }
 
+  const smoothGeometryCache=new Map();
+  function smoothLateGeometry(source){
+    if(!source||!source.parameters)return source;
+    if(smoothGeometryCache.has(source.uuid))return smoothGeometryCache.get(source.uuid);
+    const p=source.parameters;
+    let result=source;
+    if(source.type==="BoxGeometry"){
+      const min=Math.min(p.width,p.height,p.depth),max=Math.max(p.width,p.height,p.depth);
+      if(min>=.26&&max<=180){
+        const bevel=Math.min(.065,min*.13);
+        const shape=new THREE.Shape();
+        const w=p.width-bevel*1.3,h=p.height-bevel*1.3;
+        shape.moveTo(-w/2,-h/2);shape.lineTo(w/2,-h/2);
+        shape.lineTo(w/2,h/2);shape.lineTo(-w/2,h/2);shape.closePath();
+        const core=Math.max(.02,p.depth-2*bevel);
+        result=new THREE.ExtrudeGeometry(shape,{
+          depth:core,steps:1,bevelEnabled:true,bevelSegments:3,
+          bevelSize:bevel*.65,bevelThickness:bevel,curveSegments:3
+        });
+        result.translate(0,0,-core/2);result.computeVertexNormals();
+      }
+    }else if(source.type==="CylinderGeometry"&&p.radialSegments<28){
+      result=new THREE.CylinderGeometry(p.radiusTop,p.radiusBottom,p.height,36,
+        Math.max(2,p.heightSegments||1),p.openEnded,p.thetaStart,p.thetaLength);
+    }else if(source.type==="ConeGeometry"&&p.radialSegments<28){
+      result=new THREE.ConeGeometry(p.radius,p.height,36,
+        Math.max(2,p.heightSegments||1),p.openEnded,p.thetaStart,p.thetaLength);
+    }else if(source.type==="SphereGeometry"&&p.widthSegments<32){
+      result=new THREE.SphereGeometry(p.radius,48,32,p.phiStart,p.phiLength,p.thetaStart,p.thetaLength);
+    }else if(source.type==="TorusGeometry"&&(p.radialSegments<24||p.tubularSegments<72)){
+      result=new THREE.TorusGeometry(p.radius,p.tube,24,96,p.arc);
+    }
+    smoothGeometryCache.set(source.uuid,result);
+    return result;
+  }
+
   let materialCount=0,geometryUVCount=0;
-  const seen=new WeakSet();
+  const seen=new WeakSet(),seenGeometries=new WeakSet();
   scene.traverse(object=>{
     if(!object.isMesh)return;
-    ensurePlanarUV(object.geometry);
+    object.geometry=smoothLateGeometry(object.geometry);
+    if(object.geometry&&!seenGeometries.has(object.geometry)){
+      if(ensurePlanarUV(object.geometry))geometryUVCount++;
+      seenGeometries.add(object.geometry);
+    }
     const materials=Array.isArray(object.material)?object.material:[object.material];
     for(const material of materials){
       if(!material||!material.isMeshStandardMaterial||seen.has(material))continue;
@@ -433,6 +473,7 @@
     materialFamilies:families.length,
     mappedMaterials:materialCount,
     generatedUVs:geometryUVCount,
+    smoothedLateGeometries:smoothGeometryCache.size,
     masonryBuildings:2,
     masonryCourseCount:17,
     texturesPerFamily:4
