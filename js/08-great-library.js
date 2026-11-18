@@ -23,7 +23,7 @@ const LIBRARY_SHELF_BLOCKERS = [];
 
 function libraryPassageContains(x,z) {
   return x<=LIBRARY_PASSAGE_START_X+.2 &&
-    x>=LIBRARY_PASSAGE_END_X-.5 && Math.abs(z)<=6.2;
+    x>=LIBRARY_PASSAGE_END_X-1.0 && Math.abs(z)<=6.2;
 }
 function libraryInsideFromDoor() {
   return jogador.pos.x<=LIBRARY_PASSAGE_END_X+.3 &&
@@ -38,7 +38,7 @@ function libraryWalkableContains(x,z) {
   const entering=libraryInsideFromDoor() && x<LIBRARY_CENTER_X+LIBRARY_RADIUS+.6;
   // Allow the capsule to cross the 0.6 m stone-wall thickness through the
   // doorway, but never enter the circular wall from any other direction.
-  return passage || (r<=LIBRARY_RADIUS+.65 && (alreadyInside||entering));
+  return passage || (r<=LIBRARY_RADIUS+.8 && (alreadyInside||entering));
 }
 
 function libraryAngleDistance(a,b) {
@@ -92,7 +92,7 @@ function libraryGallerySectorContains(x,z) {
 function libraryFloorAtXZ(x,z,referenceFeetY=(jogador.pos.y-jogador.alturaOlhos)) {
   if(libraryPassageContains(x,z) && Math.abs(referenceFeetY-LIBRARY_FLOOR)<2.25)return LIBRARY_FLOOR;
   const r=Math.hypot(x-LIBRARY_CENTER_X,z-LIBRARY_CENTER_Z);
-  if(r<=LIBRARY_RADIUS-.35 && Math.abs(referenceFeetY-LIBRARY_FLOOR)<2.25 &&
+  if(r<=LIBRARY_RADIUS-.05 && Math.abs(referenceFeetY-LIBRARY_FLOOR)<2.25 &&
      !libraryFurnitureBlocks(x,z,LIBRARY_FLOOR))return LIBRARY_FLOOR;
 
   for(let level=1;level<=LIBRARY_LEVELS;level++){
@@ -112,7 +112,7 @@ function libraryBox(w,h,d,material,x,y,z,rotationY=0) {
 }
 
 function buildLibraryPassage() {
-  const start=LIBRARY_PASSAGE_START_X,end=LIBRARY_PASSAGE_END_X;
+  const start=LIBRARY_PASSAGE_START_X,end=LIBRARY_PASSAGE_END_X-.8;
   const length=start-end,mid=(start+end)/2;
   const pale=new THREE.MeshStandardMaterial({color:0xd5d2ca,roughness:.42});
   const blue=new THREE.MeshStandardMaterial({color:0x45586d,roughness:.55});
