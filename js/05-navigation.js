@@ -35,6 +35,7 @@ const pontosTP=[
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
   {id:"catacombs",nome:"Catacumbas dos anões",x:-700,z:DEPTHS_ROUTE_Z,yaw:Math.PI/2,pitch:0,levelY:depthsFloorAtXZ(-700,DEPTHS_ROUTE_Z)+1.7},
   {id:"deepLake",nome:"Lago subterrâneo",x:-900,z:DEPTHS_ROUTE_Z,yaw:Math.PI/2,pitch:-.04,levelY:depthsFloorAtXZ(-900,DEPTHS_ROUTE_Z)+1.7},
+  {id:"lakeExit",nome:"Câmara de saída subterrânea",x:DEPTHS_TERMINAL_X,z:DEPTHS_ROUTE_Z,yaw:Math.PI/2,pitch:0,levelY:DEPTHS_TERMINAL_Y+1.7},
   {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"libraryEntrance",nome:"Biblioteca — entrada",x:-621.5,z:0,yaw:Math.PI/2,pitch:0,levelY:LIBRARY_FLOOR+1.7},
@@ -378,7 +379,8 @@ function detectarAreaAtual(){
   if(depthsWalkableContains(x,z)){
     if(Math.hypot(x+900,z-DEPTHS_ROUTE_Z)<=79.5)return ["deep-lake","Lago subterrâneo"];
     if(Math.hypot(x+700,z-DEPTHS_ROUTE_Z)<=52.5)return ["catacombs","Catacumbas dos Anões"];
-    if(x<=-982&&x>=DEPTHS_LAKE_EXIT_END_X)return ["deep-exit","Túnel das Profundezas"];
+    if(Math.hypot(x-DEPTHS_TERMINAL_X,z-DEPTHS_ROUTE_Z)<=46.5)return ["deep-terminal","Câmara de Saída Subterrânea"];
+    if(x<=-982&&x>=DEPTHS_LAKE_EXIT_END_X)return ["deep-exit","Túnel de Saída do Lago"];
     return ["deep-tunnel","Túneis subterrâneos"];
   }
   if(councilRoomWalkableContains(x,z)){
