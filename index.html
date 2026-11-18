@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tronjheim — Cidade de Mármore de Farthen Dûr</title>
-<link rel="stylesheet" href="./css/main.css?v=trj-polish-20261118-20">
+<link rel="stylesheet" href="./css/main.css?v=trj-cinematic-20261118-21">
 </head>
 <body>
 <div id="hud">
@@ -142,12 +142,16 @@
       <label><input type="checkbox" data-check="lighting"><span>Luz de abertura, lanternas e atmosfera subterrânea</span></label>
       <label><input type="checkbox" data-check="performance"><span>Colisões, otimização e validação final</span></label>
     </div>
-    <div class="phase phase--active"><div class="phaseTitle">Fase 10 · Refinamento visual cinematográfico — em andamento</div>
+    <div class="phase phase--active"><div class="phaseTitle">Fase 10 · Refinamento visual cinematográfico — passes I e II</div>
       <label><input type="checkbox" data-check="visualMaterials" checked><span>Microtexturas, relevo mineral e variação de rugosidade nos materiais</span></label>
       <label><input type="checkbox" data-check="visualGeometry" checked><span>Geometrias curvas mais suaves e arestas arquitetônicas chanfradas</span></label>
       <label><input type="checkbox" data-check="visualTerrain" checked><span>Formações rochosas naturais no terreno externo de Farthen Dûr</span></label>
       <label><input type="checkbox" data-check="visualLighting" checked><span>Iluminação, exposição, atmosfera e resolução refinadas</span></label>
       <label><input type="checkbox" data-check="domeTeleportFix" checked><span>Correção de altura do piso para impedir o salto involuntário até Vol Turin</span></label>
+      <label><input type="checkbox" data-check="visualMarble" checked><span>Microtexturas minerais de alta resolução nos materiais de pedra e mármore</span></label>
+      <label><input type="checkbox" data-check="visualCavern" checked><span>Estratos geológicos curvos e fraturas nas paredes de Farthen Dûr</span></label>
+      <label><input type="checkbox" data-check="visualShadows" checked><span>Sombras direcionais de alta resolução para dar profundidade à cidade</span></label>
+      <label><input type="checkbox" data-check="visualInteriors"><span>Revisão individual de todos os interiores — pendente</span></label>
       <label><input type="checkbox" data-check="visualValidation"><span>Validação visual completa no navegador — pendente</span></label>
     </div>
     <div class="foot">As caixas registram o andamento neste navegador. A Fase 10 separa o trabalho aplicado no código da validação visual, que ainda depende de testar a cena em execução.</div>
@@ -179,17 +183,17 @@ async function loadProjectScript(src) {
 }
 
 try {
-  await loadProjectScript('./js/00-engine.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/01-world.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/02-exterior.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/03-interiors.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/04-upper-structures.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/06-throne-room.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/07-council-room.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/08-great-library.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/09-depths.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/10-visual-refinement.js?v=trj-polish-20261118-20');
-  await loadProjectScript('./js/05-navigation.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/00-engine.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/01-world.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/02-exterior.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/03-interiors.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/04-upper-structures.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/06-throne-room.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/07-council-room.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/08-great-library.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/09-depths.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/10-visual-refinement.js?v=trj-cinematic-20261118-21');
+  await loadProjectScript('./js/05-navigation.js?v=trj-cinematic-20261118-21');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
