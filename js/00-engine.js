@@ -9,8 +9,8 @@
 // ============================================================================
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x05080d);
-scene.fog = new THREE.FogExp2(0x090d13, 0.000035);
+scene.background = new THREE.Color(0x263642);
+scene.fog = new THREE.FogExp2(0x354650, 0.000018);
 const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.1, 30000);
 camera.position.set(5300, 2.0, 280);
 camera.rotation.order = 'YXZ';
@@ -21,21 +21,23 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.28;
 document.body.appendChild(renderer.domElement);
 
-const hemi = new THREE.HemisphereLight(0x8499ad, 0x181a1e, 0.75); scene.add(hemi);
-const fill = new THREE.AmbientLight(0x718096, 0.22); scene.add(fill);
-const apertureLight = new THREE.DirectionalLight(0xc4d8e8, 2.2);
+const hemi = new THREE.HemisphereLight(0xc2d0dc, 0x55504a, 1.15); scene.add(hemi);
+const fill = new THREE.AmbientLight(0xb5c1ca, 0.52); scene.add(fill);
+const apertureLight = new THREE.DirectionalLight(0xe0edf5, 2.8);
 apertureLight.position.set(-1200, 19000, -900); apertureLight.castShadow = false; scene.add(apertureLight);
-const cityGlow = new THREE.PointLight(0xd4c19a, 2200, 5200, 1.8); cityGlow.position.set(0, 520, 0); scene.add(cityGlow);
+const warmBounce = new THREE.DirectionalLight(0xffd9ad, 1.05);
+warmBounce.position.set(2600, 920, 1800); warmBounce.castShadow = false; scene.add(warmBounce);
+const cityGlow = new THREE.PointLight(0xe8d1a8, 2600, 6200, 1.7); cityGlow.position.set(0, 520, 0); scene.add(cityGlow);
 
 const MAT = {};
 MAT.marble = new THREE.MeshStandardMaterial({color:0xd7d9d9, roughness:0.33, metalness:0.04, map:makeMarbleTexture()});
 MAT.marbleLight = new THREE.MeshStandardMaterial({color:0xe5e4dc, roughness:0.28, metalness:0.03});
-MAT.rock = new THREE.MeshStandardMaterial({color:0x333b43, roughness:0.98, metalness:0.02, vertexColors:true, side:THREE.BackSide});
-MAT.floor = new THREE.MeshStandardMaterial({color:0x252b30, roughness:0.97, metalness:0.02, vertexColors:true});
-MAT.dark = new THREE.MeshStandardMaterial({color:0x090c11, roughness:0.9});
+MAT.rock = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.98, metalness:0.02, vertexColors:true, side:THREE.BackSide});
+MAT.floor = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.97, metalness:0.02, vertexColors:true});
+MAT.dark = new THREE.MeshStandardMaterial({color:0x171b20, roughness:0.9});
 MAT.gold = new THREE.MeshStandardMaterial({color:0x9c793e, metalness:0.78, roughness:0.28});
 MAT.lantern = new THREE.MeshStandardMaterial({color:0xf3d99e, emissive:0xe2a54f, emissiveIntensity:1.8, roughness:0.25});
 MAT.ice = new THREE.MeshStandardMaterial({color:0xa9c9d8, roughness:0.18, metalness:0.12, transparent:true, opacity:0.82});
