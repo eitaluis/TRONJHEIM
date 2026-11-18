@@ -151,6 +151,15 @@ function makeArchedPassageGeometry(width,height){
   shape.absarc(0,spring,r,0,Math.PI,false);shape.lineTo(-r,0);
   return new THREE.ShapeGeometry(shape,18);
 }
+// Side chambers are built behind every lower doorway, rather than leaving
+// the open doors facing an unmodeled void inside the mountain.
+const ENTRY_HALL_SIDE_ROOMS=[];
+function entryHallSideRoomContains(x,z){
+  return ENTRY_HALL_SIDE_ROOMS.some(room=>
+    Math.abs(x-room.x)<=room.halfWidth &&
+    (room.side<0 ? z<=-40 && z>=-room.backZ : z>=40 && z<=room.backZ)
+  );
+}
 function buildEntryHall(){
   // [LIVRO: ERAGON] four-storey entrance passage; upper three tiers have arched
   // openings to curved gray passages; stout lower doors; fluted blood-red jasper
@@ -256,6 +265,41 @@ function buildEntryHall(){
     scene.add(doorGroup);
     const threshold=new THREE.Mesh(new THREE.BoxGeometry(19.6,.24,3.2),MAT.marbleLight);
     threshold.position.set(x,floorY+.02,side*40);scene.add(threshold);
+
+    // A complete room is carved into the mountain behind this doorway.
+    const roomWidth=62,roomDepth=60,roomHeight=17,roomCenterZ=side*(40+roomDepth/2);
+    ENTRY_HALL_SIDE_ROOMS.push({x,side,halfWidth:roomWidth/2,backZ:40+roomDepth});
+    const roomStone=new THREE.MeshStandardMaterial({color:0xbfc0bb,roughness:.62,metalness:.025});
+    const roomDark=new THREE.MeshStandardMaterial({color:0x55575a,roughness:.8});
+    const roomFloor=new THREE.Mesh(new THREE.BoxGeometry(roomWidth,1.25,roomDepth),MAT.marbleLight);
+    roomFloor.position.set(x,floorY-.62,roomCenterZ);roomFloor.receiveShadow=true;scene.add(roomFloor);
+    const roomRoof=new THREE.Mesh(new THREE.BoxGeometry(roomWidth,1.1,roomDepth),MAT.marble);
+    roomRoof.position.set(x,floorY+roomHeight+.55,roomCenterZ);roomRoof.receiveShadow=true;scene.add(roomRoof);
+    for(const endSide of [-1,1]){
+      const sideWall=new THREE.Mesh(new THREE.BoxGeometry(1.5,roomHeight,roomDepth),roomStone);
+      sideWall.position.set(x+endSide*(roomWidth/2),floorY+roomHeight/2,roomCenterZ);
+      sideWall.receiveShadow=true;scene.add(sideWall);
+      const pilaster=new THREE.Mesh(new THREE.BoxGeometry(2.1,roomHeight,2.2),jasper);
+      pilaster.position.set(x+endSide*(roomWidth/2-2.0),floorY+roomHeight/2,roomCenterZ-side*17);
+      scene.add(pilaster);
+    }
+    const backWall=new THREE.Mesh(new THREE.BoxGeometry(roomWidth,roomHeight,1.6),roomStone);
+    backWall.position.set(x,floorY+roomHeight/2,side*(40+roomDepth));
+    backWall.receiveShadow=true;scene.add(backWall);
+    // Storage plinths and a central worktable make the rooms read as occupied
+    // mountain interiors, not empty boxes beyond the doorway.
+    const plinth=new THREE.Mesh(new THREE.BoxGeometry(12,1.1,7),roomDark);
+    plinth.position.set(x,floorY+.55,roomCenterZ+side*10);scene.add(plinth);
+    const table=new THREE.Mesh(new THREE.BoxGeometry(8,1.4,4),MAT.marbleLight);
+    table.position.set(x,floorY+1.35,roomCenterZ-side*4);scene.add(table);
+    for(const lampSide of [-1,1]){
+      const mount=new THREE.Mesh(new THREE.BoxGeometry(.7,1.5,.7),gold);
+      mount.position.set(x+lampSide*25,floorY+7,roomCenterZ);scene.add(mount);
+      const flame=new THREE.Mesh(new THREE.SphereGeometry(.65,10,8),hallLampMat);
+      flame.position.set(x+lampSide*25,floorY+8,roomCenterZ);scene.add(flame);
+      const light=new THREE.PointLight(0xffc986,16,28,2);
+      light.position.copy(flame.position);scene.add(light);
+    }
   }
 
   // Tapestries between the storeys.
