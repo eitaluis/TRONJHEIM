@@ -173,9 +173,10 @@ function podeOcuparXZ(x,z){
   }
   if(feetY>=VOL_TURIN_TOP_Y-2 && !inDragonhold && !onExitBridge && onVolTurin===null)return false;
 
-  // Library upper galleries are real walkable floors. The three stair helices
-  // are the only way between their different heights; shelves remain solid.
-  if(libraryWalkableContains(x,z) && feetY>LIBRARY_FLOOR+2.2){
+  // The library uses explicit support surfaces at every level. Shelves,
+  // columns and the empty shaft between galleries are not walkable; only the
+  // ground floor, ring galleries, short landings and the three spiral stairs are.
+  if(libraryWalkableContains(x,z)){
     const gallery=libraryFloorAtXZ(x,z,feetY);
     const stair=libraryStairFloorAtXZ(x,z,feetY);
     if(gallery===null && stair===null)return false;
