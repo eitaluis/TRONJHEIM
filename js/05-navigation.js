@@ -33,6 +33,8 @@ const pontosTP=[
   {id:"throneAccess",nome:"Escadaria do trono — norte",x:-137,z:-42,yaw:2.41,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-137,z:42,yaw:.73,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
+  {id:"catacombs",nome:"Catacumbas dos anões",x:-700,z:0,yaw:Math.PI/2,pitch:0,levelY:depthsFloorAtXZ(-700,0)+1.7},
+  {id:"deepLake",nome:"Lago subterrâneo",x:-900,z:0,yaw:Math.PI/2,pitch:-.04,levelY:depthsFloorAtXZ(-900,0)+1.7},
   {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"libraryEntrance",nome:"Biblioteca — entrada",x:-621.5,z:0,yaw:Math.PI/2,pitch:0,levelY:LIBRARY_FLOOR+1.7},
@@ -149,7 +151,8 @@ function dentroDaArquitetura(x,z){
   const inThroneRoom=throneRoomWalkableContains(x,z);
   const inCouncilRoom=councilRoomWalkableContains(x,z);
   const inLibrary=libraryWalkableContains(x,z);
-  return inChamber||inEastHall||inHallSideRoom||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom||inLibrary;
+  const inDepths=depthsWalkableContains(x,z);
+  return inChamber||inEastHall||inHallSideRoom||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom||inLibrary||inDepths;
 }
 function podeOcuparXZ(x,z){
   const r=Math.hypot(x,z);
@@ -187,8 +190,11 @@ function podeOcuparXZ(x,z){
     if(gallery===null && stair===null)return false;
   }
 
-  // Below the central chamber, walking is permitted only on the modeled
-  // descending stair treads, the lower landing, or the throne-room floor.
+  // Deep tunnels and chambers have their own continuous floor profile.
+  const deepFloor=depthsFloorAtXZ(x,z);
+  if(deepFloor!==null && Math.abs(deepFloor-feetY)<=2.25)return true;
+  // Below the central chamber, walking is permitted only on modeled stairs,
+  // the throne-room floor, or the newly connected deep route.
   if(feetY<ENTRY_HALL_FLOOR-2.5){
     const throneFloor=throneRoomFloorAtXZ(x,z,feetY);
     if(throneFloor===null || Math.abs(throneFloor-feetY)>2.25)return false;
@@ -203,6 +209,8 @@ function alturaPisoNaPosicao(x,z){
   if(libraryFloor!==null)return libraryFloor;
   const councilFloor=councilRoomFloorAtXZ(x,z);
   if(councilFloor!==null)return councilFloor;
+  const deepFloor=depthsFloorAtXZ(x,z);
+  if(deepFloor!==null)return deepFloor;
   const throneFloor=throneRoomFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
   if(throneFloor!==null)return throneFloor;
   const volFloor=volTurinFloorAtXZ(x,z);
