@@ -82,16 +82,22 @@ buildCraterWall();
 let groundMesh=null;
 let groundGrid=null;
 function buildGround(){
-  const size=16400, seg=360, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
+  const size=16400, seg=480, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
   const p=g.attributes.position, colors=[];
   const heights=new Float32Array(p.count);
   for(let i=0;i<p.count;i++){
-    const x=p.getX(i),z=p.getZ(i);const n=fbm(x*.00065,z*.00065);
-    const naturalHeight=n*14+Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
+    const x=p.getX(i),z=p.getZ(i);
+    const broad=fbm(x*.00065,z*.00065);
+    const middle=fbm(x*.0021+17,z*.0021-9);
+    const fine=fbm(x*.009+31,z*.009-23);
+    const naturalHeight=broad*14+middle*3.2+fine*.72+
+      Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
     const blend=THREE.MathUtils.smoothstep(Math.hypot(x,z),1800,2300);
     const localHeight=THREE.MathUtils.lerp(0,naturalHeight,blend);
     p.setY(i,localHeight); heights[i]=localHeight;
-    const patch=fbm(x*.0015+8,z*.0015-4);const base=.53+patch*.08;
+    const patch=fbm(x*.0015+8,z*.0015-4);
+    const mineral=fbm(x*.0047-22,z*.0047+16);
+    const base=.525+patch*.062+mineral*.022;
     colors.push(base*.94,base*.97,Math.min(1,base*1.02));
   }
   // Remove every terrain triangle that touches the city footprint. The old
@@ -111,7 +117,10 @@ function buildGround(){
 buildGround();
 
 function terrainHeightAnalytic(x,z){
-  const natural=fbm(x*.00065,z*.00065)*14+Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
+  const natural=fbm(x*.00065,z*.00065)*14+
+    fbm(x*.0021+17,z*.0021-9)*3.2+
+    fbm(x*.009+31,z*.009-23)*.72+
+    Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
   const blend=THREE.MathUtils.smoothstep(Math.hypot(x,z),1800,2300);
   return -8+natural*blend;
 }
@@ -148,13 +157,19 @@ function cityRadius(t){
   return taper+relief;
 }
 function buildCity(){
-  const radial=512, vertical=256, positions=[],uvs=[],indices=[];
+  const radial=768, vertical=352, positions=[],uvs=[],indices=[];
   for(let j=0;j<=vertical;j++){
     const t=j/vertical,y=-8+CITY.height*t,r=cityRadius(t);
     for(let i=0;i<=radial;i++){
       const a=i/radial*Math.PI*2;
       // very subtle sculpted surface, not a sharp polygonal cone
-      const flute=(Math.sin(a*16+Math.sin(t*8))*8 + Math.sin(a*33+t*2)*3.2)*Math.sin(Math.PI*t);
+      const fade=Math.sin(Math.PI*t);
+      const flute=(
+        Math.sin(a*16+Math.sin(t*8))*10+
+        Math.sin(a*33+t*2)*4.0+
+        Math.sin(a*71-t*5)*1.35+
+        Math.sin(a*5+t*19)*2.1
+      )*fade;
       const rr=r+flute;
       positions.push(Math.cos(a)*rr,y,Math.sin(a)*rr);uvs.push(i/radial*3,j/vertical*2.5);
     }
