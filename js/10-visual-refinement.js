@@ -12,52 +12,60 @@
     return ()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};
   }
 
-  function makeDetailTexture(kind,size=512){
+  function makeDetailTexture(kind,size=1024){
     const canvas=document.createElement("canvas");
     canvas.width=canvas.height=size;
     const ctx=canvas.getContext("2d");
     const image=ctx.createImageData(size,size);
     const rand=seeded(kind==="height"?1701:kind==="rough"?2903:4109);
+    const grids=[
+      {w:96,h:96,data:new Float32Array(96*96)},
+      {w:192,h:192,data:new Float32Array(192*192)},
+      {w:384,h:384,data:new Float32Array(384*384)}
+    ];
+    for(const grid of grids)for(let i=0;i<grid.data.length;i++)grid.data[i]=rand()*2-1;
+    const smooth=t=>t*t*(3-2*t);
+    function periodicNoise(grid,u,v){
+      const gx=u*grid.w,gy=v*grid.h;
+      const ix=Math.floor(gx),iy=Math.floor(gy),fx=smooth(gx-ix),fy=smooth(gy-iy);
+      const wrap=(n,m)=>(n%m+m)%m;
+      const at=(x,y)=>grid.data[wrap(y,grid.h)*grid.w+wrap(x,grid.w)];
+      const a=THREE.MathUtils.lerp(at(ix,iy),at(ix+1,iy),fx);
+      const b=THREE.MathUtils.lerp(at(ix,iy+1),at(ix+1,iy+1),fx);
+      return THREE.MathUtils.lerp(a,b,fy);
+    }
     for(let y=0;y<size;y++){
+      const v=y/size;
       for(let x=0;x<size;x++){
-        const i=(y*size+x)*4;
-        const n=rand()-.5;
-        let v=128;
-        if(kind==="height")v=128+n*17+Math.sin(x*.035+Math.sin(y*.021)*2)*2.2;
-        if(kind==="rough")v=232+n*27;
-        if(kind==="color")v=242+n*9;
-        v=Math.max(0,Math.min(255,v));
+        const u=x/size,i=(y*size+x)*4;
+        const broad=periodicNoise(grids[0],u,v);
+        const medium=periodicNoise(grids[1],u,v);
+        const fine=periodicNoise(grids[2],u,v);
+        const grain=broad*.54+medium*.31+fine*.15;
+        let value=128;
+        if(kind==="height")value=128+grain*23;
+        if(kind==="rough")value=224+grain*42;
+        if(kind==="color")value=247+grain*7;
+        // Pale mineral flecks and subtle dark pores. The pattern repeats
+        // seamlessly in both axes rather than showing a square texture tile.
+        const fleck=Math.pow(Math.max(0,Math.sin((u*73+Math.sin(v*31)*.018)*Math.PI*2)),22);
+        if(kind==="height")value+=fleck*5;
+        if(kind==="rough")value-=fleck*12;
+        value=Math.max(0,Math.min(255,value));
         if(kind==="color"){
-          image.data[i]=Math.min(255,v+1);
-          image.data[i+1]=Math.max(0,v);
-          image.data[i+2]=Math.max(0,v-4);
+          image.data[i]=Math.min(255,value+1);
+          image.data[i+1]=value;
+          image.data[i+2]=Math.max(0,value-3);
         }else{
-          image.data[i]=image.data[i+1]=image.data[i+2]=v;
+          image.data[i]=image.data[i+1]=image.data[i+2]=value;
         }
         image.data[i+3]=255;
       }
     }
     ctx.putImageData(image,0,0);
-    if(kind==="height"){
-      // Fine, irregular mineral veins: low contrast so the relief reads at
-      // close range without becoming a tiled or stylized game texture.
-      ctx.save();
-      ctx.globalAlpha=.055;
-      ctx.strokeStyle="#343434";
-      ctx.lineWidth=1.2;
-      for(let i=0;i<22;i++){
-        const x=rand()*size,y=rand()*size;
-        ctx.beginPath();ctx.moveTo(x,y);
-        for(let k=1;k<8;k++){
-          ctx.lineTo(x+k*18,y+Math.sin(k*.7+i)*5+(rand()-.5)*7);
-        }
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
     const texture=new THREE.CanvasTexture(canvas);
     texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-    texture.repeat.set(2.6,2.6);
+    texture.repeat.set(6,6);
     texture.anisotropy=maxAniso;
     texture.generateMipmaps=true;
     texture.minFilter=THREE.LinearMipmapLinearFilter;
@@ -115,22 +123,22 @@
     if(source.type==="BoxGeometry"){
       refined=bevelBoxGeometry(source);
     }else if(source.type==="SphereGeometry"){
-      const ws=Math.max(28,p.widthSegments||8),hs=Math.max(20,p.heightSegments||6);
+      const ws=Math.max(40,p.widthSegments||8),hs=Math.max(28,p.heightSegments||6);
       if(ws!==(p.widthSegments||8)||hs!==(p.heightSegments||6)){
         refined=new THREE.SphereGeometry(p.radius,ws,hs,p.phiStart,p.phiLength,p.thetaStart,p.thetaLength);
       }
     }else if(source.type==="CylinderGeometry"){
-      const radial=Math.max(28,p.radialSegments||8),vertical=Math.max(2,p.heightSegments||1);
+      const radial=Math.max(36,p.radialSegments||8),vertical=Math.max(3,p.heightSegments||1);
       if(radial!==(p.radialSegments||8)||vertical!==(p.heightSegments||1)){
         refined=new THREE.CylinderGeometry(p.radiusTop,p.radiusBottom,p.height,radial,vertical,p.openEnded,p.thetaStart,p.thetaLength);
       }
     }else if(source.type==="ConeGeometry"){
-      const radial=Math.max(28,p.radialSegments||8),vertical=Math.max(2,p.heightSegments||1);
+      const radial=Math.max(36,p.radialSegments||8),vertical=Math.max(3,p.heightSegments||1);
       if(radial!==(p.radialSegments||8)||vertical!==(p.heightSegments||1)){
         refined=new THREE.ConeGeometry(p.radius,p.height,radial,vertical,p.openEnded,p.thetaStart,p.thetaLength);
       }
     }else if(source.type==="TorusGeometry"){
-      const radial=Math.max(16,p.radialSegments||8),tubular=Math.max(64,p.tubularSegments||6);
+      const radial=Math.max(20,p.radialSegments||8),tubular=Math.max(96,p.tubularSegments||6);
       if(radial!==(p.radialSegments||8)||tubular!==(p.tubularSegments||6)){
         refined=new THREE.TorusGeometry(p.radius,p.tube,radial,tubular,p.arc);
       }
@@ -151,15 +159,22 @@
     materialCache.add(material);
     const rough=material.roughness??.8;
     const metal=material.metalness??0;
-    if(rough>.32){
-      if(!material.map&&metal<.28&&rough>.48)material.map=colorDetail;
+    const polishedStone=material===MAT.marble||material===MAT.marbleLight;
+    if(rough>.32&&metal<.32){
+      if(!material.map&&!material.vertexColors)material.map=colorDetail;
       if(!material.bumpMap){
         material.bumpMap=heightDetail;
-        material.bumpScale=rough>.82?.038:.024;
+        material.bumpScale=rough>.82?.052:.032;
       }
       if(!material.roughnessMap)material.roughnessMap=roughnessDetail;
+    }else if(polishedStone){
+      // Polished marble keeps its clean reflectance but catches fine mineral
+      // relief and microscopic variation in the highlights.
+      material.bumpMap=heightDetail;
+      material.bumpScale=material===MAT.marble?.012:.009;
+      material.roughnessMap=roughnessDetail;
     }
-    material.envMapIntensity=Math.max(material.envMapIntensity||0,.32);
+    material.envMapIntensity=Math.max(material.envMapIntensity||0,.38);
     material.needsUpdate=true;
   }
 
