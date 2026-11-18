@@ -281,9 +281,24 @@ function desenharMinimapa(){
 }
 mapCanvas.addEventListener("click",e=>{
   const rect=mapCanvas.getBoundingClientRect(),mx=(e.clientX-rect.left)/rect.width*MAP_SIZE,my=(e.clientY-rect.top)/rect.height*MAP_SIZE;
-  let nearest=-1,min=Infinity;
-  pontosTP.forEach((tp,i)=>{const m=mundoParaMapa(tp.x,tp.z),d=(m.x-mx)**2+(m.y-my)**2;if(d<min){min=d;nearest=i;}});
-  if(nearest>=0&&min<24*24)teleportarIndice(nearest);
+  const nearby=pontosTP.map((tp,i)=>{
+    const m=mundoParaMapa(tp.x,tp.z);
+    return {i,d:(m.x-mx)**2+(m.y-my)**2};
+  }).filter(item=>item.d<24*24).sort((a,b)=>a.d-b.d);
+  if(!nearby.length)return;
+  // A 2D minimap cannot distinguish vertically stacked places such as the
+  // central chamber, Isidar Mithrim and Dragonhold. Never guess between them.
+  if(nearby.length>1 && Math.sqrt(nearby[1].d)-Math.sqrt(nearby[0].d)<2.4){
+    const label=document.getElementById("locationToast");
+    if(label){
+      label.textContent="VÁRIOS NÍVEIS NESTE PONTO · USE M/N OU A LISTA DE LOCAIS";
+      label.classList.add("show");
+      if(locationToastTimer)clearTimeout(locationToastTimer);
+      locationToastTimer=setTimeout(()=>label.classList.remove("show"),3200);
+    }
+    return;
+  }
+  teleportarIndice(nearby[0].i);
 });
 document.querySelectorAll("[data-teleport]").forEach(btn=>btn.addEventListener("click",()=>teleportarPorId(btn.dataset.teleport)));
 
