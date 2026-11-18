@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tronjheim — Cidade de Mármore de Farthen Dûr</title>
-<link rel="stylesheet" href="./css/main.css?v=trj-library-20261118-18">
+<link rel="stylesheet" href="./css/main.css?v=trj-polish-20261118-20">
 </head>
 <body>
 <div id="hud">
   <div id="topbar">
-    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 04–08 — VOL TURIN, TRONO, CONSELHO, BIBLIOTECA E PROFUNDEZAS</p></div>
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 01–10 — TRONJHEIM, INTERIORES E REFINAMENTO VISUAL</p></div>
     <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Vol Turin · Isidar Mithrim · Dragonhold · Sala do Trono · Conselho · Biblioteca<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
   <div id="locationToast" aria-live="polite"></div>
@@ -142,7 +142,15 @@
       <label><input type="checkbox" data-check="lighting"><span>Luz de abertura, lanternas e atmosfera subterrânea</span></label>
       <label><input type="checkbox" data-check="performance"><span>Colisões, otimização e validação final</span></label>
     </div>
-    <div class="foot">As caixas registram o andamento do projeto neste navegador. Itens presentes no código ainda precisam de validação visual; não marque uma etapa como concluída apenas porque há uma forma provisória.</div>
+    <div class="phase phase--active"><div class="phaseTitle">Fase 10 · Refinamento visual cinematográfico — em andamento</div>
+      <label><input type="checkbox" data-check="visualMaterials" checked><span>Microtexturas, relevo mineral e variação de rugosidade nos materiais</span></label>
+      <label><input type="checkbox" data-check="visualGeometry" checked><span>Geometrias curvas mais suaves e arestas arquitetônicas chanfradas</span></label>
+      <label><input type="checkbox" data-check="visualTerrain" checked><span>Formações rochosas naturais no terreno externo de Farthen Dûr</span></label>
+      <label><input type="checkbox" data-check="visualLighting" checked><span>Iluminação, exposição, atmosfera e resolução refinadas</span></label>
+      <label><input type="checkbox" data-check="domeTeleportFix" checked><span>Correção de altura do piso para impedir o salto involuntário até Vol Turin</span></label>
+      <label><input type="checkbox" data-check="visualValidation"><span>Validação visual completa no navegador — pendente</span></label>
+    </div>
+    <div class="foot">As caixas registram o andamento neste navegador. A Fase 10 separa o trabalho aplicado no código da validação visual, que ainda depende de testar a cena em execução.</div>
   </div>
 
   <div id="bottom">
@@ -171,16 +179,17 @@ async function loadProjectScript(src) {
 }
 
 try {
-  await loadProjectScript('./js/00-engine.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/01-world.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/02-exterior.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/03-interiors.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/04-upper-structures.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/06-throne-room.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/07-council-room.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/08-great-library.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/09-depths.js?v=trj-library-20261118-18');
-  await loadProjectScript('./js/05-navigation.js?v=trj-library-20261118-18');
+  await loadProjectScript('./js/00-engine.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/01-world.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/02-exterior.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/03-interiors.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/04-upper-structures.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/06-throne-room.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/07-council-room.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/08-great-library.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/09-depths.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/10-visual-refinement.js?v=trj-polish-20261118-20');
+  await loadProjectScript('./js/05-navigation.js?v=trj-polish-20261118-20');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
