@@ -28,7 +28,7 @@ function buildCentralChamber(){
       wallPositions.push(Math.cos(a)*wallRadius,y,Math.sin(a)*wallRadius);
     }
   }
-  const portals=[{a:0,w:42},{a:Math.PI/2,w:21},{a:Math.PI,w:21},{a:Math.PI*1.5,w:21}];
+  const portals=[{a:0,w:42},{a:Math.PI/2,w:21},{a:Math.PI,w:21},{a:Math.PI*1.5,w:21},{a:Math.PI-.31,w:9},{a:Math.PI+.31,w:9}];
   for(let j=0;j<wallRows;j++)for(let i=0;i<wallSegments;i++){
     const aMid=(i+.5)/wallSegments*Math.PI*2;
     const yMid=floorY+chamberHeight*(j+.5)/wallRows;
