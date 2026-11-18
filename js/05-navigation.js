@@ -30,8 +30,8 @@ const pontosTP=[
   {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
-  {id:"throneAccess",nome:"Escadaria do trono — norte",x:-124,z:-48,yaw:2.41,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-124,z:48,yaw:.73,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccess",nome:"Escadaria do trono — norte",x:-137,z:-42,yaw:2.41,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-137,z:42,yaw:.73,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
   {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -49,7 +49,7 @@ const pontosTP=[
   {id:"training",nome:"Campo de treinamento",x:-2600,z:350,yaw:-Math.PI/2,pitch:0},
   {id:"west",nome:"Lado oeste",x:-5000,z:-300,yaw:-Math.PI/2,pitch:0},
   {id:"entryHall",nome:"Grande corredor — entrada",x:TRONJHEIM_GATE.doorX-120,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"deepHall",nome:"Grande corredor — interior",x:TRONJHEIM_GATE.hallEndX+310,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7}
+  {id:"deepHall",nome:"Grande corredor — interior",x:TRONJHEIM_GATE.hallEndX+10,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7}
 ];
 // M/N navigation starts from the location where the player is actually spawned.
 indiceTP=Math.max(0,pontosTP.findIndex(p=>p.id==="approach"));
