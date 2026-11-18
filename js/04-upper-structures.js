@@ -480,12 +480,18 @@ function buildDragonhold(gemTopY) {
     const group=new THREE.Group();
     group.position.set(radial.x*centerR,floorY+cave.bottom+cave.height/2,radial.z*centerR);
     group.rotation.y=Math.PI/2-a;
-    const tunnel=new THREE.Mesh(new THREE.BoxGeometry(cave.width,cave.height,cave.depth),darkStone);
-    group.add(tunnel);
-    const back=new THREE.Mesh(new THREE.BoxGeometry(cave.width+.5,cave.height+.5,.8),brownRock);
-    back.position.z=-cave.depth/2+.4;group.add(back);
-    const caveFloor=new THREE.Mesh(new THREE.BoxGeometry(cave.width,cave.depth,1),innerStone);
-    caveFloor.rotation.x=-Math.PI/2;caveFloor.position.y=-cave.height/2+.4;caveFloor.position.z=0;group.add(caveFloor);
+    // Hollow cave shell: floor, ceiling, side walls and a rough back face.
+    // The central volume remains empty so the cave reads as a space to enter.
+    const caveFloor=new THREE.Mesh(new THREE.BoxGeometry(cave.width,cave.depth,.65),innerStone);
+    caveFloor.position.set(0,-cave.height/2+.05,0);caveFloor.rotation.x=Math.PI/2;group.add(caveFloor);
+    const caveCeiling=new THREE.Mesh(new THREE.BoxGeometry(cave.width,cave.depth,.65),brownRock);
+    caveCeiling.position.set(0,cave.height/2,0);caveCeiling.rotation.x=Math.PI/2;group.add(caveCeiling);
+    for(const side of [-1,1]){
+      const sideWall=new THREE.Mesh(new THREE.BoxGeometry(.6,cave.height,cave.depth),brownRock);
+      sideWall.position.set(side*(cave.width/2-.15),0,0);group.add(sideWall);
+    }
+    const back=new THREE.Mesh(new THREE.BoxGeometry(cave.width,cave.height,.8),brownRock);
+    back.position.z=cave.depth/2-.4;group.add(back);
     // Rough-hewn natural ceiling and side bulges; this is a cave, not a marble room.
     for(let k=0;k<7;k++){
       const rock=new THREE.Mesh(new THREE.IcosahedronGeometry(1,1),brownRock);
@@ -519,9 +525,9 @@ function buildDragonhold(gemTopY) {
   caveGroup.position.set(Math.cos(sa)*caveCenterR,floorY+saphira.bottom,Math.sin(sa)*caveCenterR);
   caveGroup.rotation.y=Math.PI/2-sa;
   const insetBed=new THREE.Mesh(new THREE.BoxGeometry(3.3,.72,2.7),new THREE.MeshStandardMaterial({color:0x47372d,roughness:.92}));
-  insetBed.position.set(-1.0,1.2,-2.2);caveGroup.add(insetBed);
+  insetBed.position.set(-1.0,1.2,4.0);caveGroup.add(insetBed);
   const mattress=new THREE.Mesh(new THREE.BoxGeometry(3.1,.42,2.4),new THREE.MeshStandardMaterial({color:0x8e7964,roughness:.96}));
-  mattress.position.set(-1.0,1.72,-2.2);caveGroup.add(mattress);
+  mattress.position.set(-1.0,1.72,4.0);caveGroup.add(mattress);
   const cushion=new THREE.Mesh(new THREE.CapsuleGeometry(1.45,.7,6,10),new THREE.MeshStandardMaterial({color:0x4b342b,roughness:.98}));
   cushion.rotation.z=Math.PI/2;cushion.scale.set(1.15,.62,2.0);cushion.position.set(1.1,.6,3.7);caveGroup.add(cushion);
   const lantern=new THREE.Mesh(new THREE.BoxGeometry(.45,.9,.42),new THREE.MeshStandardMaterial({color:0x9f271d,emissive:0xb42a1c,emissiveIntensity:1.2,roughness:.35}));
