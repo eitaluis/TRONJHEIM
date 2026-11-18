@@ -18,7 +18,7 @@
   #brand p { margin:0; font:11px/1.45 Arial,sans-serif; color:#aab2bc; letter-spacing:.06em }
   #status { padding:10px 13px; font:11px/1.5 Arial,sans-serif; color:#c3cbd2; min-width:190px }
   #status strong { color:#ead9b5; font-weight:normal }
-  #bottom { position:absolute; left:18px; bottom:16px; display:flex; gap:10px; align-items:flex-end }
+  #bottom { position:absolute; left:245px; bottom:16px; display:flex; gap:10px; align-items:flex-end }
   #controls { padding:10px 13px; font:11px/1.65 Arial,sans-serif; color:#c0c7cf; max-width:330px }
   #controls b { color:#ead9b5; font-weight:normal }
   #coords { padding:9px 12px; min-width:180px; font:11px/1.55 ui-monospace,Consolas,monospace; color:#d7c7a5 }
@@ -43,14 +43,33 @@
   #right button:hover { background:rgba(75,62,39,.7) }
   #legend { display:flex; gap:9px; margin-top:9px; flex-wrap:wrap; font:9px Arial,sans-serif; color:#98a2ae }
   .dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px }
+
+  #miniPanel { position:absolute; left:16px; bottom:16px; width:215px; padding:10px; pointer-events:auto; z-index:2; }
+  #miniPanel .miniHead { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; font:10px Arial,sans-serif; letter-spacing:.12em; color:#dec995; text-transform:uppercase; }
+  #miniMap { display:block; width:193px; height:193px; max-width:100%; background:rgba(4,8,12,.88); border:1px solid rgba(215,184,121,.2); cursor:crosshair; }
+  #teleports { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:7px; }
+  #teleports button { padding:6px 5px; border:1px solid rgba(215,184,121,.25); color:#d7c79f; background:rgba(20,26,34,.88); font:9px Arial,sans-serif; cursor:pointer; text-align:left; }
+  #teleports button:hover { background:rgba(112,88,49,.55); }
+  #mapNote { margin-top:6px; color:#87929e; font:9px/1.4 Arial,sans-serif; }
+  #checklist { position:absolute; right:18px; bottom:16px; width:285px; max-height:43vh; overflow:auto; padding:12px 14px; pointer-events:auto; z-index:2; }
+  #checklist h2 { margin:0 0 8px; color:#e5d2a8; font-size:16px; font-weight:normal; }
+  #checklist .phase { margin-top:9px; padding-top:8px; border-top:1px solid rgba(215,184,121,.18); }
+  #checklist .phaseTitle { color:#d9c18d; font:10px Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase; margin-bottom:5px; }
+  #checklist label { display:flex; gap:7px; align-items:flex-start; margin:5px 0; color:#b9c2cb; font:10px/1.35 Arial,sans-serif; cursor:pointer; }
+  #checklist input { accent-color:#b99b60; margin:1px 0 0; flex:0 0 auto; }
+  #checklist .done { color:#d9d0bb; }
+  #checklist .foot { color:#84909c; font:9px/1.4 Arial,sans-serif; margin-top:8px; }
+  #mm-escala { color:#a8b4c0; }
+  @media(max-width:1100px) { #right{display:none} #checklist{display:none} }
+  @media(max-width:760px) { #status{display:none} #miniPanel{width:170px;left:8px;bottom:8px} #miniMap{width:148px;height:148px} #bottom{left:188px;bottom:8px} #controls{max-width:185px;font-size:9px} #brand{min-width:0} #brand h1{font-size:20px} #coords{display:none} #teleports button{font-size:8px} }
   @media(max-width:760px) { #right{display:none} #status{display:none} #controls{max-width:250px} #brand{min-width:0} #brand h1{font-size:20px} #coords{display:none} }
 </style>
 </head>
 <body>
 <div id="hud">
   <div id="topbar">
-    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 01 — FARTHEN DÛR E ESTRUTURA EXTERNA</p></div>
-    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Geografia e escala · em construção<br><span id="modeLabel">Modo: exploração</span></div>
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 01 — FARTHEN DÛR, EXTERIOR E EXPLORAÇÃO</p></div>
+    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Geografia e escala · em construção<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
   <div id="right" class="plate">
     <span class="tag">Base documental</span>
@@ -63,8 +82,87 @@
     <button id="overviewBtn">Vista de inspeção (V)</button>
     <button id="lockBtn">Explorar (clique)</button>
   </div>
+
+  <div id="miniPanel" class="plate">
+    <div class="miniHead"><span>Mapa de Farthen Dûr</span><span id="mm-escala">visão geral</span></div>
+    <canvas id="miniMap" width="386" height="386" aria-label="Minimapa de Farthen Dûr e Tronjheim"></canvas>
+    <div id="teleports">
+      <button data-teleport="tunnel">1 · Entrada da montanha</button>
+      <button data-teleport="approach">2 · Caminho central</button>
+      <button data-teleport="gate">3 · Portão de Tronjheim</button>
+      <button data-teleport="overlook">4 · Vista externa</button>
+      <button data-teleport="training">5 · Campo de treino</button>
+      <button data-teleport="west">6 · Lado oeste</button>
+    </div>
+    <div id="mapNote">Clique nos pontos para teleportar. Roda do mouse sobre o mapa: visão geral ↔ zoom local. M/N percorrem os locais.</div>
+  </div>
+
+  <div id="checklist" class="plate">
+    <span class="tag">Acompanhamento do projeto</span><h2>Checklist de Tronjheim</h2>
+    <div class="phase"><div class="phaseTitle">Fase 1 · Farthen Dûr e exterior — em revisão</div>
+      <label><input type="checkbox" data-check="cavity" checked><span>Paredes da cavidade, abertura superior e escala geral</span></label>
+      <label><input type="checkbox" data-check="ground" checked><span>Terreno subterrâneo e superfície caminhável</span></label>
+      <label><input type="checkbox" data-check="mountain" checked><span>Volume cônico de mármore de Tronjheim</span></label>
+      <label><input type="checkbox" data-check="approach" checked><span>Túnel de entrada e caminho até a cidade</span></label>
+      <label><input type="checkbox" data-check="scale"><span>Escala visual conferida com referência humana</span></label>
+      <label><input type="checkbox" data-check="navigation"><span>Movimentação, solo e velocidade validados no navegador</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 2 · Portão e corredor oriental</div>
+      <label><input type="checkbox" data-check="griffins"><span>Dois grifos dourados de 30 pés</span></label>
+      <label><input type="checkbox" data-check="jasper"><span>Pilares de jaspe e esculturas de criaturas</span></label>
+      <label><input type="checkbox" data-check="gate"><span>Portão de madeira e profundidade de entrada</span></label>
+      <label><input type="checkbox" data-check="eastHall"><span>Corredor de quatro andares e tapeçarias</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 3 · Câmara central e circulação</div>
+      <label><input type="checkbox" data-check="central"><span>Câmara circular de aproximadamente 305 m</span></label>
+      <label><input type="checkbox" data-check="levels"><span>Arcadas e níveis concêntricos até o alto</span></label>
+      <label><input type="checkbox" data-check="fourHalls"><span>Quatro corredores principais e quadrantes</span></label>
+      <label><input type="checkbox" data-check="carnelian"><span>Piso de cornalina e emblema de Korgan</span></label>
+      <label><input type="checkbox" data-check="stairs"><span>Escadarias descendentes simétricas</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 4 · Vol Turin</div>
+      <label><input type="checkbox" data-check="volTurin"><span>Escadaria contínua em espiral</span></label>
+      <label><input type="checkbox" data-check="slide"><span>Calha deslizante paralela à escadaria</span></label>
+      <label><input type="checkbox" data-check="signals"><span>Lanternas de sinalização entre níveis</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 5 · Isidar Mithrim e Dragonhold</div>
+      <label><input type="checkbox" data-check="starRose"><span>Isidar Mithrim, safira em forma de rosa</span></label>
+      <label><input type="checkbox" data-check="lanternRing"><span>Cinturão de lanternas e luz avermelhada</span></label>
+      <label><input type="checkbox" data-check="dragonhold"><span>Dragonhold aberto ao céu e cavernas de mármore</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 6 · Governo e espaços cerimoniais</div>
+      <label><input type="checkbox" data-check="throne"><span>Sala do trono natural, portas de granito e coroa</span></label>
+      <label><input type="checkbox" data-check="kings"><span>Mais de quarenta estátuas de reis anões</span></label>
+      <label><input type="checkbox" data-check="council"><span>Sala do Conselho e mesa com constelações</span></label>
+      <label><input type="checkbox" data-check="procession"><span>Corredor cerimonial e procissões da Varden</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 7 · Vida cotidiana e serviços</div>
+      <label><input type="checkbox" data-check="library"><span>Biblioteca de cinco andares</span></label>
+      <label><input type="checkbox" data-check="ajihad"><span>Aposentos e escritório de Ajihad</span></label>
+      <label><input type="checkbox" data-check="angela"><span>Aposentos elevados de Angela</span></label>
+      <label><input type="checkbox" data-check="kitchens"><span>Cozinhas, refeitórios e espaços de alimentação</span></label>
+      <label><input type="checkbox" data-check="baths"><span>Banhos subterrâneos e lanternas vermelhas</span></label>
+      <label><input type="checkbox" data-check="stables"><span>Estábulos próximos aos portões</span></label>
+      <label><input type="checkbox" data-check="training"><span>Campo de treinamento de anões e humanos</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 8 · Profundezas e redes subterrâneas</div>
+      <label><input type="checkbox" data-check="catacombs"><span>Catacumbas e câmara funerária dos anões</span></label>
+      <label><input type="checkbox" data-check="lake"><span>Lago e cavernas profundas</span></label>
+      <label><input type="checkbox" data-check="drums"><span>Drums of Derva — pesquisar antes de modelar</span></label>
+      <label><input type="checkbox" data-check="tunnels"><span>Rede de túneis sob Farthen Dûr</span></label>
+    </div>
+    <div class="phase"><div class="phaseTitle">Fase 9 · Habitantes e acabamento</div>
+      <label><input type="checkbox" data-check="dwarves"><span>Anões, clãs, guardas, artesãos e famílias</span></label>
+      <label><input type="checkbox" data-check="varden"><span>Humanos da Varden e seus espaços de convivência</span></label>
+      <label><input type="checkbox" data-check="props"><span>Tapeçarias, esculturas, armas, móveis e objetos</span></label>
+      <label><input type="checkbox" data-check="lighting"><span>Luz de abertura, lanternas e atmosfera subterrânea</span></label>
+      <label><input type="checkbox" data-check="performance"><span>Colisões, otimização e validação final</span></label>
+    </div>
+    <div class="foot">As caixas registram o andamento do projeto neste navegador. Itens presentes no código ainda precisam de validação visual; não marque uma etapa como concluída apenas porque há uma forma provisória.</div>
+  </div>
+
   <div id="bottom">
-    <div id="controls" class="plate"><b>W A S D</b> mover · <b>mouse</b> olhar · <b>Shift</b> acelerar<br><b>V</b> vista de inspeção · <b>F</b> voo livre · <b>Esc</b> liberar mouse</div>
+    <div id="controls" class="plate"><b>W A S D</b> andar · <b>mouse</b> olhar · <b>Shift</b> correr · <b>Espaço</b> pular<br><b>M/N</b> próximo/anterior teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo · <b>TAB</b> mapa</div>
     <div id="coords" class="plate">X <span id="cx">—</span><br>Y <span id="cy">—</span><br>Z <span id="cz">—</span></div>
   </div>
   <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
@@ -167,19 +265,38 @@ function buildCraterWall(){
 buildCraterWall();
 
 // Ground: [INTERPRETAÇÃO] rocky basin floor, gently irregular at kilometre scale.
+// Store its displaced vertices so the player stands on the rendered triangles.
+let groundMesh=null;
+let groundGrid=null;
 function buildGround(){
-  const size=16400, seg=180, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
+  const size=16400, seg=360, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
   const p=g.attributes.position, colors=[];
+  const heights=new Float32Array(p.count);
   for(let i=0;i<p.count;i++){
     const x=p.getX(i),z=p.getZ(i);const n=fbm(x*.00065,z*.00065);
-    p.setY(i,n*14+Math.sin(x*.0005)*4+Math.cos(z*.0004)*4);
+    const localHeight=n*14+Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;
+    p.setY(i,localHeight); heights[i]=localHeight;
     const patch=fbm(x*.0015+8,z*.0015-4);const base=.18+patch*.045;
     colors.push(base*.95,base,base*1.05);
   }
   g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();
-  const ground=new THREE.Mesh(g,MAT.floor);ground.position.y=-8;ground.receiveShadow=true;scene.add(ground);
+  groundMesh=new THREE.Mesh(g,MAT.floor);groundMesh.position.y=-8;groundMesh.receiveShadow=true;scene.add(groundMesh);
+  groundGrid={size,segments:seg,heights,offsetY:groundMesh.position.y,cell:size/seg};
 }
 buildGround();
+
+function terrainHeightAnalytic(x,z){return -8+fbm(x*.00065,z*.00065)*14+Math.sin(x*.0005)*4+Math.cos(z*.0004)*4;}
+function buildHumanScaleReference(){
+  const x=2070,z=150,y=terrainHeightAnalytic(x,z);
+  const mat=new THREE.MeshStandardMaterial({color:0x8b795b,roughness:.86,metalness:.05});
+  const ref=new THREE.Group();ref.position.set(x,y,z);
+  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.19,.52,4,8),mat);torso.position.y=1.02;ref.add(torso);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),mat);head.position.y=1.48;ref.add(head);
+  for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.065,.08,.48,8),mat);leg.position.set(side*.105,.28,0);ref.add(leg);const arm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,.43,8),mat);arm.position.set(side*.25,1.04,0);arm.rotation.z=side*.12;ref.add(arm);}
+  const measure=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,1.7,6),new THREE.MeshBasicMaterial({color:0xd7b879}));measure.position.set(-.42,.85,0);ref.add(measure);
+  scene.add(ref);
+}
+buildHumanScaleReference();
 
 // TRONJHEIM: [LIVRO] marble city-mountain, over one mile high.
 // [DERIVADO] height = 1,609 m (1 mile). Outer footprint is shown as an
@@ -315,48 +432,179 @@ function buildBoulders(){
 }
 buildBoulders();
 
-// PLAYER / NAVIGATION
-let yaw=Math.PI/2, pitch=0, locked=false, fly=false, overview=false, started=false;
-const keys={}; const velocity=new THREE.Vector3();
-const player={height:2.0, speed:145, flySpeed:480};
-function setLookFromCamera(){yaw=camera.rotation.y;pitch=camera.rotation.x;}
-function requestLock(){renderer.domElement.requestPointerLock?.();}
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement;if(locked)started=true;document.getElementById('start').style.display=(locked||started)?'none':'grid';});
-renderer.domElement.addEventListener('click',()=>{if(!overview)requestLock();});
-document.getElementById('enter').addEventListener('click',()=>requestLock());
-document.getElementById('lockBtn').addEventListener('click',()=>requestLock());
-document.addEventListener('mousemove',e=>{if(!locked||overview)return;yaw-=e.movementX*.0021;pitch-=e.movementY*.0019;pitch=Math.max(-Math.PI/2+.02,Math.min(Math.PI/2-.02,pitch));camera.rotation.set(pitch,yaw,0,'YXZ');});
-document.addEventListener('keydown',e=>{
-  keys[e.code]=true;
-  if(e.code==='KeyF'){fly=!fly;document.getElementById('modeLabel').textContent='Modo: '+(fly?'voo livre':'exploração');}
-  if(e.code==='KeyV'){toggleOverview();}
-  if(e.code==='Escape')keys[e.code]=false;
-});
-document.addEventListener('keyup',e=>keys[e.code]=false);
-function toggleOverview(){
-  overview=!overview;
-  const hint=document.getElementById('hint');hint.classList.toggle('show',overview);
-  if(overview){document.exitPointerLock?.();camera.position.set(0,3200,6100);camera.lookAt(0,550,0);camera.rotation.order='YXZ';setLookFromCamera();document.getElementById('modeLabel').textContent='Modo: vista de inspeção';}
-  else{camera.position.set(5300,2,280);yaw=Math.PI/2;pitch=0;camera.rotation.set(0,yaw,0,'YXZ');document.getElementById('modeLabel').textContent='Modo: exploração';}
-}
-document.getElementById('overviewBtn').addEventListener('click',toggleOverview);
-
+// ============================================================================
+// PLAYER, MOVEMENT, COLLISION AND NAVIGATION — Ellesméra V16 interaction standard
+// World unit = 1 meter. Eye height = 1.70 m. Walking and running use human scale.
+// ============================================================================
+const jogador={pos:new THREE.Vector3(7800,0,0),vel:new THREE.Vector3(),noChao:true,raio:.35,alturaOlhos:1.70};
+const teclas={};
+let yaw=Math.PI/2,pitch=0,travado=false,vooLivre=false,vistaInspecao=false,iniciou=false;
+let indiceTP=0,estadoAntesInspecao=null;
 const clock=new THREE.Clock();
-function updatePlayer(dt){
-  if(overview)return;
-  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
-  const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
-  const dir=new THREE.Vector3();
-  if(keys.KeyW||keys.ArrowUp)dir.add(forward);if(keys.KeyS||keys.ArrowDown)dir.sub(forward);
-  if(keys.KeyD||keys.ArrowRight)dir.add(right);if(keys.KeyA||keys.ArrowLeft)dir.sub(right);
-  const fast=keys.ShiftLeft||keys.ShiftRight;
-  const speed=(fly?player.flySpeed:player.speed)*(fast?3.2:1);
-  if(dir.lengthSq()>0){dir.normalize();camera.position.addScaledVector(dir,speed*dt);}
-  if(fly){if(keys.Space)camera.position.y+=speed*dt;if(keys.ControlLeft||keys.ControlRight)camera.position.y-=speed*dt;}
-  else camera.position.y=2.0;
-  camera.position.x=THREE.MathUtils.clamp(camera.position.x,-8250,8250);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-8250,8250);camera.position.y=THREE.MathUtils.clamp(camera.position.y,1.7,19500);
-  document.getElementById('cx').textContent=camera.position.x.toFixed(1)+' m';document.getElementById('cy').textContent=camera.position.y.toFixed(1)+' m';document.getElementById('cz').textContent=camera.position.z.toFixed(1)+' m';
+
+// Interpolate the same two triangles used by the rendered PlaneGeometry.
+// The character therefore follows the actual mesh rather than a second terrain formula.
+function alturaChao(x,z){
+  if(!groundGrid)return terrainHeightAnalytic(x,z);
+  const {size,segments,heights,offsetY,cell}=groundGrid;
+  const gx=THREE.MathUtils.clamp((x+size/2)/cell,0,segments-.000001);
+  const gz=THREE.MathUtils.clamp((z+size/2)/cell,0,segments-.000001);
+  const ix=Math.floor(gx),iz=Math.floor(gz),fx=gx-ix,fz=gz-iz,stride=segments+1;
+  const a=heights[iz*stride+ix],b=heights[(iz+1)*stride+ix];
+  const c=heights[(iz+1)*stride+ix+1],d=heights[iz*stride+ix+1];
+  let h;
+  if(fx+fz<=1)h=a*(1-fx-fz)+d*fx+b*fz;
+  else h=d*(1-fz)+c*(fx+fz-1)+b*(1-fx);
+  return h+offsetY;
 }
+const pontosTP=[
+  {id:"tunnel",nome:"Entrada da montanha",x:7800,z:0,yaw:Math.PI/2,pitch:0},
+  {id:"approach",nome:"Caminho central",x:4650,z:0,yaw:Math.PI/2,pitch:0},
+  {id:"gate",nome:"Portão de Tronjheim",x:2180,z:120,yaw:Math.PI/2,pitch:-.04},
+  {id:"overlook",nome:"Vista externa",x:2750,z:1050,yaw:Math.atan2(2750,1050),pitch:-.12},
+  // The book places the training ground half a mile behind Tronjheim; exact coordinates are interpretive.
+  {id:"training",nome:"Campo de treinamento",x:-2600,z:350,yaw:-Math.PI/2,pitch:0},
+  {id:"west",nome:"Lado oeste",x:-5000,z:-300,yaw:-Math.PI/2,pitch:0}
+];
+function alinharCamera(){camera.position.copy(jogador.pos);camera.rotation.order="YXZ";camera.rotation.set(pitch,yaw,0,"YXZ");}
+function teleportarIndice(i){
+  indiceTP=(i+pontosTP.length)%pontosTP.length;const p=pontosTP[indiceTP];
+  jogador.pos.set(p.x,alturaChao(p.x,p.z)+jogador.alturaOlhos,p.z);
+  jogador.vel.set(0,0,0);jogador.noChao=true;vooLivre=false;yaw=p.yaw;pitch=p.pitch;alinharCamera();
+  document.getElementById("modeLabel").textContent="Local: "+p.nome;
+  document.getElementById("tpAtual").textContent=p.nome;
+}
+function teleportarPorId(id){const i=pontosTP.findIndex(p=>p.id===id);if(i>=0)teleportarIndice(i);}
+function inspecionarPortao(){
+  jogador.pos.set(2650,alturaChao(2650,0)+jogador.alturaOlhos,0);
+  jogador.vel.set(0,0,0);jogador.noChao=true;vooLivre=false;yaw=Math.PI/2;pitch=-.12;alinharCamera();
+  document.getElementById("modeLabel").textContent="Inspeção: fachada e portão";
+  document.getElementById("tpAtual").textContent="Inspeção do portão";
+}
+function solicitarPointerLock(){renderer.domElement.requestPointerLock?.();}
+document.addEventListener("pointerlockchange",()=>{
+  travado=document.pointerLockElement===renderer.domElement;if(travado)iniciou=true;
+  document.getElementById("start").style.display=(travado||iniciou)?"none":"grid";
+});
+renderer.domElement.addEventListener("click",()=>{if(!vistaInspecao)solicitarPointerLock();});
+document.getElementById("enter").addEventListener("click",solicitarPointerLock);
+document.getElementById("lockBtn").addEventListener("click",solicitarPointerLock);
+document.addEventListener("mousemove",e=>{
+  if(!travado||vistaInspecao)return;yaw-=e.movementX*.0022;pitch-=e.movementY*.0022;
+  pitch=THREE.MathUtils.clamp(pitch,-Math.PI/2+.01,Math.PI/2-.01);camera.rotation.set(pitch,yaw,0,"YXZ");
+});
+document.addEventListener("keydown",e=>{
+  if(["Space","Tab","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
+  teclas[e.code]=true;
+  if(e.code==="KeyM")teleportarIndice(indiceTP+1);
+  if(e.code==="KeyN")teleportarIndice(indiceTP-1);
+  if(e.code==="KeyG")inspecionarPortao();
+  if(e.code==="KeyF"){vooLivre=!vooLivre;jogador.vel.y=0;document.getElementById("modeLabel").textContent="Modo: "+(vooLivre?"voo livre":"exploração");}
+  if(e.code==="KeyV")alternarInspecao();
+  if(e.code==="Tab"){mapaVisivel=!mapaVisivel;atualizarVisibilidadeMapa();}
+});
+document.addEventListener("keyup",e=>{teclas[e.code]=false;});
+function alternarInspecao(){
+  vistaInspecao=!vistaInspecao;document.getElementById("hint").classList.toggle("show",vistaInspecao);
+  if(vistaInspecao){
+    estadoAntesInspecao={pos:jogador.pos.clone(),yaw,pitch};document.exitPointerLock?.();
+    camera.position.set(0,3150,6100);camera.lookAt(0,620,0);camera.rotation.order="YXZ";
+    document.getElementById("modeLabel").textContent="Modo: vista de inspeção";
+  }else{
+    if(estadoAntesInspecao){jogador.pos.copy(estadoAntesInspecao.pos);yaw=estadoAntesInspecao.yaw;pitch=estadoAntesInspecao.pitch;}
+    alinharCamera();document.getElementById("modeLabel").textContent="Modo: exploração";
+  }
+}
+document.getElementById("overviewBtn").addEventListener("click",alternarInspecao);
+
+function limitarAoInterior(pos){
+  const r=Math.hypot(pos.x,pos.z),limite=8075-jogador.raio;
+  if(r>limite){const f=limite/r;pos.x*=f;pos.z*=f;}
+  pos.x=THREE.MathUtils.clamp(pos.x,-8075,8075);pos.z=THREE.MathUtils.clamp(pos.z,-8075,8075);
+}
+function atualizarJogador(dt){
+  if(vistaInspecao)return;
+  const frente=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+  const direita=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+  const direcao=new THREE.Vector3();
+  if(teclas.KeyW||teclas.ArrowUp)direcao.add(frente);
+  if(teclas.KeyS||teclas.ArrowDown)direcao.sub(frente);
+  if(teclas.KeyD||teclas.ArrowRight)direcao.add(direita);
+  if(teclas.KeyA||teclas.ArrowLeft)direcao.sub(direita);
+  if(direcao.lengthSq()>0)direcao.normalize();
+  const correndo=teclas.ShiftLeft||teclas.ShiftRight;
+  const velocidade=vooLivre?14:(correndo?5.6:2.9);
+  jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?8:14,dt);
+  jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?8:14,dt);
+  jogador.pos.x+=jogador.vel.x*dt;jogador.pos.z+=jogador.vel.z*dt;limitarAoInterior(jogador.pos);
+  if(vooLivre){
+    if(teclas.Space)jogador.pos.y+=velocidade*dt;
+    if(teclas.ControlLeft||teclas.ControlRight)jogador.pos.y-=velocidade*dt;
+    jogador.pos.y=THREE.MathUtils.clamp(jogador.pos.y,1.7,19500);
+  }else{
+    const piso=alturaChao(jogador.pos.x,jogador.pos.z);
+    if(teclas.Space&&jogador.noChao){jogador.vel.y=8.2;jogador.noChao=false;}
+    if(!jogador.noChao){
+      jogador.vel.y-=24*dt;jogador.pos.y+=jogador.vel.y*dt;
+      const limite=piso+jogador.alturaOlhos;
+      if(jogador.pos.y<=limite){jogador.pos.y=limite;jogador.vel.y=0;jogador.noChao=true;}
+    }else{
+      const alvo=piso+jogador.alturaOlhos;
+      jogador.pos.y=THREE.MathUtils.damp(jogador.pos.y,alvo,22,dt);jogador.vel.y=0;
+    }
+  }
+  alinharCamera();
+  document.getElementById("cx").textContent=jogador.pos.x.toFixed(1)+" m";
+  document.getElementById("cy").textContent=jogador.pos.y.toFixed(1)+" m";
+  document.getElementById("cz").textContent=jogador.pos.z.toFixed(1)+" m";
+}
+
+// MINIMAPA: geral/local, zoom pela roda, TAB para esconder e clique para teleportar.
+const mapCanvas=document.getElementById("miniMap"),mapCtx=mapCanvas.getContext("2d");
+const MAP_SIZE=mapCanvas.width,MAP_LIMIT=8400;
+let mapaVisivel=true,mapaZoomLocal=false;
+const mapaEscala=document.getElementById("mm-escala");
+function atualizarVisibilidadeMapa(){document.getElementById("miniPanel").style.display=mapaVisivel?"block":"none";}
+document.getElementById("miniPanel").addEventListener("wheel",e=>{
+  e.preventDefault();mapaZoomLocal=!mapaZoomLocal;mapaEscala.textContent=mapaZoomLocal?"zoom local":"visão geral";
+},{passive:false});
+function mundoParaMapa(x,z){
+  if(mapaZoomLocal){const raio=1700;return{x:MAP_SIZE/2+(x-jogador.pos.x)/raio*(MAP_SIZE/2),y:MAP_SIZE/2-(z-jogador.pos.z)/raio*(MAP_SIZE/2)};}
+  return{x:MAP_SIZE/2+x/(MAP_LIMIT*2)*MAP_SIZE,y:MAP_SIZE/2-z/(MAP_LIMIT*2)*MAP_SIZE};
+}
+function desenharMinimapa(){
+  if(!mapaVisivel)return;const c=mapCtx,w=MAP_SIZE,h=MAP_SIZE,cx=w/2,cy=h/2;
+  c.clearRect(0,0,w,h);c.fillStyle="#080d13";c.fillRect(0,0,w,h);
+  const p=(x,z)=>mundoParaMapa(x,z);
+  c.strokeStyle="rgba(155,169,181,.42)";c.lineWidth=2;c.beginPath();c.ellipse(cx,cy,8200/(MAP_LIMIT*2)*w,8200/(MAP_LIMIT*2)*h,0,0,Math.PI*2);c.stroke();
+  c.strokeStyle="rgba(123,139,153,.19)";c.lineWidth=1;for(let r=2000;r<=8000;r+=2000){c.beginPath();c.arc(cx,cy,r/(MAP_LIMIT*2)*w,0,Math.PI*2);c.stroke();}
+  const a=p(7800,0),b=p(1760,0);c.strokeStyle="#92999f";c.lineWidth=5;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();
+  const cr=1760/(MAP_LIMIT*2)*w;c.fillStyle="rgba(220,222,224,.82)";c.beginPath();c.arc(cx,cy,cr,0,Math.PI*2);c.fill();c.strokeStyle="rgba(232,218,185,.8)";c.lineWidth=2;c.stroke();
+  pontosTP.forEach((tp,i)=>{const m=p(tp.x,tp.z);if(m.x<-12||m.x>w+12||m.y<-12||m.y>h+12)return;c.fillStyle="#e2c78e";c.beginPath();c.arc(m.x,m.y,8,0,Math.PI*2);c.fill();c.fillStyle="#171a1d";c.font="bold 10px Arial";c.textAlign="center";c.textBaseline="middle";c.fillText(String(i+1),m.x,m.y);});
+  const jm=p(jogador.pos.x,jogador.pos.z);c.save();c.translate(jm.x,jm.y);c.rotate(-yaw+Math.PI/2);c.fillStyle="#70e1d0";c.beginPath();c.moveTo(0,-12);c.lineTo(8,9);c.lineTo(0,5);c.lineTo(-8,9);c.closePath();c.fill();c.restore();
+  c.fillStyle="rgba(207,216,224,.78)";c.font="12px Arial";c.textAlign="left";c.fillText("N",cx+8,17);c.fillText("S",cx+8,h-7);c.fillText("O",7,cy-7);c.fillText("L",w-18,cy-7);
+}
+mapCanvas.addEventListener("click",e=>{
+  const rect=mapCanvas.getBoundingClientRect(),mx=(e.clientX-rect.left)/rect.width*MAP_SIZE,my=(e.clientY-rect.top)/rect.height*MAP_SIZE;
+  let nearest=-1,min=Infinity;
+  pontosTP.forEach((tp,i)=>{const m=mundoParaMapa(tp.x,tp.z),d=(m.x-mx)**2+(m.y-my)**2;if(d<min){min=d;nearest=i;}});
+  if(nearest>=0&&min<24*24)teleportarIndice(nearest);
+});
+document.querySelectorAll("[data-teleport]").forEach(btn=>btn.addEventListener("click",()=>teleportarPorId(btn.dataset.teleport)));
+
+// Checklist saves manual ticks in localStorage, matching the persistent interaction
+// used for the Ellesméra project. Actual progress is updated explicitly in commits.
+document.querySelectorAll("#checklist input[data-check]").forEach(input=>{
+  const key="tronjheim-check-"+input.dataset.check,saved=localStorage.getItem(key);
+  if(saved!==null)input.checked=saved==="1";
+  const label=input.closest("label");if(input.checked)label.classList.add("done");
+  input.addEventListener("change",()=>{localStorage.setItem(key,input.checked?"1":"0");label.classList.toggle("done",input.checked);});
+});
+
+// Initial spawn at the crater-wall tunnel, facing inward toward the city.
+jogador.pos.set(7800,alturaChao(7800,0)+jogador.alturaOlhos,0);
+jogador.vel.set(0,0,0);yaw=Math.PI/2;pitch=0;alinharCamera();
+document.getElementById("tpAtual").textContent="Entrada da montanha";
 
 // simple starless cavern atmosphere: fine floating dust, deliberately subtle
 function buildDust(){
@@ -365,7 +613,8 @@ function buildDust(){
 }
 buildDust();
 
-function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);updatePlayer(dt);renderer.render(scene,camera);}
+let mapaTimer=0;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);atualizarJogador(dt);mapaTimer+=dt;if(mapaTimer>.08){desenharMinimapa();mapaTimer=0;}renderer.render(scene,camera);}
 animate();
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 window.addEventListener('contextmenu',e=>e.preventDefault());
