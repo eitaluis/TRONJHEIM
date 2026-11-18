@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tronjheim — Cidade de Mármore de Farthen Dûr</title>
-<link rel="stylesheet" href="./css/main.css?v=trj-library-20261118-14">
+<link rel="stylesheet" href="./css/main.css?v=trj-library-20261118-15">
 </head>
 <body>
 <div id="hud">
@@ -144,7 +144,7 @@
   </div>
 
   <div id="bottom">
-    <div id="controls" class="plate"><b>W A S D</b> deslocar (18 m/s) · <b>mouse</b> olhar · <b>Shift</b> correr (52,5 m/s) · <b>Espaço</b> pular<br><b>M/N</b> próximo/anterior teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo livre (<b>Espaço</b> sobe · <b>Ctrl</b> desce) · <b>TAB</b> mapa</div>
+    <div id="controls" class="plate"><b>W A S D</b> deslocar · <b>mouse</b> olhar · <b>Shift</b> correr · <b>Espaço</b> pular<br><b>M/N</b> teleporte · <b>G</b> portão · <b>V</b> inspeção · <b>F</b> voo livre (<b>E / Espaço</b> sobe · <b>Q / Ctrl</b> desce) · <b>TAB</b> mapa</div>
     <div id="coords" class="plate">X <span id="cx">—</span><br>Y <span id="cy">—</span><br>Z <span id="cz">—</span></div>
   </div>
   <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
@@ -169,15 +169,15 @@ async function loadProjectScript(src) {
 }
 
 try {
-  await loadProjectScript('./js/00-engine.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/01-world.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/02-exterior.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/03-interiors.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/04-upper-structures.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/06-throne-room.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/07-council-room.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/08-great-library.js?v=trj-library-20261118-14');
-  await loadProjectScript('./js/05-navigation.js?v=trj-library-20261118-14');
+  await loadProjectScript('./js/00-engine.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/01-world.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/02-exterior.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/03-interiors.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/04-upper-structures.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/06-throne-room.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/07-council-room.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/08-great-library.js?v=trj-library-20261118-15');
+  await loadProjectScript('./js/05-navigation.js?v=trj-library-20261118-15');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
