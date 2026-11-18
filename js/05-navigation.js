@@ -153,7 +153,9 @@ function atualizarJogador(dt){
   if(teclas.KeyA||teclas.ArrowLeft)direcao.sub(direita);
   if(direcao.lengthSq()>0)direcao.normalize();
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
-  const velocidade=vooLivre?230:(correndo?725:400);
+  // Human-scale exploration speeds (m/s): deliberate walking and faster running.
+  // Free-flight is also restrained so inspection of vertical spaces stays controllable.
+  const velocidade=vooLivre?18:(correndo?12:4.5);
   jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   // Swept substeps prevent the high requested speed from tunnelling through walls.
