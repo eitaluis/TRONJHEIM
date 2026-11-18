@@ -607,5 +607,5 @@ function buildVolTurinAndDragonhold() {
     new THREE.MeshStandardMaterial({color:0xc9c7be,roughness:.4}));
   bridge.position.set(Math.cos(exitAngle)*bridgeRadius,isidar.topY+.1,Math.sin(exitAngle)*bridgeRadius);
   bridge.rotation.y=-exitAngle;scene.add(bridge);
-remove arco duplicado}
+}
 buildVolTurinAndDragonhold();
