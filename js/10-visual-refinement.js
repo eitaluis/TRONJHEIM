@@ -78,6 +78,11 @@
   const colorDetail=makeDetailTexture("color");
   const heightDetail=makeDetailTexture("height");
   const roughnessDetail=makeDetailTexture("rough");
+  // Mark this first-pass neutral detail so the material-specific PBR pass can
+  // replace it with stone, marble, rock, wood or metal textures.
+  colorDetail.userData.tronjheimGenericDetail=true;
+  heightDetail.userData.tronjheimGenericDetail=true;
+  roughnessDetail.userData.tronjheimGenericDetail=true;
 
   const geometryCache=new Map();
   function bevelBoxGeometry(source){
