@@ -296,7 +296,7 @@ function buildCouncilTable() {
     const a=i/12*Math.PI*2;
     const x=cx+Math.cos(a)*8.6,z=cz+Math.sin(a)*8.6;
     const chair=new THREE.Group();chair.position.set(x,y,z);
-    chair.rotation.y=-a+Math.PI/2;
+    chair.rotation.y=-a-Math.PI/2;
     const seat=new THREE.Mesh(new THREE.BoxGeometry(1.7,.42,1.55),chairStone);
     seat.position.y=1.12;chair.add(seat);
     const back=new THREE.Mesh(new THREE.BoxGeometry(1.7,2.0,.38),chairDark);
