@@ -161,6 +161,13 @@ function podeOcuparXZ(x,z){
   // movement even when above floors, stairs, rails or architectural openings.
   if(vooLivre)return true;
   const feetY=jogador.pos.y-jogador.alturaOlhos;
+  // The throne junction and cave floor are lower levels. Do not let their
+  // floor zones catch a player who is still crossing the upper central chamber.
+  const atThroneJunction=x>=-180 && x<=-160 && Math.abs(z)<=8.2;
+  if(atThroneJunction && feetY>ENTRY_HALL_FLOOR-7.2+2.25)return false;
+  const insideThroneCave=x>=THRONE_ROOM_MIN_X && x<=THRONE_ROOM_MAX_X &&
+    Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8;
+  if(insideThroneCave && feetY>THRONE_ROOM_FLOOR+2.25)return false;
   // Use the mountain's actual cross-section at this height, not its maximum
   // base radius. Otherwise an invisible 3.5 km cylinder traps the player
   // outside the narrowing marble wall.
