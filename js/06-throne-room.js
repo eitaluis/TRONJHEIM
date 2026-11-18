@@ -25,14 +25,14 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
   const steps = Math.ceil(drop/stepRise);
   const rise = drop/steps;
   const length = curve.getLength();
-  const treadDepth = Math.max(.42,length/steps*.94);
+  const treadDepth = Math.max(.38,length/steps*.82);
   const stone = new THREE.MeshStandardMaterial({color:0xd4d1c8,roughness:.48,metalness:.025});
   const edge = new THREE.MeshStandardMaterial({color:0xa78a57,roughness:.32,metalness:.58});
   // The final tread of the broad stair is replaced by a flat granite landing
   // immediately before the doors, avoiding a coplanar overlap.
   const renderedSteps=name==="escadaria-ampla"?steps-1:steps;
   const treads = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.32,1),stone,renderedSteps);
-  const nosings = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.10,.13),edge,renderedSteps);
+  const nosings = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.08,.13),edge,renderedSteps);
   const dummy = new THREE.Object3D();
   const sampleCount = Math.max(220,steps*2);
   const samples = [];
@@ -51,7 +51,9 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
     dummy.rotation.set(0,rotation,0);
     dummy.scale.set(1,1,treadDepth);
     dummy.updateMatrix();treads.setMatrixAt(i,dummy.matrix);
-    p.y+=.115;
+    // Keep the bronze nosing just clear of the granite tread surface.
+    // A tiny intentional gap avoids coplanar depth fighting as the camera moves.
+    p.y+=.205;
     dummy.position.copy(p);
     dummy.scale.set(1,1,treadDepth);
     dummy.updateMatrix();nosings.setMatrixAt(i,dummy.matrix);
