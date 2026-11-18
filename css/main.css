@@ -50,7 +50,7 @@
   #legend { display:flex; gap:9px; margin-top:9px; flex-wrap:wrap; font:9px Arial,sans-serif; color:#98a2ae }
   .dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px }
 
-  #miniPanel { position:absolute; left:16px; bottom:16px; width:215px; padding:10px; pointer-events:auto; z-index:2; }
+  #miniPanel { position:absolute; left:16px; bottom:16px; width:215px; max-height:calc(100vh - 32px); overflow-y:auto; overscroll-behavior:contain; padding:10px; pointer-events:auto; z-index:2; }
   #miniPanel .miniHead { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; font:10px Arial,sans-serif; letter-spacing:.12em; color:#dec995; text-transform:uppercase; }
   #miniMap { display:block; width:193px; height:193px; max-width:100%; background:rgba(4,8,12,.88); border:1px solid rgba(215,184,121,.2); cursor:crosshair; }
   #teleports { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:7px; }
