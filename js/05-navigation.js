@@ -73,6 +73,7 @@ function teleportarIndice(i){
 }
 function teleportarPorId(id){const i=pontosTP.findIndex(p=>p.id===id);if(i>=0)teleportarIndice(i);}
 function inspecionarPortao(){
+  resetarTeclasJogador();
   jogador.pos.set(TRONJHEIM_GATE.facadeX+82,alturaChao(TRONJHEIM_GATE.facadeX+82,0)+jogador.alturaOlhos,0);
   jogador.vel.set(0,0,0);jogador.noChao=true;vooLivre=false;yaw=Math.PI/2;pitch=-.12;alinharCamera();
   indiceTP=Math.max(0,pontosTP.findIndex(p=>p.id==="gate"));
