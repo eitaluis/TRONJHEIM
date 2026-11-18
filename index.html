@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tronjheim — Cidade de Mármore de Farthen Dûr</title>
-<link rel="stylesheet" href="./css/main.css?v=trj-stair-five-20261118-23">
+<link rel="stylesheet" href="./css/main.css?v=trj-architecture-20261118-24">
 </head>
 <body>
 <div id="hud">
   <div id="topbar">
-    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 01–10 — TRONJHEIM, INTERIORES E REFINAMENTO VISUAL</p></div>
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASES 01–11 — TRONJHEIM, ARQUITETURA, INTERIORES E REFINAMENTO</p></div>
     <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Vol Turin · Isidar Mithrim · Dragonhold · Sala do Trono · Conselho · Biblioteca<br><span id="modeLabel">Modo: exploração</span><br><span id="tpAtual">Entrada da montanha</span></div>
   </div>
   <div id="locationToast" aria-live="polite"></div>
@@ -57,6 +57,7 @@
       <button data-teleport="deepHall">25 · Corredor — interior</button>
       <button data-teleport="catacombs">26 · Catacumbas dos anões</button>
       <button data-teleport="deepLake">27 · Lago subterrâneo</button>
+      <button data-teleport="lakeExit">28 · Saída do lago subterrâneo</button>
     </div>
     <div id="mapNote">Deslocamento rápido para explorar a escala monumental. Clique nos pontos para teleportar; roda do mouse alterna visão geral e zoom local.</div>
   </div>
@@ -161,6 +162,23 @@
       <label><input type="checkbox" data-check="stairLandings" checked><span>Patamares inferior e superior alinhados às superfícies de conexão</span></label>
       <label><input type="checkbox" data-check="throneStairTreads" checked><span>Escadarias do Trono com pisadas sobrepostas e continuidade de circulação</span></label>
       <label><input type="checkbox" data-check="depthLake" checked><span>Lago subterrâneo com margem mineral irregular e cristais em grupos</span></label>
+      <label><input type="checkbox" data-check="currentArea"><span>Nome da área acompanha a posição do jogador em tempo real</span></label>
+      <label><input type="checkbox" data-check="noCrossRoomSnap"><span>Transições de piso não deslocam o jogador para salas vizinhas</span></label>
+      <label><input type="checkbox" data-check="wallCollisionReview"><span>Colisões em paredes, portais e aberturas — revisar no navegador</span></label>
+      <label><input type="checkbox" data-check="visualInteriors"><span>Revisão individual de todos os interiores — em andamento</span></label>
+      <label><input type="checkbox" data-check="visualValidation"><span>Validação visual completa no navegador — pendente</span></label>
+    </div>
+    <div class="phase phase--active"><div class="phaseTitle">Fase 11 · Arquitetura, acessos e ambientes</div>
+      <label><input type="checkbox" data-check="throneVault" checked><span>Escadarias do Trono com abóbadas, pilares, nervuras e luminárias</span></label>
+      <label><input type="checkbox" data-check="thronePortals" checked><span>Portais alinhados às aberturas reais da parede circular</span></label>
+      <label><input type="checkbox" data-check="councilChairOrientation" checked><span>Cadeiras do Conselho voltadas para a mesa central</span></label>
+      <label><input type="checkbox" data-check="deepRouteSeparation" checked><span>Rede subterrânea desviada do eixo da Sala do Conselho</span></label>
+      <label><input type="checkbox" data-check="lakeExit" checked><span>Lago com portas e passagem de saída conectada</span></label>
+      <label><input type="checkbox" data-check="outerBuildings" checked><span>Volumes externos do Conselho e da Grande Biblioteca</span></label>
+      <label><input type="checkbox" data-check="trainingGround" checked><span>Campo de treinamento equipado com ringue, alvos, bonecos e abrigo</span></label>
+      <label><input type="checkbox" data-check="dragonholdInterior" checked><span>Dragonhold com mobiliário, apoios, luzes e elementos de uso</span></label>
+      <label><input type="checkbox" data-check="saphiraCave" checked><span>Caverna de Saphira com ninho, água, baú e escada com patamar</span></label>
+    </div>
       <label><input type="checkbox" data-check="visualInteriors"><span>Revisão individual de todos os interiores — pendente</span></label>
       <label><input type="checkbox" data-check="visualValidation"><span>Validação visual completa no navegador — pendente</span></label>
     </div>
@@ -193,17 +211,18 @@ async function loadProjectScript(src) {
 }
 
 try {
-  await loadProjectScript('./js/00-engine.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/01-world.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/02-exterior.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/03-interiors.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/04-upper-structures.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/06-throne-room.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/07-council-room.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/08-great-library.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/09-depths.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/10-visual-refinement.js?v=trj-stair-five-20261118-23');
-  await loadProjectScript('./js/05-navigation.js?v=trj-stair-five-20261118-23');
+  await loadProjectScript('./js/00-engine.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/01-world.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/02-exterior.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/03-interiors.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/04-upper-structures.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/06-throne-room.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/07-council-room.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/08-great-library.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/09-depths.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/10-visual-refinement.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/11-environment-enrichment.js?v=trj-architecture-20261118-24');
+  await loadProjectScript('./js/05-navigation.js?v=trj-architecture-20261118-24');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
