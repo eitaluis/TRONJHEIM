@@ -36,7 +36,9 @@ function libraryWalkableContains(x,z) {
   const currentR=Math.hypot(jogador.pos.x-LIBRARY_CENTER_X,jogador.pos.z-LIBRARY_CENTER_Z);
   const alreadyInside=currentR<=LIBRARY_RADIUS-.05;
   const entering=libraryInsideFromDoor() && x<LIBRARY_CENTER_X+LIBRARY_RADIUS+.6;
-  return passage || (r<=LIBRARY_RADIUS-.4 && (alreadyInside||entering));
+  // Allow the capsule to cross the 0.6 m stone-wall thickness through the
+  // doorway, but never enter the circular wall from any other direction.
+  return passage || (r<=LIBRARY_RADIUS+.65 && (alreadyInside||entering));
 }
 
 function libraryAngleDistance(a,b) {
