@@ -130,23 +130,59 @@ function buildCentralChamber(){
       const rib=new THREE.Mesh(new THREE.BoxGeometry(d.x?3.2:width,2.4,d.z?3.2:width),pale);
       rib.position.set(d.x*dist,floorY+height-1.2,d.z*dist);scene.add(rib);
     }
-    // Stop the unfinished side corridor at a visible closed timber door.
-    const endWall=d.z!==0
-      ? new THREE.Mesh(new THREE.BoxGeometry(width,height,3),stone)
-      : new THREE.Mesh(new THREE.BoxGeometry(3,height,width),stone);
-    endWall.position.set(d.z!==0?0:d.x*end,floorY+height/2,d.z!==0?d.z*end:0);
-    scene.add(endWall);
-    const endDoor=d.z!==0
-      ? new THREE.Mesh(new THREE.BoxGeometry(19,25,1.8),darkJasper)
-      : new THREE.Mesh(new THREE.BoxGeometry(1.8,25,19),darkJasper);
-    endDoor.position.set(d.z!==0?0:d.x*(end-1),floorY+12.5,d.z!==0?d.z*(end-1):0);
-    scene.add(endDoor);
-    for(const side of [-1,1]){
-      const strap=d.z!==0
-        ? new THREE.Mesh(new THREE.BoxGeometry(18,.65,2.1),bronze)
-        : new THREE.Mesh(new THREE.BoxGeometry(2.1,.65,18),bronze);
-      strap.position.set(d.z!==0?0:d.x*(end-2),floorY+5+side*6,d.z!==0?d.z*(end-2):0);
-      scene.add(strap);
+    // The north and south branches remain closed behind solid timber doors.
+    // The western branch receives a real arched opening connected to the
+    // Council Room passage; no invisible wall remains behind that doorway.
+    if(d.id==="west"){
+      const portalX=d.x*end;
+      for(const side of [-1,1]){
+        const pier=new THREE.Mesh(new THREE.BoxGeometry(3,height,9),stone);
+        pier.position.set(portalX,floorY+height/2,side*14.5);scene.add(pier);
+        const jamb=new THREE.Mesh(new THREE.BoxGeometry(3.6,20,1.8),redJasper);
+        jamb.position.set(portalX,floorY+10,side*10.1);scene.add(jamb);
+        const capital=new THREE.Mesh(new THREE.BoxGeometry(4.8,1.5,2.7),pale);
+        capital.position.set(portalX,floorY+19.6,side*10.1);scene.add(capital);
+      }
+      const lintel=new THREE.Mesh(new THREE.BoxGeometry(3,height-20,20),stone);
+      lintel.position.set(portalX,floorY+20+(height-20)/2,0);scene.add(lintel);
+      const arch=new THREE.Mesh(new THREE.TorusGeometry(10,.75,10,48,Math.PI),pale);
+      arch.rotation.y=Math.PI/2;arch.position.set(portalX-1.0,floorY+10,0);scene.add(arch);
+      const timberDoor=new THREE.MeshStandardMaterial({color:0x3a281d,roughness:.78});
+      const ironDoor=new THREE.MeshStandardMaterial({color:0xa18455,metalness:.7,roughness:.32});
+      for(const side of [-1,1]){
+        const openLeaf=new THREE.Group();
+        openLeaf.position.set(portalX,floorY,side*10);
+        openLeaf.rotation.y=side*1.25;
+        const panel=new THREE.Mesh(new THREE.BoxGeometry(1.0,18,8.0),timberDoor);
+        panel.position.set(0,9,-side*4);openLeaf.add(panel);
+        for(const yy of [3,9,15]){
+          const band=new THREE.Mesh(new THREE.BoxGeometry(1.15,.34,7.8),ironDoor);
+          band.position.set(.58,yy,-side*4);openLeaf.add(band);
+        }
+        const hinge=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,18,8),ironDoor);
+        hinge.position.set(.6,9,0);openLeaf.add(hinge);
+        scene.add(openLeaf);
+      }
+      const threshold=new THREE.Mesh(new THREE.BoxGeometry(4,0.32,20),pale);
+      threshold.position.set(portalX-.7,floorY-.06,0);scene.add(threshold);
+    }else{
+      const endWall=d.z!==0
+        ? new THREE.Mesh(new THREE.BoxGeometry(width,height,3),stone)
+        : new THREE.Mesh(new THREE.BoxGeometry(3,height,width),stone);
+      endWall.position.set(d.z!==0?0:d.x*end,floorY+height/2,d.z!==0?d.z*end:0);
+      scene.add(endWall);
+      const endDoor=d.z!==0
+        ? new THREE.Mesh(new THREE.BoxGeometry(19,25,1.8),darkJasper)
+        : new THREE.Mesh(new THREE.BoxGeometry(1.8,25,19),darkJasper);
+      endDoor.position.set(d.z!==0?0:d.x*(end-1),floorY+12.5,d.z!==0?d.z*(end-1):0);
+      scene.add(endDoor);
+      for(const side of [-1,1]){
+        const strap=d.z!==0
+          ? new THREE.Mesh(new THREE.BoxGeometry(18,.65,2.1),bronze)
+          : new THREE.Mesh(new THREE.BoxGeometry(2.1,.65,18),bronze);
+        strap.position.set(d.z!==0?0:d.x*(end-2),floorY+5+side*6,d.z!==0?d.z*(end-2):0);
+        scene.add(strap);
+      }
     }
   }
 
