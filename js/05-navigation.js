@@ -156,9 +156,13 @@ function podeOcuparXZ(x,z){
   // Free flight is deliberately noclip: the player must keep horizontal
   // movement even when above floors, stairs, rails or architectural openings.
   if(vooLivre)return true;
-  if(r<CITY.radius-jogador.raio && !dentroDaArquitetura(x,z))return false;
-
   const feetY=jogador.pos.y-jogador.alturaOlhos;
+  // Use the mountain's actual cross-section at this height, not its maximum
+  // base radius. Otherwise an invisible 3.5 km cylinder traps the player
+  // outside the narrowing marble wall.
+  const cityT=THREE.MathUtils.clamp((feetY+8)/CITY.height,0,1);
+  const exteriorLimit=cityRadius(cityT)-jogador.raio;
+  if(r<exteriorLimit && !dentroDaArquitetura(x,z))return false;
   const onVolTurin=volTurinFloorAtXZ(x,z);
   const inDragonhold=feetY>=VOL_TURIN_TOP_Y-2 && dragonholdWalkableContains(x,z);
   const onExitBridge=feetY>=VOL_TURIN_TOP_Y-2 && isDragonholdExitBridge(x,z);
