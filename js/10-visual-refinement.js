@@ -191,7 +191,7 @@
         const sx=size*(.72+hash(i+21,14)*.8);
         const sy=size*(.28+hash(i+11,24)*.62);
         const sz=size*(.75+hash(i+61,34)*.8);
-        dummy.position.set(x,terrainHeightAnalytic(x,z)+sy*.43,z);
+        dummy.position.set(x,terrainHeightAnalytic(x,z)+sy*.78,z);
         dummy.rotation.set(hash(i+81,4)*.3,hash(i+91,8)*Math.PI*2,hash(i+101,12)*.24);
         dummy.scale.set(sx,sy,sz);
         dummy.updateMatrix();
