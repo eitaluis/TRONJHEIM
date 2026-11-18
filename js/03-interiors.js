@@ -186,12 +186,26 @@ function buildCentralChamber(){
     }
   }
 
-  // Low perimeter lighting gives the chamber depth without washing out the stone.
-  const lightGeo=new THREE.SphereGeometry(1.8,10,8);
+  // Recessed bronze lanterns replace oversized glowing spheres. Their
+  // shaded glass and broader, lower-intensity pools preserve the chamber scale.
+  const lanternGlass=new THREE.MeshStandardMaterial({
+    color:0xe8d5ad,emissive:0xb87a3c,emissiveIntensity:.72,
+    roughness:.3,metalness:.08,transparent:true,opacity:.92
+  });
+  const lanternBronze=new THREE.MeshStandardMaterial({
+    color:0x826844,metalness:.72,roughness:.34
+  });
+  const lightGeo=new THREE.CylinderGeometry(.72,.9,2.35,24,2,true);
+  const rimGeo=new THREE.TorusGeometry(.76,.095,8,28);
   for(let i=0;i<24;i++){
     const a=i*Math.PI/12,x=Math.cos(a)*116,z=Math.sin(a)*116;
-    const lamp=new THREE.Mesh(lightGeo,MAT.lantern);lamp.position.set(x,floorY+7,z);scene.add(lamp);
-    const glow=new THREE.PointLight(0xe6b36c,38,82,2);glow.position.set(x,floorY+8,z);scene.add(glow);
+    const group=new THREE.Group();group.position.set(x,floorY+7,z);
+    const lamp=new THREE.Mesh(lightGeo,lanternGlass);group.add(lamp);
+    const upper=new THREE.Mesh(rimGeo,lanternBronze);upper.position.y=1.08;group.add(upper);
+    const lower=upper.clone();lower.position.y=-1.08;group.add(lower);
+    scene.add(group);
+    const glow=new THREE.PointLight(0xe6b36c,18,112,2);
+    glow.position.set(x,floorY+7,z);scene.add(glow);
   }
 }
 buildCentralChamber();
