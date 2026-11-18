@@ -307,7 +307,7 @@
         const a1=(col+1)/segments*Math.PI*2+(row%2)*Math.PI/segments;
         const mid=(a0+a1)/2;
         if(doorAngles.some(angle=>Math.abs(Math.atan2(Math.sin(mid-angle),Math.cos(mid-angle)))<.29))continue;
-        const angleMargin=.008+rng()*.009;
+        const angleMargin=.0018+rng()*.0018;
         const a=a0+angleMargin,b=a1-angleMargin;
         const radialJitter=(rng()-.5)*.12,front=radius+.07+radialJitter;
         const inner=radius-.19+radialJitter*.3;
@@ -325,9 +325,14 @@
         const centerAngle=(a+b)/2,centerRadius=front+bulge;
         const center=[Math.cos(centerAngle)*centerRadius,(bottom+top)/2,Math.sin(centerAngle)*centerRadius];
         const baseIndex=positions.length/3;
+        const cornerUV=[
+          [a*radius/4,bottom/4],[b*radius/4,bottom/4],
+          [b*radius/4,top/4],[a*radius/4,top/4]
+        ];
         for(let i=0;i<4;i++)pushVertex(corners[i][0],corners[i][1],corners[i][2],stone,
-          (i===0||i===3)?a/(Math.PI*2):b/(Math.PI*2),(i<2?bottom:top)/8);
-        pushVertex(center[0],center[1],center[2],stone,centerAngle/(Math.PI*2),(bottom+top)/16);
+          cornerUV[i][0],cornerUV[i][1]);
+        pushVertex(center[0],center[1],center[2],stone,
+          centerAngle*radius/4,(bottom+top)/8);
         indices.push(baseIndex,baseIndex+1,baseIndex+4,
                      baseIndex+1,baseIndex+2,baseIndex+4,
                      baseIndex+2,baseIndex+3,baseIndex+4,
@@ -335,10 +340,10 @@
         const innerCorners=corners.map(p=>[p[0]*inner/front,p[1],p[2]*inner/front]);
         for(let i=0;i<4;i++){
           const next=(i+1)%4,idx=positions.length/3;
-          pushVertex(...corners[i],stone,a/(Math.PI*2),bottom/8);
-          pushVertex(...corners[next],stone,b/(Math.PI*2),top/8);
-          pushVertex(...innerCorners[next],stone,b/(Math.PI*2),top/8);
-          pushVertex(...innerCorners[i],stone,a/(Math.PI*2),bottom/8);
+          pushVertex(...corners[i],stone,a*radius/4,bottom/4);
+          pushVertex(...corners[next],stone,b*radius/4,top/4);
+          pushVertex(...innerCorners[next],stone,b*radius/4,top/4);
+          pushVertex(...innerCorners[i],stone,a*radius/4,bottom/4);
           indices.push(idx,idx+1,idx+2,idx,idx+2,idx+3);
         }
       }
