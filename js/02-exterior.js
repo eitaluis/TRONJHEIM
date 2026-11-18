@@ -157,7 +157,7 @@ const ENTRY_HALL_SIDE_ROOMS=[];
 function entryHallSideRoomContains(x,z){
   return ENTRY_HALL_SIDE_ROOMS.some(room=>
     Math.abs(x-room.x)<=room.halfWidth &&
-    (room.side<0 ? z<=-40 && z>=-room.backZ : z>=40 && z<=room.backZ)
+    (room.side<0 ? z<=-38.2 && z>=-room.backZ : z>=38.2 && z<=room.backZ)
   );
 }
 function buildEntryHall(){
@@ -271,6 +271,7 @@ function buildEntryHall(){
     ENTRY_HALL_SIDE_ROOMS.push({x,side,halfWidth:roomWidth/2,backZ:40+roomDepth});
     const roomStone=new THREE.MeshStandardMaterial({color:0xbfc0bb,roughness:.62,metalness:.025});
     const roomDark=new THREE.MeshStandardMaterial({color:0x55575a,roughness:.8});
+    const roomLampMat=new THREE.MeshStandardMaterial({color:0xffd9a5,emissive:0xffb85f,emissiveIntensity:2.0,roughness:.24});
     const roomFloor=new THREE.Mesh(new THREE.BoxGeometry(roomWidth,1.25,roomDepth),MAT.marbleLight);
     roomFloor.position.set(x,floorY-.62,roomCenterZ);roomFloor.receiveShadow=true;scene.add(roomFloor);
     const roomRoof=new THREE.Mesh(new THREE.BoxGeometry(roomWidth,1.1,roomDepth),MAT.marble);
@@ -295,7 +296,7 @@ function buildEntryHall(){
     for(const lampSide of [-1,1]){
       const mount=new THREE.Mesh(new THREE.BoxGeometry(.7,1.5,.7),gold);
       mount.position.set(x+lampSide*25,floorY+7,roomCenterZ);scene.add(mount);
-      const flame=new THREE.Mesh(new THREE.SphereGeometry(.65,10,8),hallLampMat);
+      const flame=new THREE.Mesh(new THREE.SphereGeometry(.65,10,8),roomLampMat);
       flame.position.set(x+lampSide*25,floorY+8,roomCenterZ);scene.add(flame);
       const light=new THREE.PointLight(0xffc986,16,28,2);
       light.position.copy(flame.position);scene.add(light);
