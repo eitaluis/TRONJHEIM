@@ -18,7 +18,8 @@ const VOL_TURIN_WALL_TOP_RADIUS = 34;
 const VOL_TURIN_WALL_BASE_RADIUS = CENTRAL_WALL_RADIUS;
 const VOL_TURIN_BASE_Y = ENTRY_HALL_FLOOR;
 const TRONJHEIM_TOP_Y = -8 + CITY.height;
-const VOL_TURIN_TOP_Y = TRONJHEIM_TOP_Y - ISIDAR_DIMENSION - DRAGONHOLD_DIMENSION;
+const VOL_TURIN_TOP_Y = TRONJHEIM_TOP_Y - DRAGONHOLD_DIMENSION;
+const CENTRAL_CHAMBER_TOP_Y = VOL_TURIN_TOP_Y - ISIDAR_DIMENSION;
 const VOL_TURIN_HEIGHT = VOL_TURIN_TOP_Y - VOL_TURIN_BASE_Y;
 const VOL_TURIN_STEP_COUNT = Math.ceil(VOL_TURIN_HEIGHT / 0.205);
 const VOL_TURIN_STEP_RISE = VOL_TURIN_HEIGHT / VOL_TURIN_STEP_COUNT;
@@ -105,7 +106,7 @@ function isDragonholdExitBridge(x,z) {
 // ---------------------------------------------------------------------------
 function buildVolTurinArcadeShaft() {
   const startY=VOL_TURIN_BASE_Y+110;
-  const endY=VOL_TURIN_TOP_Y;
+  const endY=CENTRAL_CHAMBER_TOP_Y;
   const startRadius=VOL_TURIN_WALL_BASE_RADIUS;
   const endRadius=VOL_TURIN_WALL_TOP_RADIUS;
   const radialSegments=384,verticalSegments=448;
@@ -350,7 +351,7 @@ function makeRosePetalGeometry(length,width,height,segments=18) {
   g.setIndex(indices);g.computeVertexNormals();return g;
 }
 function buildIsidarMithrim() {
-  const gemBottom=VOL_TURIN_TOP_Y;
+  const gemBottom=CENTRAL_CHAMBER_TOP_Y;
   const gemCenterY=gemBottom+ISIDAR_DIMENSION/2;
   const gemTop=gemBottom+ISIDAR_DIMENSION;
   const gemGroup=new THREE.Group();gemGroup.position.y=gemCenterY;scene.add(gemGroup);
@@ -600,9 +601,5 @@ function buildVolTurinAndDragonhold() {
     new THREE.MeshStandardMaterial({color:0xc9c7be,roughness:.4}));
   bridge.position.set(Math.cos(exitAngle)*bridgeRadius,isidar.topY+.1,Math.sin(exitAngle)*bridgeRadius);
   bridge.rotation.y=-exitAngle;scene.add(bridge);
-  const bridgeArch=new THREE.Mesh(makeDragonholdArchGeometry(6.6,14.5),
-    new THREE.MeshStandardMaterial({color:0xbfbcb3,roughness:.38,side:THREE.DoubleSide}));
-  bridgeArch.position.set(Math.cos(exitAngle)*(DRAGONHOLD_OUTER_RADIUS-.1),isidar.topY,Math.sin(exitAngle)*(DRAGONHOLD_OUTER_RADIUS-.1));
-  bridgeArch.rotation.y=Math.PI/2-exitAngle;scene.add(bridgeArch);
-}
+remove arco duplicado}
 buildVolTurinAndDragonhold();
