@@ -178,6 +178,31 @@ function buildEntryHall(){
   const underside=new THREE.Mesh(new THREE.BoxGeometry(length-2,.6,78),MAT.dark);
   underside.position.set(midX,floorY+height-.2,0);scene.add(underside);
 
+  // Continuous side enclosure: the entrance hall is a real stone corridor,
+  // not a row of isolated columns. Door bays are deliberately left as apertures.
+  const sideWallMat=new THREE.MeshStandardMaterial({color:0xc9c8c1,roughness:.52,metalness:.025});
+  for(const sideZ of [-40,40]){
+    let cursor=startX;
+    for(let doorX=startX-120;doorX>endX+65;doorX-=220){
+      const right=doorX+9.8,left=doorX-9.8;
+      if(cursor>right){
+        const segment=new THREE.Mesh(new THREE.BoxGeometry(cursor-right,height,2.4),sideWallMat);
+        segment.position.set((cursor+right)/2,floorY+height/2,sideZ);segment.receiveShadow=true;scene.add(segment);
+      }
+      const header=new THREE.Mesh(new THREE.BoxGeometry(19.6,height-14,2.4),sideWallMat);
+      header.position.set(doorX,floorY+14+(height-14)/2,sideZ);scene.add(header);
+      for(const edgeX of [doorX-9.8,doorX+9.8]){
+        const jamb=new THREE.Mesh(new THREE.BoxGeometry(1.5,14,3.1),MAT.marbleLight);
+        jamb.position.set(edgeX,floorY+7,sideZ);scene.add(jamb);
+      }
+      cursor=left;
+    }
+    if(cursor>endX){
+      const segment=new THREE.Mesh(new THREE.BoxGeometry(cursor-endX,height,2.4),sideWallMat);
+      segment.position.set((cursor+endX)/2,floorY+height/2,sideZ);segment.receiveShadow=true;scene.add(segment);
+    }
+  }
+
   const galleryLevels=[18,36,54];
   for(const level of galleryLevels)for(const side of [-1,1]){
     const gallery=new THREE.Mesh(new THREE.BoxGeometry(length,2.2,15),MAT.marbleLight);
@@ -216,18 +241,21 @@ function buildEntryHall(){
 
   // Lower level: massive timber doors in the side walls.
   for(let x=startX-120;x>endX+65;x-=220)for(const side of [-1,1]){
-    const door=new THREE.Mesh(new THREE.BoxGeometry(17,13,1.3),timber);
-    door.position.set(x,floorY+7.1,side*34.7);scene.add(door);
-    for(const dx of [-9,9]){
-      const jamb=new THREE.Mesh(new THREE.BoxGeometry(1.6,15,2.1),MAT.marbleLight);
-      jamb.position.set(x+dx,floorY+7.5,side*34.5);scene.add(jamb);
+    // Open double leaves are hinged at the jamb, not floating across the passage.
+    const doorGroup=new THREE.Group();
+    doorGroup.position.set(x-8.5,floorY,side*39.0);
+    doorGroup.rotation.y=side*1.12;
+    for(const leafX of [4.25,12.75]){
+      const leaf=new THREE.Mesh(new THREE.BoxGeometry(8.5,13,1.0),timber);
+      leaf.position.set(leafX,6.5,0);doorGroup.add(leaf);
+      for(const yy of [3.5,9.8]){
+        const strap=new THREE.Mesh(new THREE.BoxGeometry(8.0,.42,1.2),gold);
+        strap.position.set(leafX,yy,.58);doorGroup.add(strap);
+      }
     }
-    const lintel=new THREE.Mesh(new THREE.BoxGeometry(20,1.6,2.2),MAT.marbleLight);
-    lintel.position.set(x,floorY+15.2,side*34.5);scene.add(lintel);
-    for(const yy of [floorY+3.5,floorY+10.5]){
-      const strap=new THREE.Mesh(new THREE.BoxGeometry(16,.45,1.55),gold);
-      strap.position.set(x,yy,side*35.45);scene.add(strap);
-    }
+    scene.add(doorGroup);
+    const threshold=new THREE.Mesh(new THREE.BoxGeometry(19.6,.24,3.2),MAT.marbleLight);
+    threshold.position.set(x,floorY+.02,side*40);scene.add(threshold);
   }
 
   // Tapestries between the storeys.
@@ -247,10 +275,12 @@ function buildEntryHall(){
   const hallLampMat=new THREE.MeshStandardMaterial({color:0xffd9a5,emissive:0xffb85f,emissiveIntensity:2.1,roughness:.24});
   for(let i=0,x=startX-55;x>endX+35;x-=125,i++){
     const side=i%2===0?-1:1;
+    const sconce=new THREE.Mesh(new THREE.BoxGeometry(1.6,2.1,.8),gold);
+    sconce.position.set(x,floorY+21,side*38.2);scene.add(sconce);
     const lamp=new THREE.Mesh(hallLampGeo,hallLampMat);
-    lamp.position.set(x,floorY+21,side*34.6);scene.add(lamp);
+    lamp.position.set(x,floorY+21,side*37.1);scene.add(lamp);
     const glow=new THREE.PointLight(0xffc986,82,155,2);
-    glow.position.set(x,floorY+22,side*31.5);scene.add(glow);
+    glow.position.set(x,floorY+21,side*34.0);scene.add(glow);
   }
 
   // [INTERPRETAÇÃO] generalized creature silhouettes; the text does not identify species.
