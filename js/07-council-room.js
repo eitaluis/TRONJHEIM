@@ -326,12 +326,12 @@ function buildCouncilLanterns() {
     const z=cz+Math.sin(a)*(COUNCIL_ROOM_RADIUS-.7);
     const mount=new THREE.Mesh(new THREE.BoxGeometry(1.2,1.1,.8),sconce);
     mount.position.set(x,y+7.6,z);mount.rotation.y=-a;scene.add(mount);
-    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.55,10,8),glass);
+    const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.34,.48,1.55,24,2,true),glass);
     lamp.position.set(x,y+8.6,z);scene.add(lamp);
-    const light=new THREE.PointLight(0xffd99b,34,38,2);
+    const light=new THREE.PointLight(0xffd99b,16,58,2);
     light.position.set(x,y+8.2,z);scene.add(light);
   }
-  const skylight=new THREE.PointLight(0x8db9ee,42,45,2);
+  const skylight=new THREE.PointLight(0x8db9ee,22,76,2);
   skylight.position.set(cx,y+24,cz);scene.add(skylight);
 }
 
