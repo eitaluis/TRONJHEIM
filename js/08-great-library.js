@@ -421,12 +421,12 @@ function buildLibraryLight() {
     const x=LIBRARY_CENTER_X+Math.cos(a)*r,z=LIBRARY_CENTER_Z+Math.sin(a)*r;
     const mount=new THREE.Mesh(new THREE.BoxGeometry(.8,1.2,.8),fixture);
     mount.position.set(x,LIBRARY_FLOOR+9.0,z);mount.rotation.y=-a;scene.add(mount);
-    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.48,10,8),glass);
+    const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.28,.42,1.25,24,2,true),glass);
     lamp.position.set(x,LIBRARY_FLOOR+10.0,z);scene.add(lamp);
-    const point=new THREE.PointLight(0xffd9a3,26,34,2);
+    const point=new THREE.PointLight(0xffd9a3,13,54,2);
     point.position.set(x,LIBRARY_FLOOR+9.7,z);scene.add(point);
   }
-  const ambient=new THREE.PointLight(0x8195b7,44,52,2);
+  const ambient=new THREE.PointLight(0x8195b7,24,78,2);
   ambient.position.set(LIBRARY_CENTER_X,LIBRARY_FLOOR+26,0);scene.add(ambient);
 }
 
