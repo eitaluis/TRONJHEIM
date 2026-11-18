@@ -76,7 +76,7 @@ function buildCentralChamber(){
   for(let i=0;i<32;i++){
     const a=i*Math.PI/16;
     const seam=new THREE.Mesh(new THREE.BoxGeometry(1.15, .12, radius*1.82),seamMat);
-    seam.position.set(0,floorY+.22,0);seam.rotation.y=a;scene.add(seam);
+    seam.position.set(0,floorY+.02,0);seam.rotation.y=a;scene.add(seam);
   }
 
   // Hammer emblem of Korgan, inlaid in pale stone and bronze at the center.
@@ -104,7 +104,7 @@ function buildCentralChamber(){
   for(const d of directions){
     const cx=d.x*(start+corridorLength/2),cz=d.z*(start+corridorLength/2);
     const floor=new THREE.Mesh(new THREE.BoxGeometry(d.x?corridorLength:width,2.1,d.z?corridorLength:width),stone);
-    floor.position.set(cx,floorY-1.05,cz);scene.add(floor);
+    floor.position.set(cx,floorY-1.07,cz);scene.add(floor);
     const roof=new THREE.Mesh(new THREE.BoxGeometry(d.x?corridorLength:width,2.4,d.z?corridorLength:width),stone);
     roof.position.set(cx,floorY+height+1.2,cz);scene.add(roof);
     for(const side of [-1,1]){
