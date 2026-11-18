@@ -25,7 +25,9 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
   const steps = Math.ceil(drop/stepRise);
   const rise = drop/steps;
   const length = curve.getLength();
-  const treadDepth = Math.max(.38,length/steps*.82);
+  // Treads overlap slightly along the spline so fast traversal never hits a
+  // collision gap between adjacent steps.
+  const treadDepth = Math.max(.38,length/steps*.98);
   const stone = new THREE.MeshStandardMaterial({color:0xd4d1c8,roughness:.48,metalness:.025});
   const edge = new THREE.MeshStandardMaterial({color:0xa78a57,roughness:.32,metalness:.58});
   // The final tread of the broad stair is replaced by a flat granite landing
