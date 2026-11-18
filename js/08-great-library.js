@@ -13,7 +13,7 @@ const LIBRARY_CENTER_Z = 0;
 const LIBRARY_RADIUS = 30.5;
 const LIBRARY_FLOOR = ENTRY_HALL_FLOOR;
 const LIBRARY_WALL_HEIGHT = 22.4;
-const LIBRARY_LEVEL_HEIGHT = 5.1;
+const LIBRARY_LEVEL_HEIGHT = 4.4;
 const LIBRARY_LEVELS = 4;
 const LIBRARY_PASSAGE_END_X = -629.2;
 const LIBRARY_PASSAGE_START_X = -613.5;
@@ -34,7 +34,7 @@ function libraryWalkableContains(x,z) {
   const passage=libraryPassageContains(x,z);
   const r=Math.hypot(x-LIBRARY_CENTER_X,z-LIBRARY_CENTER_Z);
   const currentR=Math.hypot(jogador.pos.x-LIBRARY_CENTER_X,jogador.pos.z-LIBRARY_CENTER_Z);
-  const alreadyInside=currentR<=LIBRARY_RADIUS-.4;
+  const alreadyInside=currentR<=LIBRARY_RADIUS-.05;
   const entering=libraryInsideFromDoor() && x<LIBRARY_CENTER_X+LIBRARY_RADIUS+.6;
   return passage || (r<=LIBRARY_RADIUS-.4 && (alreadyInside||entering));
 }
@@ -166,7 +166,7 @@ function buildLibraryShell() {
   floor.rotation.x=-Math.PI/2;floor.position.set(cx,y+.012,cz);floor.receiveShadow=true;scene.add(floor);
 
   // Wall split leaves one east-facing entrance aligned to the connector.
-  const halfDoor=.47;
+  const halfDoor=.25;
   const arcs=[
     [0,Math.PI/2-halfDoor],
     [Math.PI/2+halfDoor,Math.PI*1.5-halfDoor]
@@ -274,7 +274,7 @@ function buildLibraryStairs() {
   ];
   const riseHeight=LIBRARY_LEVELS*LIBRARY_LEVEL_HEIGHT;
   const stepRise=.17,stepCount=Math.ceil(riseHeight/stepRise);
-  const realRise=riseHeight/stepCount,total=layoutTotal=0;
+  const realRise=riseHeight/stepCount;
   const treadMat=new THREE.MeshStandardMaterial({color:0xd4d1c7,roughness:.4,metalness:.025});
   const edgeMat=new THREE.MeshStandardMaterial({color:0xa58c5c,metalness:.68,roughness:.3});
   const stepGeo=new THREE.BoxGeometry(LIBRARY_STAIR_WIDTH,.28,1);
@@ -440,8 +440,8 @@ function buildLibraryLight() {
 function buildGreatLibrary() {
   buildLibraryPassage();
   buildLibraryShell();
-  buildLibraryGalleries();
   buildLibraryStairs();
+  buildLibraryGalleries();
   buildBranchingColonnades();
   buildLibraryShelves();
   buildLibraryReadingFurniture();
