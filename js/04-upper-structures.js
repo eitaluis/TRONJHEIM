@@ -54,7 +54,11 @@ function volTurinPointAtProgress(t, offsetRadius=0) {
   const r=volTurinStairRadiusAtProgress(t)+offsetRadius;
   return new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r);
 }
-function volTurinFloorAtXZ(x,z) {
+// Resolve a Vol Turin tread only when the player is already at that tread's
+// elevation. The old X/Z-only lookup confused the central chamber floor with
+// the spiral stair because the stair winds through many overlapping radii.
+function volTurinFloorAtXZ(x,z,referenceFeetY=null) {
+  if(referenceFeetY===null || !Number.isFinite(referenceFeetY))return null;
   const r=Math.hypot(x,z);
   const baseR=volTurinStairRadiusAtProgress(0);
   const topR=volTurinStairRadiusAtProgress(1);
@@ -65,7 +69,12 @@ function volTurinFloorAtXZ(x,z) {
   const delta=Math.abs(Math.atan2(Math.sin(actual-expected),Math.cos(actual-expected)));
   if(delta*r>VOL_TURIN_STEP_HALF_WIDTH)return null;
   const index=THREE.MathUtils.clamp(Math.floor(t*VOL_TURIN_STEP_COUNT),0,VOL_TURIN_STEP_COUNT-1);
-  return VOL_TURIN_BASE_Y+(index+1)*VOL_TURIN_STEP_RISE;
+  const treadY=VOL_TURIN_BASE_Y+(index+1)*VOL_TURIN_STEP_RISE;
+  // A player may climb one physical riser, never be snapped several metres
+  // or hundreds of metres onto a different turn of the spiral.
+  const maxStepSnap=Math.max(.28,VOL_TURIN_STEP_RISE*1.35);
+  if(Math.abs(treadY-referenceFeetY)>maxStepSnap)return null;
+  return treadY;
 }
 function volTurinTopLandingContains(x,z) {
   const r=Math.hypot(x,z),a=Math.atan2(z,x);
