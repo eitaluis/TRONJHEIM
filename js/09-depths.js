@@ -289,7 +289,7 @@ function buildUndergroundLake(){
     const radius=53+hash(i+71,92)*10;
     const size=1.8+hash(i+31,48)*4.6;
     const rock=new THREE.Mesh(boulderGeo,boulderMat);
-    rock.position.set(-900+Math.cos(a)*radius,DEPTHS_LAKE_Y+size*.3,DEPTHS_ROUTE_Z+DEPTHS_ROUTE_Z+DEPTHS_ROUTE_Z+DEPTHS_ROUTE_Z+Math.sin(a)*radius);
+    rock.position.set(-900+Math.cos(a)*radius,DEPTHS_LAKE_Y+size*.3,DEPTHS_ROUTE_Z+Math.sin(a)*radius);
     rock.scale.set(size*(.7+hash(i+81,12)*.8),size*(.3+hash(i+41,7)*.45),size*(.65+hash(i+61,18)*.7));
     rock.rotation.set(hash(i+91,24)*.25,hash(i+11,33)*Math.PI*2,hash(i+101,46)*.2);
     rock.castShadow=true;rock.receiveShadow=true;scene.add(rock);
@@ -300,7 +300,7 @@ function buildUndergroundLake(){
     const a=-1.05+hash(i+141,29)*1.25;
     const radius=56+hash(i+151,38)*14;
     const height=3.2+hash(i+161,47)*8.5;
-    const x=-900+Math.cos(a)*radius,z=DEPTHS_ROUTE_Z+DEPTHS_ROUTE_Z+DEPTHS_ROUTE_Z+Math.sin(a)*radius;
+    const x=-900+Math.cos(a)*radius,z=DEPTHS_ROUTE_Z+Math.sin(a)*radius;
     const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(.9+hash(i+171,56)*1.2,1),
       new THREE.MeshStandardMaterial({color:0x76939a,roughness:.2,metalness:.18,emissive:0x16333a,emissiveIntensity:.2}));
     crystal.position.set(x,DEPTHS_LAKE_Y+height*.48,z);
