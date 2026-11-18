@@ -75,8 +75,9 @@ function teleportarPorId(id){const i=pontosTP.findIndex(p=>p.id===id);if(i>=0)te
 function inspecionarPortao(){
   jogador.pos.set(TRONJHEIM_GATE.facadeX+82,alturaChao(TRONJHEIM_GATE.facadeX+82,0)+jogador.alturaOlhos,0);
   jogador.vel.set(0,0,0);jogador.noChao=true;vooLivre=false;yaw=Math.PI/2;pitch=-.12;alinharCamera();
+  indiceTP=Math.max(0,pontosTP.findIndex(p=>p.id==="gate"));
+  mostrarLocalAtual(pontosTP[indiceTP],indiceTP);
   document.getElementById("modeLabel").textContent="Inspeção: fachada e portão";
-  document.getElementById("tpAtual").textContent="Inspeção do portão";
 }
 function solicitarPointerLock(){renderer.domElement.requestPointerLock?.();}
 function limparTeclas(){
@@ -101,7 +102,8 @@ document.addEventListener("mousemove",e=>{
 document.addEventListener("keydown",e=>{
   if(["Space","Tab","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code))e.preventDefault();
   teclas[e.code]=true;
-  const plainShortcut=!e.repeat&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey;
+  const plainShortcut=travado&&!e.repeat&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey;
+  if(plainShortcut&&(e.code==="KeyM"||e.code==="KeyN"))e.preventDefault();
   if(plainShortcut&&e.code==="KeyM")teleportarIndice(indiceTP+1);
   if(plainShortcut&&e.code==="KeyN")teleportarIndice(indiceTP-1);
   if(e.code==="KeyG"&&!e.repeat)inspecionarPortao();
