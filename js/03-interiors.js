@@ -75,7 +75,7 @@ function buildCentralChamber(){
   const seamMat=new THREE.MeshStandardMaterial({color:0x55252a,roughness:.62});
   for(let i=0;i<32;i++){
     const a=i*Math.PI/16;
-    const seam=new THREE.Mesh(new THREE.BoxGeometry(1.15, .12, radius*1.82),seamMat);
+    const seam=new THREE.Mesh(new THREE.BoxGeometry(1.15, .04, radius*1.82),seamMat);
     seam.position.set(0,floorY+.02,0);seam.rotation.y=a;scene.add(seam);
   }
 
