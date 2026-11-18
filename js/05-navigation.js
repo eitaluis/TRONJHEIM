@@ -133,7 +133,7 @@ function dentroDaArquitetura(x,z){
   const inChamber=r<=CENTRAL_WALL_RADIUS-2.2;
   const inEastHall=x>=TRONJHEIM_GATE.hallEndX-2 && x<=TRONJHEIM_GATE.doorX-4 && Math.abs(z)<=38.4;
   const inGateThroat=x>=TRONJHEIM_GATE.doorX-6 && x<=CITY.radius+3 && Math.abs(z)<=11.5;
-  const branchStart=SIDE_CORRIDOR_START,branchEnd=SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH-2;
+  const branchStart=SIDE_CORRIDOR_START,branchEnd=CENTRAL_CHAMBER_RADIUS+SIDE_CORRIDOR_LENGTH-2;
   const half=SIDE_CORRIDOR_HALF_WIDTH;
   const inNorth=z<=-branchStart && z>=-branchEnd && Math.abs(x)<=half;
   const inSouth=z>=branchStart && z<=branchEnd && Math.abs(x)<=half;
