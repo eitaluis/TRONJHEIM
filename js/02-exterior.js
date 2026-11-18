@@ -1,13 +1,13 @@
 function buildFacadeWindows(){
   // Deeper, warmer windows now remain visible all the way toward the summit.
-  const windowGeo=new THREE.SphereGeometry(1,10,8);
+  const windowGeo=new THREE.CapsuleGeometry(1,1.2,10,32);
   const windowMat=new THREE.MeshStandardMaterial({
-    color:0x8b8273,roughness:.5,emissive:0xb77a3e,emissiveIntensity:.62
+    color:0x716e68,roughness:.62,emissive:0xa86d37,emissiveIntensity:.24
   });
   const frameMat=new THREE.MeshStandardMaterial({color:0xd0b989,metalness:.48,roughness:.38});
   const capacity=1500;
   const windows=new THREE.InstancedMesh(windowGeo,windowMat,capacity);
-  const frames=new THREE.InstancedMesh(new THREE.TorusGeometry(1,0.12,6,16),frameMat,capacity);
+  const frames=new THREE.InstancedMesh(new THREE.TorusGeometry(1,0.12,12,40),frameMat,capacity);
   const dummy=new THREE.Object3D();let n=0;
   for(let row=0;row<18;row++){
     const t=.045+row*.0505, y=-8+t*CITY.height, r=cityRadius(t)+3.5;
@@ -15,7 +15,7 @@ function buildFacadeWindows(){
     for(let i=0;i<count && n<capacity;i++){
       const a=i/count*Math.PI*2+(row%2)*.035;
       const x=Math.cos(a)*r,z=Math.sin(a)*r;
-      dummy.position.set(x,y,z);dummy.rotation.set(0,-a,0);dummy.scale.set(7.4,13.2,2.2);dummy.updateMatrix();windows.setMatrixAt(n,dummy.matrix);
+      dummy.position.set(x,y,z);dummy.rotation.set(0,-a,0);dummy.scale.set(7.4,8.0,2.2);dummy.updateMatrix();windows.setMatrixAt(n,dummy.matrix);
       dummy.position.set(x,y,z);dummy.rotation.set(0,Math.PI/2-a,0);dummy.scale.set(9.1,15.2,1.3);dummy.updateMatrix();frames.setMatrixAt(n,dummy.matrix);n++;
     }
   }
