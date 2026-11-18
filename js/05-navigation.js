@@ -153,9 +153,9 @@ function atualizarJogador(dt){
   if(teclas.KeyA||teclas.ArrowLeft)direcao.sub(direita);
   if(direcao.lengthSq()>0)direcao.normalize();
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
-  // Human-scale exploration speeds (m/s): deliberate walking and faster running.
+  // Slightly quicker exploration speeds, while preserving controllable movement.
   // Free-flight is also restrained so inspection of vertical spaces stays controllable.
-  const velocidade=vooLivre?18:(correndo?12:4.5);
+  const velocidade=vooLivre?18:(correndo?15.5:6.0);
   jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   // Swept substeps prevent the high requested speed from tunnelling through walls.
@@ -243,10 +243,10 @@ document.querySelectorAll("#checklist input[data-check]").forEach(input=>{
   input.addEventListener("change",()=>{localStorage.setItem(key,input.checked?"1":"0");label.classList.toggle("done",input.checked);});
 });
 
-// Initial spawn at the crater-wall tunnel, facing inward toward the city.
-jogador.pos.set(7800,alturaChao(7800,0)+jogador.alturaOlhos,0);
+// Initial spawn on the central approach, close enough to read the complete city silhouette.
+jogador.pos.set(4650,alturaChao(4650,0)+jogador.alturaOlhos,0);
 jogador.vel.set(0,0,0);yaw=Math.PI/2;pitch=0;alinharCamera();
-document.getElementById("tpAtual").textContent="Entrada da montanha";
+document.getElementById("tpAtual").textContent="Caminho central — vista de Tronjheim";
 
 // simple starless cavern atmosphere: fine floating dust, deliberately subtle
 function buildDust(){
