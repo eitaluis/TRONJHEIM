@@ -142,7 +142,7 @@ function dragonholdFloorAtXZ(x,z,referenceFeetY=null) {
   const stair=dragonholdSaphiraStepFloorAtXZ(x,z);
   if(stair!==null)return stair;
   for(const cave of DRAGONHOLD_CAVES){
-    if(dragonholdCaveContains(x,z,cave))return VOL_TURIN_TOP_Y+cave.bottom;
+    if(dragonholdCaveContains(x,z,cave))return VOL_TURIN_TOP_Y+cave.bottom+(cave.id==="saphira"?.1:0);
   }
   if(Math.hypot(x,z)<=DRAGONHOLD_RADIUS-.5)return VOL_TURIN_TOP_Y;
   return null;
