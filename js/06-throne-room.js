@@ -149,6 +149,8 @@ function buildThroneAccess() {
     const left=new THREE.Mesh(new THREE.BoxGeometry(1.7,18,1.9),jasper);
     left.position.set(0,9,-4.1);frame.add(left);
     const right=left.clone();right.position.z=4.1;frame.add(right);
+    const arch=new THREE.Mesh(new THREE.TorusGeometry(4.1,.55,10,36,Math.PI),pale);
+    arch.rotation.y=Math.PI/2;arch.position.set(0,12.0,0);frame.add(arch);
     const lintel=new THREE.Mesh(new THREE.BoxGeometry(2.0,2.1,10.0),pale);
     lintel.position.y=18;frame.add(lintel);
     const crownLine=new THREE.Mesh(new THREE.BoxGeometry(2.2,.34,8.4),jasper);
@@ -202,7 +204,7 @@ function buildGraniteThroneDoors() {
   crownShape.closePath();
   const crown=new THREE.Mesh(new THREE.ShapeGeometry(crownShape,16),bronze);
   crown.rotation.y=Math.PI/2;
-  crown.position.set(frameX+1.78,THRONE_ROOM_FLOOR+10.3,0);scene.add(crown);
+  crown.position.set(frameX+.62,THRONE_ROOM_FLOOR+10.3,0);scene.add(crown);
 }
 
 function buildDwarfGuard(x,z,side,index) {
@@ -347,10 +349,10 @@ function buildDwarfKingStatue(x,z,side,index) {
     spike.position.set(Math.sin(a)*.43,4.05,.1+Math.cos(a)*.12);group.add(spike);
   }
   const plaque=new THREE.Mesh(new THREE.BoxGeometry(1.9,.52,.12),gold);
-  plaque.position.set(0,.98,side>0?-1.47:1.47);group.add(plaque);
+  plaque.position.set(0,.98,1.47);group.add(plaque);
   for(let k=0;k<3;k++){
     const rune=new THREE.Mesh(new THREE.BoxGeometry(.12,.28,.055),dark);
-    rune.position.set((k-1)*.38,1.0,side>0?-1.55:1.55);group.add(rune);
+    rune.position.set((k-1)*.38,1.0,1.55);group.add(rune);
   }
   return group;
 }
