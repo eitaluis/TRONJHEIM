@@ -126,12 +126,14 @@ function dragonholdSaphiraApproachContains(x,z) {
   const cave=DRAGONHOLD_CAVES.find(c=>c.id==="saphira");
   const r=Math.hypot(x,z),a=Math.atan2(z,x);
   const delta=Math.abs(Math.atan2(Math.sin(a-cave.angle),Math.cos(a-cave.angle)));
-  return r>=DRAGONHOLD_RADIUS-.35 && r<=DRAGONHOLD_OUTER_RADIUS+.45 &&
+  const stairStart=DRAGONHOLD_RADIUS-.55;
+  const stairEnd=DRAGONHOLD_OUTER_RADIUS+.35;
+  return r>=stairStart && r<=stairEnd+1.6 &&
     delta*r<=cave.width/2+.35;
 }
 function dragonholdSaphiraStepFloorAtXZ(x,z) {
   if(!dragonholdSaphiraApproachContains(x,z))return null;
-  const r=Math.hypot(x,z),startR=DRAGONHOLD_RADIUS-.35,endR=DRAGONHOLD_OUTER_RADIUS+.1;
+  const r=Math.hypot(x,z),startR=DRAGONHOLD_RADIUS-.55,endR=DRAGONHOLD_OUTER_RADIUS+.35;
   const rise=DRAGONHOLD_CAVES.find(c=>c.id==="saphira").bottom/12;
   const index=THREE.MathUtils.clamp(Math.floor((r-startR)/(endR-startR)*12),0,11);
   return VOL_TURIN_TOP_Y+(index+1)*rise;
