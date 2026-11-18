@@ -11,7 +11,8 @@
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x263642);
 scene.fog = new THREE.FogExp2(0x354650, 0.000018);
-const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.1, 30000);
+// A tighter depth range greatly reduces z-fighting on long, closely spaced stairs.
+const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.55, 19000);
 camera.position.set(5300, 2.0, 280);
 camera.rotation.order = 'YXZ';
 const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
