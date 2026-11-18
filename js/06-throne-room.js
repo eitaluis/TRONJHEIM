@@ -87,17 +87,24 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
   return {curve,steps,rise,length};
 }
 
-function throneRoomStairFloorAtXZ(x,z) {
-  let best=null,bestDistance=Infinity;
+function throneRoomStairFloorAtXZ(x,z,referenceFeetY=null) {
+  let best=null,bestScore=Infinity;
   for(const path of THRONE_ROOM_PATHS){
     for(const sample of path.samples){
       const d=Math.hypot(x-sample.x,z-sample.z);
-      if(d<bestDistance){bestDistance=d;best={path,t:sample.t};}
+      if(d>path.width*.5+.28)continue;
+      const index=THREE.MathUtils.clamp(Math.floor(sample.t*path.steps),0,path.steps-1);
+      const floor=path.topY-(index+1)*path.rise;
+      // At the stair junction, resolve by horizontal and vertical proximity.
+      // This avoids snapping back to a different flight at the same X/Z.
+      const verticalError=referenceFeetY===null?0:Math.abs(floor-referenceFeetY);
+      const score=d+verticalError*2.4;
+      if(score<bestScore){bestScore=score;best={floor,verticalError};}
     }
   }
-  if(!best || bestDistance>best.path.width*.5+.28)return null;
-  const p=best.path,index=THREE.MathUtils.clamp(Math.floor(best.t*p.steps),0,p.steps-1);
-  return p.topY-(index+1)*p.rise;
+  if(!best)return null;
+  if(referenceFeetY!==null && best.verticalError>2.35)return null;
+  return best.floor;
 }
 function throneRoomWalkableContains(x,z) {
   const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+7.0 && Math.abs(z)<=17.2;
@@ -106,8 +113,8 @@ function throneRoomWalkableContains(x,z) {
      Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8)return true;
   return throneRoomStairFloorAtXZ(x,z)!==null;
 }
-function throneRoomFloorAtXZ(x,z) {
-  const stair=throneRoomStairFloorAtXZ(x,z);
+function throneRoomFloorAtXZ(x,z,referenceFeetY=null) {
+  const stair=throneRoomStairFloorAtXZ(x,z,referenceFeetY);
   if(stair!==null)return stair;
   const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+7.0 && Math.abs(z)<=17.2;
   if(inLanding)return THRONE_ROOM_FLOOR;
@@ -132,6 +139,15 @@ function buildThroneAccess() {
   const landing=new THREE.Mesh(new THREE.BoxGeometry(18,.48,15),
     new THREE.MeshStandardMaterial({color:0xc9c7bf,roughness:.48}));
   landing.position.set(-170,branchBottom-.24,0);landing.receiveShadow=true;scene.add(landing);
+  // Broad approach pads make the two entrances legible from the central chamber.
+  for(const side of [-1,1]){
+    const approach=new THREE.Mesh(new THREE.BoxGeometry(18,.42,13),
+      new THREE.MeshStandardMaterial({color:0xd2cfc6,roughness:.45}));
+    approach.position.set(-128,top-.21,side*44);approach.receiveShadow=true;scene.add(approach);
+    const inlay=new THREE.Mesh(new THREE.BoxGeometry(12,.06,.42),
+      new THREE.MeshStandardMaterial({color:0x9a7845,metalness:.58,roughness:.32}));
+    inlay.position.set(-128,top+.025,side*44);scene.add(inlay);
+  }
   buildThroneStairPath("escadaria-ampla",[
     [-170,branchBottom,0],[-193,top-13,0],[-220,top-22,0],[-249,THRONE_ROOM_FLOOR,0]
   ],15.8,branchBottom,THRONE_ROOM_FLOOR,.18);
