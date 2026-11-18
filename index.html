@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tronjheim — Fase 2 | Portão e Grande Corredor</title>
-<link rel="stylesheet" href="./css/main.css">
+<link rel="stylesheet" href="./css/main.css?v=trj-fix-20261118-1">
 </head>
 <body>
 <div id="hud">
@@ -147,17 +147,17 @@ async function loadProjectScript(src) {
 }
 
 try {
-  await loadProjectScript('./js/00-engine.js');
-  await loadProjectScript('./js/01-world.js');
-  await loadProjectScript('./js/02-exterior.js');
-  await loadProjectScript('./js/03-interiors.js');
-  await loadProjectScript('./js/04-upper-structures.js');
-  await loadProjectScript('./js/05-navigation.js');
+  await loadProjectScript('./js/00-engine.js?v=trj-fix-20261118-1');
+  await loadProjectScript('./js/01-world.js?v=trj-fix-20261118-1');
+  await loadProjectScript('./js/02-exterior.js?v=trj-fix-20261118-1');
+  await loadProjectScript('./js/03-interiors.js?v=trj-fix-20261118-1');
+  await loadProjectScript('./js/04-upper-structures.js?v=trj-fix-20261118-1');
+  await loadProjectScript('./js/05-navigation.js?v=trj-fix-20261118-1');
 } catch (error) {
   console.error(error);
   const warning = document.createElement('div');
   warning.style.cssText = 'position:fixed;z-index:99;left:20px;right:20px;bottom:20px;padding:16px;background:#301b1b;color:#fff;font:14px Arial,sans-serif;border:1px solid #c77;';
-  warning.textContent = 'Não foi possível carregar todos os arquivos de Tronjheim. Atualize a página e confira a conexão.';
+  warning.textContent = 'Falha ao iniciar Tronjheim: ' + (error?.message || 'erro desconhecido') + '. Atualize a página (Ctrl+F5) e tente novamente.';
   document.body.appendChild(warning);
 }
 </script>
