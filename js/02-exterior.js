@@ -172,7 +172,7 @@ function buildEntryHall(){
   const gold=new THREE.MeshStandardMaterial({color:0x9d7b43,metalness:.72,roughness:.32});
 
   const floor=new THREE.Mesh(new THREE.BoxGeometry(length,2.2,80),MAT.marbleLight);
-  floor.position.set(midX,floorY-1.1,0);floor.receiveShadow=true;scene.add(floor);
+  floor.position.set(midX,floorY-1.12,0);floor.receiveShadow=true;scene.add(floor);
   const roof=new THREE.Mesh(new THREE.BoxGeometry(length,3.2,82),MAT.marble);
   roof.position.set(midX,floorY+height+1.6,0);roof.receiveShadow=true;scene.add(roof);
   const underside=new THREE.Mesh(new THREE.BoxGeometry(length-2,.6,78),MAT.dark);
