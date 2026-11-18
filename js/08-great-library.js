@@ -23,12 +23,12 @@ const LIBRARY_SHELF_BLOCKERS = [];
 
 function libraryPassageContains(x,z) {
   return x<=LIBRARY_PASSAGE_START_X+.2 &&
-    x>=LIBRARY_PASSAGE_END_X-.5 && Math.abs(z)<=7.15;
+    x>=LIBRARY_PASSAGE_END_X-.5 && Math.abs(z)<=6.2;
 }
 function libraryInsideFromDoor() {
   return jogador.pos.x<=LIBRARY_PASSAGE_END_X+.3 &&
     jogador.pos.x>=LIBRARY_PASSAGE_END_X-1.0 &&
-    Math.abs(jogador.pos.z)<=7.1;
+    Math.abs(jogador.pos.z)<=6.2;
 }
 function libraryWalkableContains(x,z) {
   const passage=libraryPassageContains(x,z);
@@ -168,7 +168,7 @@ function buildLibraryShell() {
   floor.rotation.x=-Math.PI/2;floor.position.set(cx,y+.012,cz);floor.receiveShadow=true;scene.add(floor);
 
   // Wall split leaves one east-facing entrance aligned to the connector.
-  const halfDoor=.25;
+  const halfDoor=.23;
   const arcs=[
     [0,Math.PI/2-halfDoor],
     [Math.PI/2+halfDoor,Math.PI*1.5-halfDoor]
@@ -192,21 +192,21 @@ function buildLibraryShell() {
   const wood=new THREE.MeshStandardMaterial({color:0x31231c,roughness:.8});
   for(const side of [-1,1]){
     const jamb=new THREE.Mesh(new THREE.BoxGeometry(1.9,22,1.8),pale);
-    jamb.position.set(cx+LIBRARY_RADIUS-.5,y+11,side*8.1);scene.add(jamb);
+    jamb.position.set(cx+LIBRARY_RADIUS-.5,y+11,side*7.0);scene.add(jamb);
     const capital=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.0,2.6),bronze);
-    capital.position.set(cx+LIBRARY_RADIUS-.5,y+22,side*8.1);scene.add(capital);
+    capital.position.set(cx+LIBRARY_RADIUS-.5,y+22,side*7.0);scene.add(capital);
     const door=new THREE.Group();
-    door.position.set(cx+LIBRARY_RADIUS-.8,y,side*7.6);
+    door.position.set(cx+LIBRARY_RADIUS-.8,y,side*7.0);
     door.rotation.y=side*1.2;
-    const leaf=new THREE.Mesh(new THREE.BoxGeometry(.82,19,7.4),wood);
-    leaf.position.set(0,9.5,-side*3.7);door.add(leaf);
+    const leaf=new THREE.Mesh(new THREE.BoxGeometry(.82,19,6.6),wood);
+    leaf.position.set(0,9.5,-side*3.3);door.add(leaf);
     for(const yy of [3.1,9.5,15.9]){
-      const band=new THREE.Mesh(new THREE.BoxGeometry(1.0,.35,7.2),bronze);
-      band.position.set(.48,yy,-side*3.7);door.add(band);
+      const band=new THREE.Mesh(new THREE.BoxGeometry(1.0,.35,6.4),bronze);
+      band.position.set(.48,yy,-side*3.3);door.add(band);
     }
     scene.add(door);
   }
-  const arch=new THREE.Mesh(new THREE.TorusGeometry(8.0,.58,10,56,Math.PI),pale);
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(7.0,.58,10,56,Math.PI),pale);
   arch.rotation.y=Math.PI/2;arch.position.set(cx+LIBRARY_RADIUS-.2,y+12.0,0);scene.add(arch);
 
   // Five-story height is expressed through four accessible upper galleries.
