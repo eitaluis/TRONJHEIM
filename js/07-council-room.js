@@ -16,7 +16,7 @@ const COUNCIL_ROOM_WALL_HEIGHT = 14;
 const COUNCIL_ROOM_PASSAGE_END_X = -566;
 
 function councilRoomWalkableContains(x,z) {
-  const passage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=9.7;
+  const passage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=8.2;
   const r = Math.hypot(x-COUNCIL_ROOM_CENTER_X,z-COUNCIL_ROOM_CENTER_Z);
   const chamber = r<=COUNCIL_ROOM_RADIUS-.35;
   return passage||chamber;
