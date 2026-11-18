@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tronjheim — Fase 1 | Farthen Dûr</title>
+<style>
+  :root { color-scheme: dark; --gold:#d7b879; --panel:rgba(9,13,19,.84); --line:rgba(215,184,121,.25); }
+  * { box-sizing:border-box }
+  html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#05080d; font-family:Georgia,'Times New Roman',serif; color:#e8e4dc }
+  canvas { display:block }
+  #hud { position:fixed; inset:0; pointer-events:none; }
+  #topbar { position:absolute; top:16px; left:18px; display:flex; align-items:flex-start; gap:12px; }
+  .plate { background:linear-gradient(135deg,rgba(12,17,24,.9),rgba(12,17,24,.62)); border:1px solid var(--line); box-shadow:0 8px 30px rgba(0,0,0,.25); backdrop-filter:blur(8px); }
+  #brand { padding:12px 16px 10px; min-width:230px; }
+  #brand .eyebrow { font:10px/1.2 Arial,sans-serif; letter-spacing:.24em; text-transform:uppercase; color:#c6a96b }
+  #brand h1 { margin:5px 0 3px; font-size:25px; font-weight:normal; letter-spacing:.06em }
+  #brand p { margin:0; font:11px/1.45 Arial,sans-serif; color:#aab2bc; letter-spacing:.06em }
+  #status { padding:10px 13px; font:11px/1.5 Arial,sans-serif; color:#c3cbd2; min-width:190px }
+  #status strong { color:#ead9b5; font-weight:normal }
+  #bottom { position:absolute; left:18px; bottom:16px; display:flex; gap:10px; align-items:flex-end }
+  #controls { padding:10px 13px; font:11px/1.65 Arial,sans-serif; color:#c0c7cf; max-width:330px }
+  #controls b { color:#ead9b5; font-weight:normal }
+  #coords { padding:9px 12px; min-width:180px; font:11px/1.55 ui-monospace,Consolas,monospace; color:#d7c7a5 }
+  #right { position:absolute; right:18px; top:16px; width:260px; padding:13px 14px; pointer-events:auto }
+  #right h2 { margin:0 0 8px; font-size:16px; font-weight:normal; color:#e5d2a8 }
+  #right p { margin:0 0 10px; color:#b8c0c9; font:11px/1.55 Arial,sans-serif }
+  #right .fact { border-top:1px solid rgba(215,184,121,.18); padding:7px 0 0; margin-top:7px; font:11px/1.5 Arial,sans-serif; color:#bac2cb }
+  #right .fact span { color:#e1c78f }
+  .tag { display:inline-block; border:1px solid rgba(215,184,121,.3); color:#d4b979; padding:2px 6px; font:9px Arial,sans-serif; letter-spacing:.1em; text-transform:uppercase; margin-bottom:7px }
+  #crosshair { position:absolute; left:50%; top:50%; width:7px; height:7px; transform:translate(-50%,-50%); border:1px solid rgba(232,220,190,.6); border-radius:50%; opacity:.65 }
+  #start { position:fixed; inset:0; display:grid; place-items:center; background:radial-gradient(ellipse at center,rgba(19,28,39,.45),rgba(2,4,7,.88)); z-index:5; }
+  #start .modal { width:min(520px,calc(100vw - 32px)); padding:25px 27px 22px; background:rgba(9,13,19,.94); border:1px solid rgba(215,184,121,.35); box-shadow:0 18px 70px #0009; text-align:center }
+  #start .kicker { font:10px Arial,sans-serif; letter-spacing:.25em; color:#c5a76c; text-transform:uppercase }
+  #start h2 { margin:8px 0 8px; font-weight:normal; font-size:30px; letter-spacing:.05em }
+  #start p { margin:7px auto; max-width:430px; font:13px/1.55 Arial,sans-serif; color:#bac1ca }
+  #start button, .action { margin-top:13px; padding:11px 18px; background:#b99b60; color:#101318; border:0; cursor:pointer; font:12px Arial,sans-serif; letter-spacing:.1em; text-transform:uppercase }
+  #start button:hover,.action:hover { background:#dbc28d }
+  #start .small { color:#87919d; font-size:10px; margin-top:13px }
+  #hint { position:absolute; top:88px; left:50%; transform:translateX(-50%); padding:7px 11px; color:#d3d8df; background:rgba(8,12,18,.65); border:1px solid rgba(215,184,121,.16); font:10px Arial,sans-serif; letter-spacing:.08em; opacity:0; transition:opacity .3s }
+  #hint.show { opacity:1 }
+  #right button { pointer-events:auto; padding:7px 9px; border:1px solid rgba(215,184,121,.35); color:#d8c69e; background:rgba(17,23,31,.8); cursor:pointer; font:10px Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase }
+  #right button:hover { background:rgba(75,62,39,.7) }
+  #legend { display:flex; gap:9px; margin-top:9px; flex-wrap:wrap; font:9px Arial,sans-serif; color:#98a2ae }
+  .dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px }
+  @media(max-width:760px) { #right{display:none} #status{display:none} #controls{max-width:250px} #brand{min-width:0} #brand h1{font-size:20px} #coords{display:none} }
+</style>
+</head>
+<body>
+<div id="hud">
+  <div id="topbar">
+    <div id="brand" class="plate"><div class="eyebrow">Inheritance · Alagaësia</div><h1>TRONJHEIM</h1><p>FASE 01 — FARTHEN DÛR E ESTRUTURA EXTERNA</p></div>
+    <div id="status" class="plate"><strong>ESTADO DA CENA</strong><br>Geografia e escala · em construção<br><span id="modeLabel">Modo: exploração</span></div>
+  </div>
+  <div id="right" class="plate">
+    <span class="tag">Base documental</span>
+    <h2>Farthen Dûr</h2>
+    <p>Uma enorme cavidade de origem vulcânica. Tronjheim ocupa o centro, cercada por uma planície subterrânea e paredes rochosas que sobem até uma abertura distante.</p>
+    <div class="fact"><span>Tronjheim</span><br>Mais de 1 milha de altura; cidade-montanha de mármore puro. A largura da base nesta versão é provisória.</div>
+    <div class="fact"><span>Farthen Dûr</span><br>O lado oposto da cavidade é descrito a quase 10 milhas de distância. A abertura superior parece estar a mais de 12 milhas de altura.</div>
+    <div class="fact"><span>Estado desta fase</span><br>Volume externo, terreno, entrada do túnel, caminho e escala da cavidade.</div>
+    <div id="legend"><span><i class="dot" style="background:#d9dbe0"></i>mármore</span><span><i class="dot" style="background:#53606a"></i>rocha</span><span><i class="dot" style="background:#b99b60"></i>lanternas</span></div>
+    <button id="overviewBtn">Vista de inspeção (V)</button>
+    <button id="lockBtn">Explorar (clique)</button>
+  </div>
+  <div id="bottom">
+    <div id="controls" class="plate"><b>W A S D</b> mover · <b>mouse</b> olhar · <b>Shift</b> acelerar<br><b>V</b> vista de inspeção · <b>F</b> voo livre · <b>Esc</b> liberar mouse</div>
+    <div id="coords" class="plate">X <span id="cx">—</span><br>Y <span id="cy">—</span><br>Z <span id="cz">—</span></div>
+  </div>
+  <div id="crosshair"></div><div id="hint">VISTA DE INSPEÇÃO — pressione V para retornar</div>
+</div>
+<div id="start"><div class="modal"><div class="kicker">Uma reconstrução de Eldest</div><h2>Tronjheim</h2><p>Explore a primeira etapa da cidade-montanha dos anões. A cena prioriza a escala de Farthen Dûr, o volume de mármore de Tronjheim e a relação entre a cidade e a cavidade.</p><p>O mundo usa metros como unidade. As proporções documentadas foram mantidas; os detalhes ainda não descritos com precisão estão tratados como interpretação visual.</p><button id="enter">Entrar na cena</button><div class="small">Three.js · arquivo HTML único · requer conexão para carregar a biblioteca via CDN</div></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+// ============================================================================
+// TRONJHEIM — FASE 1
+// [LIVRO] Valores e elementos citados diretamente em Eragon/Eldest.
+// [DERIVADO] Conversões de milhas/pés para metros.
+// [INTERPRETAÇÃO] Forma do relevo, distribuição de detalhes e medidas não
+// especificadas diretamente. Nenhuma interpretação abaixo deve ser confundida
+// com planta oficial ou descrição exata do autor.
+// Unidade de mundo: 1 unidade = 1 metro.
+// ============================================================================
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05080d);
+scene.fog = new THREE.FogExp2(0x090d13, 0.000035);
+const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.1, 30000);
+camera.position.set(5300, 2.0, 280);
+camera.rotation.order = 'YXZ';
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.65));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+document.body.appendChild(renderer.domElement);
+
+const hemi = new THREE.HemisphereLight(0x8499ad, 0x181a1e, 0.75); scene.add(hemi);
+const fill = new THREE.AmbientLight(0x718096, 0.22); scene.add(fill);
+const apertureLight = new THREE.DirectionalLight(0xc4d8e8, 2.2);
+apertureLight.position.set(-1200, 19000, -900); apertureLight.castShadow = false; scene.add(apertureLight);
+const cityGlow = new THREE.PointLight(0xd4c19a, 2200, 5200, 1.8); cityGlow.position.set(0, 520, 0); scene.add(cityGlow);
+
+const MAT = {};
+MAT.marble = new THREE.MeshStandardMaterial({color:0xd7d9d9, roughness:0.33, metalness:0.04, map:makeMarbleTexture()});
+MAT.marbleLight = new THREE.MeshStandardMaterial({color:0xe5e4dc, roughness:0.28, metalness:0.03});
+MAT.rock = new THREE.MeshStandardMaterial({color:0x333b43, roughness:0.98, metalness:0.02, vertexColors:true, side:THREE.BackSide});
+MAT.floor = new THREE.MeshStandardMaterial({color:0x252b30, roughness:0.97, metalness:0.02, vertexColors:true});
+MAT.dark = new THREE.MeshStandardMaterial({color:0x090c11, roughness:0.9});
+MAT.gold = new THREE.MeshStandardMaterial({color:0x9c793e, metalness:0.78, roughness:0.28});
+MAT.lantern = new THREE.MeshStandardMaterial({color:0xf3d99e, emissive:0xe2a54f, emissiveIntensity:1.8, roughness:0.25});
+MAT.ice = new THREE.MeshStandardMaterial({color:0xa9c9d8, roughness:0.18, metalness:0.12, transparent:true, opacity:0.82});
+MAT.path = new THREE.MeshStandardMaterial({color:0x777b7d, roughness:0.85, metalness:0.06});
+
+function makeMarbleTexture(){
+  const c=document.createElement('canvas'); c.width=1024; c.height=512; const ctx=c.getContext('2d');
+  ctx.fillStyle='#d4d5d1'; ctx.fillRect(0,0,c.width,c.height);
+  let seed=81; const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  for(let i=0;i<45000;i++){const x=rand()*1024,y=rand()*512,a=rand()*0.075;ctx.fillStyle=`rgba(65,73,78,${a})`;ctx.fillRect(x,y,1+rand()*2,1+rand()*2);}
+  for(let i=0;i<27;i++){
+    const y=rand()*512; ctx.beginPath(); ctx.moveTo(-30,y);
+    let yy=y; for(let x=0;x<=1080;x+=24){yy+=Math.sin(x*.012+i*1.7)*3+(rand()-.5)*5;ctx.lineTo(x,yy);}
+    ctx.strokeStyle=`rgba(92,103,108,${0.08+rand()*.13})`;ctx.lineWidth=1+rand()*2;ctx.stroke();
+  }
+  const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;
+}
+
+// deterministic smooth noise helpers
+function hash(x,z){let n=Math.sin(x*127.1+z*311.7+18.17)*43758.5453;return n-Math.floor(n);}
+function noise2(x,z){const ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz;const u=fx*fx*(3-2*fx),v=fz*fz*(3-2*fz);const a=hash(ix,iz),b=hash(ix+1,iz),c=hash(ix,iz+1),d=hash(ix+1,iz+1);return THREE.MathUtils.lerp(THREE.MathUtils.lerp(a,b,u),THREE.MathUtils.lerp(c,d,u),v)*2-1;}
+function fbm(x,z){return noise2(x,z)*.55+noise2(x*2.4,z*2.4)*.27+noise2(x*5.7,z*5.7)*.13+noise2(x*12,z*12)*.05;}
+
+// FARTHEN DÛR: [LIVRO] enorme cratera vulcânica com abertura muito alta.
+// [INTERPRETAÇÃO] raio e perfil matemático da parede para permitir navegação.
+function buildCraterWall(){
+  const radial=128, vertical=96, bottomR=8200, topR=410, height=20000;
+  const positions=[], colors=[], uvs=[], indices=[];
+  for(let j=0;j<=vertical;j++){
+    const v=j/vertical, y=80+height*v;
+    const r=bottomR*(1-v)+topR*v + Math.sin(v*Math.PI*3)*170;
+    for(let i=0;i<=radial;i++){
+      const a=i/radial*Math.PI*2;
+      const n=fbm(Math.cos(a)*7+v*5,Math.sin(a)*7-v*4);
+      const rr=r+n*(45+v*120)+Math.sin(a*13+v*8)*32;
+      const yy=y+n*18;
+      positions.push(Math.cos(a)*rr,yy,Math.sin(a)*rr); uvs.push(i/radial*8,v*5);
+      const shade=THREE.MathUtils.clamp(.48+n*.12-v*.18,0.12,.72);
+      colors.push(shade*.77,shade*.84,shade*.91);
+    }
+  }
+  for(let j=0;j<vertical;j++)for(let i=0;i<radial;i++){const a=j*(radial+1)+i,b=a+radial+1;indices.push(a,b,a+1,b,b+1,a+1);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();
+  const wall=new THREE.Mesh(g,MAT.rock);wall.receiveShadow=true;scene.add(wall);
+  // irregular ribs and ledges on the cavern wall, deliberately restrained
+  const ledgeMat=new THREE.MeshStandardMaterial({color:0x3c444b,roughness:1});
+  for(let k=0;k<46;k++){
+    const a=k/46*Math.PI*2, y=800+(k%7)*1350, v=(y-80)/height, r=bottomR*(1-v)+topR*v;
+    const length=240+hash(k,9)*420;
+    const geo=new THREE.BoxGeometry(length,18+hash(k,2)*35,38);
+    const mesh=new THREE.Mesh(geo,ledgeMat);mesh.position.set(Math.cos(a)*(r-18),y,Math.sin(a)*(r-18));mesh.rotation.y=-a;mesh.rotation.z=(hash(k,4)-.5)*.08;scene.add(mesh);
+  }
+}
+buildCraterWall();
+
+// Ground: [INTERPRETAÇÃO] rocky basin floor, gently irregular at kilometre scale.
+function buildGround(){
+  const size=16400, seg=180, g=new THREE.PlaneGeometry(size,size,seg,seg);g.rotateX(-Math.PI/2);
+  const p=g.attributes.position, colors=[];
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),z=p.getZ(i);const n=fbm(x*.00065,z*.00065);
+    p.setY(i,n*14+Math.sin(x*.0005)*4+Math.cos(z*.0004)*4);
+    const patch=fbm(x*.0015+8,z*.0015-4);const base=.18+patch*.045;
+    colors.push(base*.95,base,base*1.05);
+  }
+  g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();
+  const ground=new THREE.Mesh(g,MAT.floor);ground.position.y=-8;ground.receiveShadow=true;scene.add(ground);
+}
+buildGround();
+
+// TRONJHEIM: [LIVRO] marble city-mountain, over one mile high.
+// [DERIVADO] height = 1,609 m (1 mile). Outer footprint is shown as an
+// approximate 3.5 km diameter envelope for this first-stage spatial model.
+// [INTERPRETAÇÃO] exact cone profile, subtle fluting, detailed window layout and footprint diameter. The book gives the height as slightly over a mile, but this version does not treat the base diameter as a confirmed measurement (3.52 km is only a provisional scene scale).
+const CITY={height:1660, radius:1760, topRadius:155};
+function cityRadius(t){return (CITY.radius-CITY.topRadius)*Math.pow(1-t,.88)+CITY.topRadius;}
+function buildCity(){
+  const radial=192, vertical=112, positions=[],uvs=[],indices=[];
+  for(let j=0;j<=vertical;j++){
+    const t=j/vertical,y=4+CITY.height*t,r=cityRadius(t);
+    for(let i=0;i<=radial;i++){
+      const a=i/radial*Math.PI*2;
+      // very subtle sculpted surface, not a sharp polygonal cone
+      const flute=Math.sin(a*24+Math.sin(t*8))*7 + Math.sin(a*48+t*2)*2.2;
+      const swell=Math.sin(t*Math.PI*7)*8;
+      const rr=r+flute+swell;
+      positions.push(Math.cos(a)*rr,y,Math.sin(a)*rr);uvs.push(i/radial*3,j/vertical*2.5);
+    }
+  }
+  for(let j=0;j<vertical;j++)for(let i=0;i<radial;i++){const a=j*(radial+1)+i,b=a+radial+1;indices.push(a,b,a+1,a+1,b,b+1);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();
+  const body=new THREE.Mesh(g,MAT.marble);body.castShadow=true;body.receiveShadow=true;scene.add(body);
+  // Base ring: restrained architectural footing rather than stacked blocks.
+  const base=new THREE.Mesh(new THREE.TorusGeometry(CITY.radius*.985,13,8,240),MAT.marbleLight);base.rotation.x=Math.PI/2;base.position.y=18;scene.add(base);
+  // Fine horizontal carved bands; subtle to preserve the single mountain mass.
+  for(let n=1;n<=8;n++){
+    const t=n/10, y=t*CITY.height, r=cityRadius(t)+3;
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,2.3,5,192),MAT.marbleLight);ring.rotation.x=Math.PI/2;ring.position.y=y;scene.add(ring);
+  }
+  buildFacadeWindows(); buildMainGate(); buildPath(); buildOuterLanterns();
+}
+function buildFacadeWindows(){
+  const windowGeo=new THREE.SphereGeometry(1,8,6);
+  const windowMat=new THREE.MeshStandardMaterial({color:0x343b43,roughness:.48,emissive:0x4a3824,emissiveIntensity:.26});
+  const frameMat=new THREE.MeshStandardMaterial({color:0xb39b73,metalness:.55,roughness:.42});
+  const windows=new THREE.InstancedMesh(windowGeo,windowMat,900);const frames=new THREE.InstancedMesh(new THREE.TorusGeometry(1,0.11,5,12),frameMat,900);
+  const dummy=new THREE.Object3D();let n=0;
+  for(let row=0;row<13;row++){
+    const t=.08+row*.061, y=t*CITY.height, r=cityRadius(t)+2;
+    const count=Math.max(12,Math.floor(2*Math.PI*r/125));
+    for(let i=0;i<count && n<900;i++){
+      const a=i/count*Math.PI*2+(row%2)*.035;
+      const x=Math.cos(a)*r,z=Math.sin(a)*r;
+      dummy.position.set(x,y,z);dummy.rotation.set(0,-a,0);dummy.scale.set(5.2,9.5,1.6);dummy.updateMatrix();windows.setMatrixAt(n,dummy.matrix);
+      dummy.position.set(x,y,z);dummy.rotation.set(0,Math.PI/2-a,0);dummy.scale.set(6.8,10.8,1);dummy.updateMatrix();frames.setMatrixAt(n,dummy.matrix);n++;
+    }
+  }
+  windows.count=n;frames.count=n;windows.instanceMatrix.needsUpdate=true;frames.instanceMatrix.needsUpdate=true;scene.add(windows,frames);
+}
+function buildMainGate(){
+  // [LIVRO] an immense entrance corridor with great doors and carved stonework.
+  // [INTERPRETAÇÃO] location at the eastern foot of the city and exact dimensions.
+  const x=cityRadius(76/CITY.height)+18, y=76, z=0;
+  const portalMat=MAT.dark;
+  const tunnel=new THREE.Mesh(new THREE.BoxGeometry(150,138,188),portalMat);tunnel.position.set(x-68,y,z);scene.add(tunnel);
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(76,8,12,80,Math.PI),MAT.marbleLight);arch.position.set(x,y,z);arch.rotation.z=Math.PI/2;arch.rotation.y=Math.PI/2;scene.add(arch);
+  const jambGeo=new THREE.BoxGeometry(18,150,20);
+  for(const s of [-1,1]){const jamb=new THREE.Mesh(jambGeo,MAT.marbleLight);jamb.position.set(x+8,y,z+s*82);scene.add(jamb);}
+  // giant dark double door planes
+  const doorMat=new THREE.MeshStandardMaterial({color:0x241d18,roughness:.72,metalness:.18});
+  for(const s of [-1,1]){const d=new THREE.Mesh(new THREE.BoxGeometry(4,118,78),doorMat);d.position.set(x+4,y,z+s*40);scene.add(d);}
+  // Golden guardian sculptures — [LIVRO]; stylized massing, not exact anatomy.
+  const goldBody=new THREE.MeshStandardMaterial({color:0x9d783d,metalness:.82,roughness:.3});
+  for(const s of [-1,1]){
+    const gx=x+54, gz=s*118;
+    const body=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),goldBody);body.scale.set(17,34,20);body.position.set(gx,y+29,gz);scene.add(body);
+    const head=new THREE.Mesh(new THREE.SphereGeometry(1,12,10),goldBody);head.scale.set(13,17,13);head.position.set(gx+11,y+62,gz);scene.add(head);
+    const wing=new THREE.Mesh(new THREE.ConeGeometry(19,60,7),goldBody);wing.position.set(gx-7,y+64,gz+s*15);wing.rotation.z=-.45;wing.rotation.x=s*.18;scene.add(wing);
+    const plinth=new THREE.Mesh(new THREE.BoxGeometry(38,12,38),MAT.marbleLight);plinth.position.set(gx,y-12,gz);scene.add(plinth);
+  }
+}
+function buildPath(){
+  // [LIVRO] broad cobbled approach from the crater-wall tunnel toward Tronjheim.
+  // [INTERPRETAÇÃO] width, exact paving pattern and path length.
+  const start=7800,end=cityRadius(0)+12,width=44, length=start-end;
+  const bed=new THREE.Mesh(new THREE.BoxGeometry(length,2,width+14),MAT.path);bed.position.set((start+end)/2,-1,0);scene.add(bed);
+  const geo=new THREE.BoxGeometry(5,1.2,5.8);const mat=new THREE.MeshStandardMaterial({color:0x929393,roughness:.86});
+  const total=1500, stones=new THREE.InstancedMesh(geo,mat,total),dummy=new THREE.Object3D();
+  for(let i=0;i<total;i++){
+    const x=start-Math.random()*length,z=(Math.random()-.5)*width;
+    dummy.position.set(x,0.2+Math.random()*.18,z);dummy.rotation.set((Math.random()-.5)*.08,Math.random()*Math.PI,(Math.random()-.5)*.08);dummy.scale.set(.55+Math.random()*.8,.65+Math.random()*.45,.55+Math.random()*.8);dummy.updateMatrix();stones.setMatrixAt(i,dummy.matrix);
+  }
+  stones.instanceMatrix.needsUpdate=true;scene.add(stones);
+  // Low lantern markers along the route; [INTERPRETAÇÃO] regularity and count.
+  const postGeo=new THREE.CylinderGeometry(1.3,2,8,8),lampGeo=new THREE.SphereGeometry(2.5,8,8);
+  for(let x=start-80;x>end+100;x-=250){for(const s of [-1,1]){
+    const z=s*(width/2+12);const post=new THREE.Mesh(postGeo,MAT.gold);post.position.set(x,4,z);scene.add(post);
+    const lamp=new THREE.Mesh(lampGeo,MAT.lantern);lamp.position.set(x,8.5,z);scene.add(lamp);
+  }}
+}
+function buildOuterLanterns(){
+  // Distant points of light in the facade; not all upper levels are assumed occupied.
+  const g=new THREE.SphereGeometry(3.5,8,6),m=new THREE.MeshBasicMaterial({color:0xf0bd70});
+  const inst=new THREE.InstancedMesh(g,m,230),o=new THREE.Object3D();let n=0;
+  for(let row=0;row<10;row++){const t=.1+row*.075,r=cityRadius(t)+4,y=t*CITY.height;const count=Math.floor(2*Math.PI*r/175);
+    for(let i=0;i<count&&n<230;i+=2){const a=i/count*Math.PI*2;o.position.set(Math.cos(a)*r,y,Math.sin(a)*r);o.scale.setScalar(.6+hash(i,row)*.7);o.updateMatrix();inst.setMatrixAt(n++,o.matrix);}}
+  inst.count=n;inst.instanceMatrix.needsUpdate=true;scene.add(inst);
+}
+buildCity();
+
+// EASTERN TUNNEL THROUGH CRATER WALL: [LIVRO] the entry tunnel opens into the
+// crater. Its precise location and facade dimensions are treated as interpretation.
+function buildCraterTunnel(){
+  const x=8060,z=0,y=80;
+  const mouth=new THREE.Mesh(new THREE.BoxGeometry(240,190,300),MAT.dark);mouth.position.set(x,y,z);scene.add(mouth);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(125,12,10,64),new THREE.MeshStandardMaterial({color:0x59636b,roughness:.92}));rim.position.set(x-100,y,z);rim.rotation.y=Math.PI/2;scene.add(rim);
+  const lip=new THREE.Mesh(new THREE.BoxGeometry(80,12,330),new THREE.MeshStandardMaterial({color:0x424a51,roughness:1}));lip.position.set(x-90, y-92,z);scene.add(lip);
+}
+buildCraterTunnel();
+
+// STALACTITES / ICE: [LIVRO] gigantic hanging icicles. Exact placements are not
+// specified; scale and distribution are visual interpretations for navigation.
+function buildIce(){
+  const count=30, geo=new THREE.ConeGeometry(1,1,7,2), inst=new THREE.InstancedMesh(geo,MAT.ice,count),o=new THREE.Object3D();
+  for(let i=0;i<count;i++){
+    const a=i/count*Math.PI*2, r=2600+(i%6)*850, top=10800+(i%5)*1450, h=320+(hash(i,1)*780),rad=22+hash(i,3)*34;
+    o.position.set(Math.cos(a)*r,top-h/2,Math.sin(a)*r);o.rotation.set((hash(i,2)-.5)*.1,0,(hash(i,4)-.5)*.1);o.scale.set(rad,h,rad);o.updateMatrix();inst.setMatrixAt(i,o.matrix);
+  }
+  inst.instanceMatrix.needsUpdate=true;scene.add(inst);
+}
+buildIce();
+
+// Distant rock outcrops and talus, used to break the flatness of the basin.
+function buildBoulders(){
+  const g=new THREE.IcosahedronGeometry(1,1),m=new THREE.MeshStandardMaterial({color:0x3b4248,roughness:1});
+  const inst=new THREE.InstancedMesh(g,m,210),o=new THREE.Object3D();
+  for(let i=0;i<210;i++){
+    const a=hash(i,11)*Math.PI*2,r=2400+hash(i,12)*5600,s=12+hash(i,13)*85;
+    o.position.set(Math.cos(a)*r,s*.28-3,Math.sin(a)*r);o.rotation.set(hash(i,15),hash(i,16),hash(i,17));o.scale.set(s*1.7,s*.7,s);o.updateMatrix();inst.setMatrixAt(i,o.matrix);
+  }
+  inst.instanceMatrix.needsUpdate=true;scene.add(inst);
+}
+buildBoulders();
+
+// PLAYER / NAVIGATION
+let yaw=Math.PI/2, pitch=0, locked=false, fly=false, overview=false, started=false;
+const keys={}; const velocity=new THREE.Vector3();
+const player={height:2.0, speed:145, flySpeed:480};
+function setLookFromCamera(){yaw=camera.rotation.y;pitch=camera.rotation.x;}
+function requestLock(){renderer.domElement.requestPointerLock?.();}
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement;if(locked)started=true;document.getElementById('start').style.display=(locked||started)?'none':'grid';});
+renderer.domElement.addEventListener('click',()=>{if(!overview)requestLock();});
+document.getElementById('enter').addEventListener('click',()=>requestLock());
+document.getElementById('lockBtn').addEventListener('click',()=>requestLock());
+document.addEventListener('mousemove',e=>{if(!locked||overview)return;yaw-=e.movementX*.0021;pitch-=e.movementY*.0019;pitch=Math.max(-Math.PI/2+.02,Math.min(Math.PI/2-.02,pitch));camera.rotation.set(pitch,yaw,0,'YXZ');});
+document.addEventListener('keydown',e=>{
+  keys[e.code]=true;
+  if(e.code==='KeyF'){fly=!fly;document.getElementById('modeLabel').textContent='Modo: '+(fly?'voo livre':'exploração');}
+  if(e.code==='KeyV'){toggleOverview();}
+  if(e.code==='Escape')keys[e.code]=false;
+});
+document.addEventListener('keyup',e=>keys[e.code]=false);
+function toggleOverview(){
+  overview=!overview;
+  const hint=document.getElementById('hint');hint.classList.toggle('show',overview);
+  if(overview){document.exitPointerLock?.();camera.position.set(0,3200,6100);camera.lookAt(0,550,0);camera.rotation.order='YXZ';setLookFromCamera();document.getElementById('modeLabel').textContent='Modo: vista de inspeção';}
+  else{camera.position.set(5300,2,280);yaw=Math.PI/2;pitch=0;camera.rotation.set(0,yaw,0,'YXZ');document.getElementById('modeLabel').textContent='Modo: exploração';}
+}
+document.getElementById('overviewBtn').addEventListener('click',toggleOverview);
+
+const clock=new THREE.Clock();
+function updatePlayer(dt){
+  if(overview)return;
+  const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+  const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+  const dir=new THREE.Vector3();
+  if(keys.KeyW||keys.ArrowUp)dir.add(forward);if(keys.KeyS||keys.ArrowDown)dir.sub(forward);
+  if(keys.KeyD||keys.ArrowRight)dir.add(right);if(keys.KeyA||keys.ArrowLeft)dir.sub(right);
+  const fast=keys.ShiftLeft||keys.ShiftRight;
+  const speed=(fly?player.flySpeed:player.speed)*(fast?3.2:1);
+  if(dir.lengthSq()>0){dir.normalize();camera.position.addScaledVector(dir,speed*dt);}
+  if(fly){if(keys.Space)camera.position.y+=speed*dt;if(keys.ControlLeft||keys.ControlRight)camera.position.y-=speed*dt;}
+  else camera.position.y=2.0;
+  camera.position.x=THREE.MathUtils.clamp(camera.position.x,-8250,8250);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-8250,8250);camera.position.y=THREE.MathUtils.clamp(camera.position.y,1.7,19500);
+  document.getElementById('cx').textContent=camera.position.x.toFixed(1)+' m';document.getElementById('cy').textContent=camera.position.y.toFixed(1)+' m';document.getElementById('cz').textContent=camera.position.z.toFixed(1)+' m';
+}
+
+// simple starless cavern atmosphere: fine floating dust, deliberately subtle
+function buildDust(){
+  const n=1300, arr=new Float32Array(n*3);for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,r=900+Math.random()*6600;arr[i*3]=Math.cos(a)*r;arr[i*3+1]=100+Math.random()*4800;arr[i*3+2]=Math.sin(a)*r;}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(arr,3));const m=new THREE.PointsMaterial({color:0xc4cbd0,size:2.5,transparent:true,opacity:.18,sizeAttenuation:true});scene.add(new THREE.Points(g,m));
+}
+buildDust();
+
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);updatePlayer(dt);renderer.render(scene,camera);}
+animate();
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+window.addEventListener('contextmenu',e=>e.preventDefault());
+</script>
+</body>
+</html>
