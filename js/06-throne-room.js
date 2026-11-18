@@ -37,10 +37,19 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
   const nosings = new THREE.InstancedMesh(new THREE.BoxGeometry(width,.08,.13),edge,renderedSteps);
   const dummy = new THREE.Object3D();
   const sampleCount = Math.max(220,steps*2);
-  const samples = [];
+  const samples = [],stepSamples=[];
   for(let i=0;i<=sampleCount;i++){
     const t=i/sampleCount,p=curve.getPointAt(t);
     samples.push({t,x:p.x,z:p.z});
+  }
+  for(let i=0;i<steps;i++){
+    const t=(i+.5)/steps,p=curve.getPointAt(t),tangent=curve.getTangentAt(t);
+    stepSamples.push({
+      t,x:p.x,z:p.z,
+      floor:topY-(i+1)*rise,
+      tangentX:tangent.x,tangentZ:tangent.z,
+      depth:treadDepth
+    });
   }
   for(let i=0;i<steps;i++){
     if(i>=renderedSteps)continue;
@@ -106,33 +115,43 @@ function buildThroneStairPath(name, controlPoints, width, topY, bottomY, stepRis
       scene.add(new THREE.Mesh(new THREE.TubeGeometry(railCurve,Math.max(80,steps*2),.13,7,false),railMaterial));
     }
   }
-  THRONE_ROOM_PATHS.push({name,curve,width,steps,rise,topY,bottomY,samples});
+  THRONE_ROOM_PATHS.push({name,curve,width,steps,rise,topY,bottomY,samples,stepSamples});
   return {curve,steps,rise,length};
 }
 
 function throneRoomStairFloorAtXZ(x,z,referenceFeetY=null) {
   let best=null,bestScore=Infinity;
   for(const path of THRONE_ROOM_PATHS){
-    for(const sample of path.samples){
-      const d=Math.hypot(x-sample.x,z-sample.z);
-      if(d>path.width*.5+.28)continue;
-      const index=THREE.MathUtils.clamp(Math.floor(sample.t*path.steps),0,path.steps-1);
-      const floor=path.topY-(index+1)*path.rise;
-      // At the stair junction, resolve by horizontal and vertical proximity.
-      // This avoids snapping back to a different flight at the same X/Z.
-      const verticalError=referenceFeetY===null?0:Math.abs(floor-referenceFeetY);
-      const score=d+verticalError*2.4;
-      if(score<bestScore){bestScore=score;best={floor,verticalError};}
+    for(const step of path.stepSamples){
+      const dx=x-step.x,dz=z-step.z;
+      const tangentLength=Math.hypot(step.tangentX,step.tangentZ)||1;
+      const tx=step.tangentX/tangentLength,tz=step.tangentZ/tangentLength;
+      const lateral=Math.abs(dx*(-tz)+dz*tx);
+      const along=Math.abs(dx*tx+dz*tz);
+      if(lateral>path.width/2+.28 || along>step.depth/2+.48)continue;
+      const verticalError=referenceFeetY===null?0:Math.abs(step.floor-referenceFeetY);
+      const score=(lateral/path.width)**2+(along/step.depth)**2+verticalError*2.6;
+      if(score<bestScore){bestScore=score;best={floor:step.floor,verticalError};}
     }
   }
   if(!best)return null;
-  if(referenceFeetY!==null && best.verticalError>2.35)return null;
+  if(referenceFeetY!==null && best.verticalError>Math.max(.72,THRONE_ROOM_PATHS[0]?.rise*3.5||.72))return null;
   return best.floor;
+}
+function throneAccessVestibuleContains(x,z) {
+  const r=Math.hypot(x,z),a=Math.atan2(z,x);
+  if(r<CENTRAL_WALL_RADIUS-4.8 || r>CENTRAL_WALL_RADIUS+3.2)return false;
+  for(const side of [-1,1]){
+    const portalAngle=Math.PI-side*.31;
+    const delta=Math.abs(Math.atan2(Math.sin(a-portalAngle),Math.cos(a-portalAngle)));
+    if(delta*r<8.6)return true;
+  }
+  return false;
 }
 function throneRoomWalkableContains(x,z) {
   const inLanding=x>=THRONE_ROOM_DOOR_X-4.5 && x<=THRONE_ROOM_DOOR_X+7.0 && Math.abs(z)<=17.2;
   const inJunction=x>=-180 && x<=-160 && Math.abs(z)<=8.2;
-  if(inLanding||inJunction)return true;
+  if(inLanding||inJunction||throneAccessVestibuleContains(x,z))return true;
   if(x>=THRONE_ROOM_MIN_X && x<=THRONE_ROOM_MAX_X &&
      Math.abs(z)<=THRONE_ROOM_HALF_WIDTH-.8)return true;
   return throneRoomStairFloorAtXZ(x,z)!==null;
@@ -142,6 +161,10 @@ function throneRoomFloorAtXZ(x,z,referenceFeetY=null) {
   const junctionFloor=ENTRY_HALL_FLOOR-7.2;
   if(inJunction){
     if(referenceFeetY===null || Math.abs(referenceFeetY-junctionFloor)<=2.25)return junctionFloor;
+    return null;
+  }
+  if(throneAccessVestibuleContains(x,z)){
+    if(referenceFeetY===null || Math.abs(referenceFeetY-ENTRY_HALL_FLOOR)<=2.25)return ENTRY_HALL_FLOOR;
     return null;
   }
   const stair=throneRoomStairFloorAtXZ(x,z,referenceFeetY);
@@ -189,22 +212,40 @@ function buildThroneAccess() {
   doorLanding.position.set(-252.35,THRONE_ROOM_FLOOR-.36,0);
   doorLanding.receiveShadow=true;scene.add(doorLanding);
 
-  // Tall freestanding portals mark the two openings at the upper landing.
+  // The two entrances now sit exactly in the central chamber's west-wall
+  // apertures. Each portal is radial to the curved wall, not a freestanding
+  // frame several metres inside the masonry.
   const jasper=new THREE.MeshStandardMaterial({color:0x712a34,roughness:.4,metalness:.04});
   const pale=new THREE.MeshStandardMaterial({color:0xdedbd2,roughness:.35});
+  const bronze=new THREE.MeshStandardMaterial({color:0x98794b,metalness:.66,roughness:.3});
   for(const side of [-1,1]){
-    const startX=-137,startZ=side*42;
-    const frame=new THREE.Group();frame.position.set(startX,top,startZ);
-    const left=new THREE.Mesh(new THREE.BoxGeometry(1.7,18,1.9),jasper);
-    left.position.set(0,9,-4.1);frame.add(left);
-    const right=left.clone();right.position.z=4.1;frame.add(right);
-    const arch=new THREE.Mesh(new THREE.TorusGeometry(4.1,.55,10,36,Math.PI),pale);
-    arch.rotation.y=Math.PI/2;arch.position.set(0,12.0,0);frame.add(arch);
-    const lintel=new THREE.Mesh(new THREE.BoxGeometry(2.0,2.1,10.0),pale);
-    lintel.position.y=18;frame.add(lintel);
-    const crownLine=new THREE.Mesh(new THREE.BoxGeometry(2.2,.34,8.4),jasper);
-    crownLine.position.set(0,16.2,0);frame.add(crownLine);
+    const angle=Math.PI-side*.31;
+    const radius=CENTRAL_WALL_RADIUS-.28;
+    const px=Math.cos(angle)*radius,pz=Math.sin(angle)*radius;
+    const frame=new THREE.Group();
+    frame.position.set(px,top,pz);
+    frame.rotation.y=-angle;
+    for(const tangent of [-1,1]){
+      const jamb=new THREE.Mesh(new THREE.BoxGeometry(2.1,19,2.2),jasper);
+      jamb.position.set(0,9.5,tangent*5.25);jamb.castShadow=true;jamb.receiveShadow=true;frame.add(jamb);
+      const capital=new THREE.Mesh(new THREE.BoxGeometry(2.7,1.1,2.8),pale);
+      capital.position.set(0,18.7,tangent*5.25);frame.add(capital);
+      const bronzeInlay=new THREE.Mesh(new THREE.BoxGeometry(2.16,8,.12),bronze);
+      bronzeInlay.position.set(1.12,8.0,tangent*5.25);frame.add(bronzeInlay);
+    }
+    const arch=new THREE.Mesh(new THREE.TorusGeometry(5.15,.72,12,56,Math.PI),pale);
+    arch.rotation.y=Math.PI/2;arch.position.set(0,13.1,0);arch.castShadow=true;frame.add(arch);
+    const lintel=new THREE.Mesh(new THREE.BoxGeometry(2.2,2.0,11.2),pale);
+    lintel.position.y=19.2;frame.add(lintel);
+    const keystone=new THREE.Mesh(new THREE.BoxGeometry(2.25,2.1,1.6),bronze);
+    keystone.position.set(0,18.4,0);frame.add(keystone);
     scene.add(frame);
+
+    // A stone threshold bridges the chamber floor to the first stair tread.
+    const threshold=new THREE.Mesh(new THREE.BoxGeometry(5.2,.34,12.2),pale);
+    threshold.position.set(Math.cos(angle)*(radius-1.55),top-.13,
+                           Math.sin(angle)*(radius-1.55));
+    threshold.rotation.y=-angle;threshold.receiveShadow=true;scene.add(threshold);
   }
 }
 
