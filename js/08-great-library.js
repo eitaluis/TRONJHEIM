@@ -331,7 +331,15 @@ function buildBranchingColonnades() {
   const count=12;
   for(let i=0;i<count;i++){
     const a=i/count*Math.PI*2,r=14.1;
+    // Leave the three stair-and-bridge axes completely open.
+    if(LIBRARY_STAIRS.some(stair=>libraryAngleDistance(a,stair.startAngle)<.34))continue;
     const x=LIBRARY_CENTER_X+Math.cos(a)*r,z=LIBRARY_CENTER_Z+Math.sin(a)*r;
+    for(let level=0;level<=LIBRARY_LEVELS;level++){
+      LIBRARY_SHELF_BLOCKERS.push({
+        x,z,angle:a,radialHalf:1.35,tangentHalf:1.35,
+        floorY:LIBRARY_FLOOR+level*LIBRARY_LEVEL_HEIGHT
+      });
+    }
     const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.66,.94,20.8,14),marble);
     trunk.position.set(x,LIBRARY_FLOOR+10.4,z);trunk.castShadow=true;scene.add(trunk);
     const base=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.55,.65,14),darkMarble);
@@ -411,12 +419,17 @@ function buildLibraryReadingFurniture() {
     const x=LIBRARY_CENTER_X+Math.cos(a)*r,z=LIBRARY_CENTER_Z+Math.sin(a)*r;
     const tableBase=new THREE.Mesh(new THREE.CylinderGeometry(.38,.95,1.0,12),stone);
     tableBase.position.set(x,LIBRARY_FLOOR+.5,z);scene.add(tableBase);
+    LIBRARY_SHELF_BLOCKERS.push({x,z,angle:a,radialHalf:1.0,tangentHalf:.95,floorY:LIBRARY_FLOOR});
     const top=new THREE.Mesh(new THREE.BoxGeometry(1.75,.28,1.4),stone);
     top.position.set(x,LIBRARY_FLOOR+1.15,z);top.rotation.y=-a;scene.add(top);
     for(const side of [-1,1]){
       const bench=new THREE.Mesh(new THREE.BoxGeometry(.82,.6,2.2),dark);
       bench.position.set(x-Math.cos(a)*2.2,LIBRARY_FLOOR+.3,z-Math.sin(a)*2.2+side*1.5);
       bench.rotation.y=-a;scene.add(bench);
+      LIBRARY_SHELF_BLOCKERS.push({
+        x:bench.position.x,z:bench.position.z,angle:a,
+        radialHalf:1.25,tangentHalf:.55,floorY:LIBRARY_FLOOR
+      });
       const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.18,2.3),stone);
       seat.position.set(bench.position.x,LIBRARY_FLOOR+.68,bench.position.z);seat.rotation.y=-a;scene.add(seat);
     }
