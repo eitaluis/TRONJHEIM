@@ -93,7 +93,13 @@ const SIDE_CORRIDOR_LENGTH=390;
 const SIDE_CORRIDOR_HALF_WIDTH=17.8;
 let TRONJHEIM_GATE={facadeX:1760,doorX:1741.7,floorY:-8,hallEndX:120};
 let ENTRY_HALL_FLOOR=-8;
-function cityRadius(t){return (CITY.radius-CITY.topRadius)*Math.pow(1-t,.88)+CITY.topRadius;}
+function cityRadius(t){
+  const taper=(CITY.radius-CITY.topRadius)*Math.pow(1-t,.88)+CITY.topRadius;
+  // Broad, low-frequency stone strata interrupt the perfect mathematical cone.
+  // The relief fades at the foot and summit so the gate and Dragonhold remain aligned.
+  const relief=(Math.sin(t*Math.PI*6)*20+Math.sin(t*Math.PI*2.4)*7)*Math.sin(Math.PI*t);
+  return taper+relief;
+}
 function buildCity(){
   const radial=512, vertical=256, positions=[],uvs=[],indices=[];
   for(let j=0;j<=vertical;j++){
@@ -101,9 +107,8 @@ function buildCity(){
     for(let i=0;i<=radial;i++){
       const a=i/radial*Math.PI*2;
       // very subtle sculpted surface, not a sharp polygonal cone
-      const flute=Math.sin(a*16+Math.sin(t*8))*15 + Math.sin(a*33+t*2)*5.5;
-      const swell=Math.sin(t*Math.PI*6)*20 + Math.sin(t*Math.PI*2.4)*7;
-      const rr=r+flute+swell;
+      const flute=(Math.sin(a*16+Math.sin(t*8))*8 + Math.sin(a*33+t*2)*3.2)*Math.sin(Math.PI*t);
+      const rr=r+flute;
       positions.push(Math.cos(a)*rr,y,Math.sin(a)*rr);uvs.push(i/radial*3,j/vertical*2.5);
     }
   }
