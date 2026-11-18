@@ -248,12 +248,30 @@
     if(object.geometry)object.geometry=refineGeometry(object.geometry);
     if(Array.isArray(object.material))object.material.forEach(refineMaterial);
     else refineMaterial(object.material);
+
+    const materials=Array.isArray(object.material)?object.material:[object.material];
+    const opaque=materials.every(material=>material&&!material.transparent);
+    // Static, human-scale architecture casts contact shadows; the kilometer-
+    // scale crater shell and instanced debris remain receive-only for performance.
+    if(opaque){
+      object.receiveShadow=true;
+      if(!object.isInstancedMesh){
+        const geometry=object.geometry;
+        if(geometry&&!geometry.boundingSphere)geometry.computeBoundingSphere();
+        const radius=geometry?.boundingSphere?.radius??Infinity;
+        const scale=Math.max(object.scale.x,object.scale.y,object.scale.z);
+        if(radius*scale<95)object.castShadow=true;
+      }
+    }
   });
+  renderer.shadowMap.autoUpdate=false;
+  renderer.shadowMap.needsUpdate=true;
 
   globalThis.TRONJHEIM_VISUAL_PASS={
     materialMaps:3,
     bevelledBoxGeometry:geometryCache.size,
     refinedPrimitiveGeometry:smoothGeometryCache.size,
-    basinRockInstances:1510
+    basinRockInstances:1510,
+    staticContactShadows:true
   };
 })();
