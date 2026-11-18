@@ -17,14 +17,14 @@ const COUNCIL_ROOM_PASSAGE_END_X = -566;
 
 function councilRoomWalkableContains(x,z) {
   const elderPassage = x<=-519.5 && x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 && Math.abs(z)<=8.2;
-  const libraryPassage = x<=-613.5 && x>=-630.2 && Math.abs(z)<=7.2;
+  const libraryPassage = x<=-613.5 && x>=-630.2 && Math.abs(z)<=6.2;
   const r = Math.hypot(x-COUNCIL_ROOM_CENTER_X,z-COUNCIL_ROOM_CENTER_Z);
   const currentR = Math.hypot(jogador.pos.x-COUNCIL_ROOM_CENTER_X,jogador.pos.z-COUNCIL_ROOM_CENTER_Z);
   const alreadyInside = currentR<=COUNCIL_ROOM_RADIUS-.35;
   const enteringThroughEastDoor = jogador.pos.x<=-540 && jogador.pos.x>=COUNCIL_ROOM_PASSAGE_END_X-1.5 &&
     Math.abs(jogador.pos.z)<=8.2 && jogador.pos.x>COUNCIL_ROOM_CENTER_X;
   const enteringThroughWestDoor = jogador.pos.x<=-613.5 && jogador.pos.x>=-630.2 &&
-    Math.abs(jogador.pos.z)<=7.2 && jogador.pos.x<COUNCIL_ROOM_CENTER_X;
+    Math.abs(jogador.pos.z)<=6.2 && jogador.pos.x<COUNCIL_ROOM_CENTER_X;
   const chamber = r<=COUNCIL_ROOM_RADIUS-.35 && (alreadyInside||enteringThroughEastDoor||enteringThroughWestDoor);
   return elderPassage||libraryPassage||chamber;
 }
@@ -89,11 +89,11 @@ function buildCouncilRoomShell() {
   // The cylindrical wall has two genuine openings: east to the western
   // hall, and west to the Great Library. CylinderGeometry's XZ angle starts
   // on +Z, so the east/west openings are centered at PI/2 and 3PI/2.
-  const halfDoorAngle=.44;
+  const eastDoorHalfAngle=.44,westDoorHalfAngle=.30;
   const wallArcs=[
-    [0,Math.PI/2-halfDoorAngle],
-    [Math.PI/2+halfDoorAngle,Math.PI-2*halfDoorAngle],
-    [3*Math.PI/2+halfDoorAngle,Math.PI/2-halfDoorAngle]
+    [0,Math.PI/2-eastDoorHalfAngle],
+    [Math.PI/2+eastDoorHalfAngle,Math.PI-eastDoorHalfAngle-westDoorHalfAngle],
+    [3*Math.PI/2+westDoorHalfAngle,Math.PI/2-westDoorHalfAngle]
   ];
   for(const [startAngle,arcLength] of wallArcs){
     const wallGeo=new THREE.CylinderGeometry(
