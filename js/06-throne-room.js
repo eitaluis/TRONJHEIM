@@ -154,14 +154,20 @@ function buildGraniteThroneDoors() {
   const doorY=THRONE_ROOM_FLOOR+6.8;
   const frameX=THRONE_ROOM_DOOR_X;
   for(const side of [-1,1]){
+    // Each granite leaf is swung inward, leaving the entrance traversable.
+    const hinge=new THREE.Group();
+    hinge.position.set(frameX,doorY,side*7.85);
+    hinge.rotation.y=side*1.05;
     const leaf=new THREE.Mesh(new THREE.BoxGeometry(1.15,13.6,7.65),granite);
-    leaf.position.set(frameX,doorY,side*3.85);leaf.castShadow=true;leaf.receiveShadow=true;scene.add(leaf);
+    leaf.position.set(0,0,-side*3.825);
+    leaf.castShadow=true;leaf.receiveShadow=true;hinge.add(leaf);
     for(let i=0;i<4;i++){
       const groove=new THREE.Mesh(new THREE.BoxGeometry(.06,11.5,.09),darkGranite);
-      groove.position.set(frameX+.61,doorY-0.2,side*(1.1+i*1.55));scene.add(groove);
+      groove.position.set(.61,-.2,-side*(.9+i*1.55));hinge.add(groove);
     }
     const pivot=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,13.3,10),bronze);
-    pivot.position.set(frameX+.66,doorY,side*7.2);scene.add(pivot);
+    pivot.position.set(.66,0,0);hinge.add(pivot);
+    scene.add(hinge);
   }
   for(const side of [-1,1]){
     const jamb=new THREE.Mesh(new THREE.BoxGeometry(2.8,16.5,2.5),darkGranite);
@@ -363,7 +369,7 @@ function buildMonolithicThrone() {
   geometry.translate(0,0,-2.6);
   const throne=new THREE.Mesh(geometry,blackMarble);
   throne.rotation.y=Math.PI/2;
-  throne.position.set(THRONE_ROOM_MIN_X+6.2,THRONE_ROOM_FLOOR+1.05,0);
+  throne.position.set(THRONE_ROOM_MIN_X+8.5,THRONE_ROOM_FLOOR+1.05,0);
   throne.castShadow=true;throne.receiveShadow=true;scene.add(throne);
 }
 
