@@ -30,8 +30,8 @@ const pontosTP=[
   {id:"isidar",nome:"Isidar Mithrim — Star Rose",x:0,z:0,yaw:0,pitch:-.42,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"dragonhold",nome:"Dragonhold",x:0,z:-5.5,yaw:0,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
   {id:"saphiraCave",nome:"Caverna de Saphira",x:Math.cos(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),z:Math.sin(4.72)*(DRAGONHOLD_OUTER_RADIUS+7),yaw:Math.PI,pitch:0,levelY:VOL_TURIN_TOP_Y+1.7},
-  {id:"throneAccess",nome:"Escadaria do trono — norte",x:-137,z:-42,yaw:2.034,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
-  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-137,z:42,yaw:1.107,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccess",nome:"Escadaria do trono — norte",x:-124,z:-48,yaw:2.41,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"throneAccessSouth",nome:"Escadaria do trono — sul",x:-124,z:48,yaw:.73,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
   {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -137,7 +137,7 @@ document.getElementById("overviewBtn").addEventListener("click",alternarInspecao
 function dentroDaArquitetura(x,z){
   const r=Math.hypot(x,z);
   const inChamber=r<=CENTRAL_WALL_RADIUS-2.2;
-  const inEastHall=x>=TRONJHEIM_GATE.hallEndX-2 && x<=TRONJHEIM_GATE.doorX-4 && Math.abs(z)<=38.4;
+  const inEastHall=x>=TRONJHEIM_GATE.hallEndX-2 && x<=TRONJHEIM_GATE.doorX-4 && Math.abs(z)<=38.2;
   const inGateThroat=x>=TRONJHEIM_GATE.doorX-6 && x<=CITY.radius+3 && Math.abs(z)<=11.5;
   const branchStart=SIDE_CORRIDOR_START,branchEnd=SIDE_CORRIDOR_START+SIDE_CORRIDOR_LENGTH-2;
   const half=SIDE_CORRIDOR_HALF_WIDTH;
@@ -189,7 +189,7 @@ function podeOcuparXZ(x,z){
   // Below the central chamber, walking is permitted only on the modeled
   // descending stair treads, the lower landing, or the throne-room floor.
   if(feetY<ENTRY_HALL_FLOOR-2.5){
-    const throneFloor=throneRoomFloorAtXZ(x,z);
+    const throneFloor=throneRoomFloorAtXZ(x,z,feetY);
     if(throneFloor===null || Math.abs(throneFloor-feetY)>2.25)return false;
   }
   return true;
@@ -202,7 +202,7 @@ function alturaPisoNaPosicao(x,z){
   if(libraryFloor!==null)return libraryFloor;
   const councilFloor=councilRoomFloorAtXZ(x,z);
   if(councilFloor!==null)return councilFloor;
-  const throneFloor=throneRoomFloorAtXZ(x,z);
+  const throneFloor=throneRoomFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
   if(throneFloor!==null)return throneFloor;
   const volFloor=volTurinFloorAtXZ(x,z);
   if(volFloor!==null)return volFloor;
@@ -230,7 +230,7 @@ function atualizarJogador(dt){
   const correndo=teclas.ShiftLeft||teclas.ShiftRight;
   // Slightly quicker exploration speeds, while preserving controllable movement.
   // Free-flight is also restrained so inspection of vertical spaces stays controllable.
-  const velocidade=correndo?52.5:18.0;
+  const velocidade=vooLivre?230:(correndo?145:80);
   jogador.vel.x=THREE.MathUtils.damp(jogador.vel.x,direcao.x*velocidade,vooLivre?12:24,dt);
   jogador.vel.z=THREE.MathUtils.damp(jogador.vel.z,direcao.z*velocidade,vooLivre?12:24,dt);
   // Swept substeps prevent the high requested speed from tunnelling through walls.
