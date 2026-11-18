@@ -69,9 +69,6 @@ function buildDepthTunnel(xStart,xEnd,yStart,yEnd,width=25,height=15){
 
   // Raised stone ribs follow the arch profile, rather than reading as square beams.
   const ribMaterial=new THREE.MeshStandardMaterial({color:0x8a7c69,roughness:.92});
-  const archProfile=profile.slice(0,profile.length-1).map(p=>
-    new THREE.Vector3(midX,midY+p.y,p.z)
-  );
   for(let x=xStart-18;x>xEnd+8;x-=32){
     const t=(xStart-x)/length,baseY=THREE.MathUtils.lerp(yStart,yEnd,t);
     const points=profile.map(p=>new THREE.Vector3(x,baseY+p.y,p.z));
