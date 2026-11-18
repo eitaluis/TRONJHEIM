@@ -35,6 +35,9 @@ const pontosTP=[
   {id:"throneRoom",nome:"Sala do Trono",x:-343,z:0,yaw:Math.PI/2,pitch:0,levelY:THRONE_ROOM_FLOOR+1.7},
   {id:"councilEntrance",nome:"Sala do Conselho — acesso oeste",x:-526,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"councilRoom",nome:"Sala do Conselho",x:-586,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
+  {id:"libraryEntrance",nome:"Biblioteca — entrada",x:-621.5,z:0,yaw:Math.PI/2,pitch:0,levelY:LIBRARY_FLOOR+1.7},
+  {id:"greatLibrary",nome:"Grande Biblioteca",x:LIBRARY_CENTER_X,z:0,yaw:Math.PI,pitch:0,levelY:LIBRARY_FLOOR+1.7},
+  {id:"libraryGallery",nome:"Biblioteca — galerias superiores",x:LIBRARY_CENTER_X+17,z:12, yaw:Math.PI,pitch:0,levelY:LIBRARY_FLOOR+LIBRARY_LEVELS*LIBRARY_LEVEL_HEIGHT+1.7},
   {id:"northHall",nome:"Corredor norte",x:0,z:-260,yaw:0,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"southHall",nome:"Corredor sul",x:0,z:260,yaw:Math.PI,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
   {id:"westHall",nome:"Corredor oeste",x:-260,z:0,yaw:Math.PI/2,pitch:0,levelY:ENTRY_HALL_FLOOR+1.7},
@@ -144,7 +147,8 @@ function dentroDaArquitetura(x,z){
   const inUpperRoom=dragonholdWalkableContains(x,z)||isDragonholdExitBridge(x,z);
   const inThroneRoom=throneRoomWalkableContains(x,z);
   const inCouncilRoom=councilRoomWalkableContains(x,z);
-  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom;
+  const inLibrary=libraryWalkableContains(x,z);
+  return inChamber||inEastHall||inGateThroat||inNorth||inSouth||inWest||inUpperRoom||inThroneRoom||inCouncilRoom||inLibrary;
 }
 function podeOcuparXZ(x,z){
   const r=Math.hypot(x,z);
@@ -161,13 +165,21 @@ function podeOcuparXZ(x,z){
 
   // Above the chamber floor, the only walkable route is the actual spiral stair,
   // its top landing, or the Dragonhold/caves. The open shaft is not an invisible floor.
-  if(feetY>ENTRY_HALL_FLOOR+5 && feetY<VOL_TURIN_TOP_Y-2){
+  if(r<160 && feetY>ENTRY_HALL_FLOOR+5 && feetY<VOL_TURIN_TOP_Y-2){
     if(onVolTurin===null || Math.abs(onVolTurin-feetY)>2.2)return false;
     const t=THREE.MathUtils.clamp((feetY-(VOL_TURIN_BASE_Y+110))/(CENTRAL_CHAMBER_TOP_Y-(VOL_TURIN_BASE_Y+110)),0,1);
     const wallR=THREE.MathUtils.lerp(VOL_TURIN_WALL_BASE_RADIUS,VOL_TURIN_WALL_TOP_RADIUS,t);
     if(r>wallR-1.7)return false;
   }
   if(feetY>=VOL_TURIN_TOP_Y-2 && !inDragonhold && !onExitBridge && onVolTurin===null)return false;
+
+  // Library upper galleries are real walkable floors. The three stair helices
+  // are the only way between their different heights; shelves remain solid.
+  if(libraryWalkableContains(x,z) && feetY>LIBRARY_FLOOR+2.2){
+    const gallery=libraryFloorAtXZ(x,z,feetY);
+    const stair=libraryStairFloorAtXZ(x,z,feetY);
+    if(gallery===null && stair===null)return false;
+  }
 
   // Below the central chamber, walking is permitted only on the modeled
   // descending stair treads, the lower landing, or the throne-room floor.
@@ -178,6 +190,10 @@ function podeOcuparXZ(x,z){
   return true;
 }
 function alturaPisoNaPosicao(x,z){
+  const libraryFloor=libraryFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
+  if(libraryFloor!==null)return libraryFloor;
+  const libraryStair=libraryStairFloorAtXZ(x,z,jogador.pos.y-jogador.alturaOlhos);
+  if(libraryStair!==null)return libraryStair;
   const councilFloor=councilRoomFloorAtXZ(x,z);
   if(councilFloor!==null)return councilFloor;
   const throneFloor=throneRoomFloorAtXZ(x,z);
@@ -245,9 +261,12 @@ function atualizarJogador(dt){
     // Follow each physical tread during fast movement instead of updating height
     // only after the whole frame. This prevents the player from skipping levels.
     if(!vooLivre){
+      const currentFeet=jogador.pos.y-jogador.alturaOlhos;
       const stairFloor=volTurinFloorAtXZ(jogador.pos.x,jogador.pos.z);
-      if(stairFloor!==null && Math.abs(stairFloor-(jogador.pos.y-jogador.alturaOlhos))<2.2)
-        jogador.pos.y=stairFloor+jogador.alturaOlhos;
+      const libraryStairFloor=libraryStairFloorAtXZ(jogador.pos.x,jogador.pos.z,currentFeet);
+      const activeStairFloor=libraryStairFloor!==null?libraryStairFloor:stairFloor;
+      if(activeStairFloor!==null && Math.abs(activeStairFloor-currentFeet)<2.35)
+        jogador.pos.y=activeStairFloor+jogador.alturaOlhos;
     }
   }
   limitarAoInterior(jogador.pos);
