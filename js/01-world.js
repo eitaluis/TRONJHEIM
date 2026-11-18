@@ -1,7 +1,7 @@
 // FARTHEN DÛR: [LIVRO] enorme cratera vulcânica com abertura muito alta.
 // [INTERPRETAÇÃO] raio e perfil matemático da parede para permitir navegação.
 function buildCraterWall(){
-  const radial=128, vertical=96, bottomR=8200, topR=410, height=20000;
+  const radial=256, vertical=160, bottomR=8200, topR=410, height=20000;
   const positions=[], colors=[], uvs=[], indices=[];
   for(let j=0;j<=vertical;j++){
     const v=j/vertical, y=80+height*v;
@@ -9,8 +9,9 @@ function buildCraterWall(){
     for(let i=0;i<=radial;i++){
       const a=i/radial*Math.PI*2;
       const n=fbm(Math.cos(a)*7+v*5,Math.sin(a)*7-v*4);
-      const rr=r+n*(45+v*120)+Math.sin(a*13+v*8)*32;
-      const yy=y+n*18;
+      const ridge=fbm(Math.cos(a)*23+v*19,Math.sin(a)*23-v*17);
+      const rr=r+n*(62+v*145)+ridge*(12+v*18)+Math.sin(a*13+v*8)*32;
+      const yy=y+n*24+ridge*8;
       positions.push(Math.cos(a)*rr,yy,Math.sin(a)*rr); uvs.push(i/radial*8,v*5);
       const shade=THREE.MathUtils.clamp(.28+n*.15-v*.07,.22,.82);
       colors.push(shade*.80,shade*.87,shade*.94);
@@ -19,13 +20,59 @@ function buildCraterWall(){
   for(let j=0;j<vertical;j++)for(let i=0;i<radial;i++){const a=j*(radial+1)+i,b=a+radial+1;indices.push(a,b,a+1,b,b+1,a+1);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();
   const wall=new THREE.Mesh(g,MAT.rock);wall.receiveShadow=true;scene.add(wall);
-  // irregular ribs and ledges on the cavern wall, deliberately restrained
-  const ledgeMat=new THREE.MeshStandardMaterial({color:0x3c444b,roughness:1});
-  for(let k=0;k<46;k++){
-    const a=k/46*Math.PI*2, y=800+(k%7)*1350, v=(y-80)/height, r=bottomR*(1-v)+topR*v;
-    const length=240+hash(k,9)*420;
-    const geo=new THREE.BoxGeometry(length,18+hash(k,2)*35,38);
-    const mesh=new THREE.Mesh(geo,ledgeMat);mesh.position.set(Math.cos(a)*(r-18),y,Math.sin(a)*(r-18));mesh.rotation.y=-a;mesh.rotation.z=(hash(k,4)-.5)*.08;scene.add(mesh);
+  // Broken mineral strata follow the curved cavern wall instead of using
+  // isolated rectangular ledges. The ribbons have irregular, eroded profiles.
+  const strataMaterials=[
+    new THREE.MeshStandardMaterial({color:0x41494e,roughness:.98}),
+    new THREE.MeshStandardMaterial({color:0x535b60,roughness:.96}),
+    new THREE.MeshStandardMaterial({color:0x353d42,roughness:1})
+  ];
+  for(let k=0;k<74;k++){
+    const yBase=420+hash(k,9)*19000;
+    const vBase=(yBase-80)/height;
+    const wallRadius=bottomR*(1-vBase)+topR*vBase;
+    const a0=hash(k,13)*Math.PI*2;
+    const arcLength=Math.min(180+hash(k,19)*520,wallRadius*.62);
+    const arcSpan=arcLength/Math.max(200,wallRadius);
+    const points=[];
+    for(let j=0;j<=12;j++){
+      const t=j/12*2-1;
+      const a=a0+t*arcSpan*.5;
+      const localV=THREE.MathUtils.clamp(vBase+Math.sin(t*2.3+k*.7)*.00065,.025,.975);
+      const localR=bottomR*(1-localV)+topR*localV+
+        Math.sin(a*13+localV*8)*32-12+fbm(Math.cos(a)*11,Math.sin(a)*11)*16;
+      const y=80+localV*height+
+        Math.sin(t*3.1+k)* (5+hash(k,5)*12)+fbm(Math.cos(a)*17,Math.sin(a)*17)*10;
+      points.push(new THREE.Vector3(Math.cos(a)*localR,y,Math.sin(a)*localR));
+    }
+    const curve=new THREE.CatmullRomCurve3(points,false,"centripetal");
+    const thickness=1.8+hash(k,23)*4.6;
+    const ridge=new THREE.Mesh(
+      new THREE.TubeGeometry(curve,24,thickness,6,false),
+      strataMaterials[Math.floor(hash(k,29)*strataMaterials.length)]
+    );
+    ridge.receiveShadow=true;ridge.castShadow=false;scene.add(ridge);
+  }
+
+  // Long, narrow fractures break the enormous cavern surface into geological
+  // plates. They follow the wall curvature and fade before reaching the rim.
+  const fractureMat=new THREE.MeshStandardMaterial({color:0x252e34,roughness:1});
+  for(let k=0;k<38;k++){
+    const a0=hash(k,37)*Math.PI*2;
+    const v0=.08+hash(k,41)*.74;
+    const span=.07+hash(k,43)*.16;
+    const points=[];
+    for(let j=0;j<=18;j++){
+      const t=j/18;
+      const v=THREE.MathUtils.clamp(v0+span*t,.035,.94);
+      const a=a0+Math.sin(t*4+k)*.012;
+      const rr=bottomR*(1-v)+topR*v+
+        Math.sin(a*13+v*8)*32-7;
+      points.push(new THREE.Vector3(Math.cos(a)*rr,80+v*height,Math.sin(a)*rr));
+    }
+    const curve=new THREE.CatmullRomCurve3(points,false,"centripetal");
+    const crack=new THREE.Mesh(new THREE.TubeGeometry(curve,28,.55+hash(k,47)*1.1,5,false),fractureMat);
+    crack.castShadow=false;scene.add(crack);
   }
 }
 buildCraterWall();
